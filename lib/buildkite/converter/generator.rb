@@ -62,12 +62,12 @@ module Buildkite
 
         file_path = @pipeline_folder.join('pipeline.rb')
 
-        puts "\nFile: #{file_path}"
-        puts "Contents:\n#{body.join("\n")}\n"
+        # puts "\nFile: #{file_path}"
+        # puts "Contents:\n#{body.join("\n")}\n"
 
-        # File.open(file_path, 'wb') do |file|
-        #   file.puts body.join("\n")
-        # end
+        File.open(file_path, 'wb') do |file|
+          file.puts body.join("\n")
+        end
       end
 
       def create_template(step, number)
@@ -91,12 +91,12 @@ module Buildkite
 
         file_path = @templates_folder.join("#{template_identifier}.rb")
 
-        puts "\nFile: #{file_path}"
-        puts "Contents:\n#{body.join("\n")}\n"
+        # puts "\nFile: #{file_path}"
+        # puts "Contents:\n#{body.join("\n")}\n"
 
-        # File.open(file_path, 'wb') do |file|
-        #   file.puts body.join("\n")
-        # end
+        File.open(file_path, 'wb') do |file|
+          file.puts body.join("\n")
+        end
 
         template_identifier
       end
