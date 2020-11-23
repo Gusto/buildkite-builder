@@ -3,9 +3,11 @@ module Buildkite
     class Generator
       attr_reader :pipeline, :target, :name
 
-      def initialize(name, pipeline_yml, target_project)
+      def initialize(name, pipeline_yml, target_project, verbose = false)
         pipeline_yml = Pathname.new(pipeline_yml).expand_path.to_s
         target_project = Pathname.new(target_project).expand_path
+
+        @verbose = verbose
 
         @name = name # Remember to only accept dashify-names
         @pipeline = PipelineYml.new(pipeline_yml)
@@ -40,8 +42,7 @@ module Buildkite
       def create_pipeline_rb(contents)
         body = contents.flatten.map do |string|
           unless string.is_a?(String)
-            binding.pry
-            raise "Expecting a String, but got a #{string.class} instead."
+            raise "Expecting a String, but got a #{string.class} instead.\nInput: #{string}"
           end
 
           bits = string.split("\n")
@@ -62,8 +63,10 @@ module Buildkite
 
         file_path = @pipeline_folder.join('pipeline.rb')
 
-        # puts "\nFile: #{file_path}"
-        # puts "Contents:\n#{body.join("\n")}\n"
+        if @verbose
+          puts "\nFile: #{file_path}"
+          puts "Contents:\n#{body.join("\n")}\n"
+        end
 
         File.open(file_path, 'wb') do |file|
           file.puts body.join("\n")
@@ -73,8 +76,7 @@ module Buildkite
       def create_template(step, number)
         body = step.contents.map do |string|
           unless string.is_a?(String)
-            binding.pry
-            raise "Expecting a String, but got a #{string.class} instead."
+            raise "Expecting a String, but got a #{string.class} instead.\nInput: #{string}"
           end
 
           bits = string.split("\n")
@@ -91,8 +93,10 @@ module Buildkite
 
         file_path = @templates_folder.join("#{template_identifier}.rb")
 
-        # puts "\nFile: #{file_path}"
-        # puts "Contents:\n#{body.join("\n")}\n"
+        if @verbose
+          puts "\nFile: #{file_path}"
+          puts "Contents:\n#{body.join("\n")}\n"
+        end
 
         File.open(file_path, 'wb') do |file|
           file.puts body.join("\n")

@@ -16,6 +16,7 @@ module Buildkite
       autoload :Boolean, File.expand_path('step_attributes/boolean', __dir__)
       autoload :Build, File.expand_path('step_attributes/build', __dir__)
       autoload :Condition, File.expand_path('step_attributes/condition', __dir__)
+      autoload :SymbolizedArray, File.expand_path('step_attributes/symbolized_array', __dir__)
     end
   end
 end

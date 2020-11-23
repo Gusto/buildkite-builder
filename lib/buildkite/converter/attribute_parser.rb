@@ -11,7 +11,7 @@ module Buildkite
           when :timeout_in_minutes
             # Attribute name is 'timeout_in_minutes' but is 'timeout' in Buildkite Builder DSL
             StepAttributes::Timeout.parse(nil, attribute_value)
-          when :command, :prompt, :async, :trigger
+          when :command, :prompt, :async, :trigger, :branches, :artifact_paths
             StepAttributes::SimpleString.parse(attribute_name, attribute_value)
           when :agents
             StepAttributes::Agents.parse(attribute_name, attribute_value)
@@ -29,6 +29,8 @@ module Buildkite
             StepAttributes::Build.parse(attribute_name, attribute_value)
           when :if
             StepAttributes::Condition.parse(nil, attribute_value)
+          when :depends_on
+            StepAttributes::SymbolizedArray.parse(attribute_name, attribute_value)
           else
             fallback_parsing(attribute_name, attribute_value)
           end

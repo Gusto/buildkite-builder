@@ -6,7 +6,7 @@ module Buildkite
           condition = value
           output = []
 
-          output << "condition <<~CONDITION"
+          output << "condition <<~CONDITION.strip"
           output << "  #{condition}"
           output << "CONDITION"
 
