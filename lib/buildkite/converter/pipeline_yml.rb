@@ -12,6 +12,15 @@ module Buildkite
         @steps ||= @parsed_yml.fetch('steps', [])
       end
 
+      def parsed_steps
+        @parsed_steps ||= steps.map do |step|
+          step_obj = PipelineStep.new(step)
+          step_obj.parse
+
+          step_obj
+        end
+      end
+
       private
 
       def load_and_parse_yml

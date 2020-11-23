@@ -11,10 +11,11 @@ module Buildkite
 
       VALID_INPUT_TYPES = [String, Hash].freeze
 
-      attr_reader :step
+      attr_reader :step, :type, :contents
 
       def initialize(step)
         @step = step
+        @contents = []
 
         validate_step_type
 
@@ -23,14 +24,17 @@ module Buildkite
 
 
       def parse
-        validate_step_type
-        # type = get_step_type
         replace_key_name_to_label
 
-        output = []
+        @type = get_step_type
 
-        step.each do |key, value|
-
+        case @type
+        when :Command, :Wait, :Trigger, :Block
+          @contents = step.map do |name, value|
+            Buildkite::Converter::AttributeParser.parse(name, value)
+          end.flatten
+        else
+          raise "Attempting to parse '#{@type}' step."
         end
       end
 
