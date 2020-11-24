@@ -6,7 +6,7 @@ require 'pathname'
 
 module Buildkite
   module Builder
-    VERSION = '1.0.0.beta.1'
+    VERSION = '1.0.0.beta.2'
 
     autoload :Commands, File.expand_path('builder/commands', __dir__)
     autoload :Definition, File.expand_path('builder/definition', __dir__)
