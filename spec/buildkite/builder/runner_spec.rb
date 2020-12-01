@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'logger'
+
 RSpec.describe Buildkite::Builder::Runner do
   describe '.run' do
     before do

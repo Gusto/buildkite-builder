@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'logger'
+
 RSpec.describe Buildkite::Builder::Processors::Abstract do
   let(:runner) do
     instance_double(Buildkite::Builder::Runner, log: Logger.new)

@@ -1,9 +1,6 @@
-$LOAD_PATH.unshift File.expand_path('lib', __dir__)
-require 'buildkite-builder'
-
 Gem::Specification.new do |spec|
   spec.name          = "buildkite-builder"
-  spec.version       = Buildkite::Builder::VERSION
+  spec.version       = File.read('VERSION').strip
   spec.authors       = ["Ngan Pham", "Andrew Lee"]
   spec.email         = ["gusto-opensource-buildkite@gusto.com"]
 
@@ -24,7 +21,7 @@ Gem::Specification.new do |spec|
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
-  spec.files         = Dir["CHANGELOG.md", "LICENSE.txt", "README.md", "lib/**/*", "bin/**/*"]
+  spec.files         = Dir["VERSION", "CHANGELOG.md", "LICENSE.txt", "README.md", "lib/**/*", "bin/**/*"]
   spec.bindir        = 'exe'
   spec.executables   = Dir["exe/*"].map { |exe| File.basename(exe) }
   spec.require_paths = ["lib"]

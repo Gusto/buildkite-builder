@@ -3,6 +3,7 @@
 require 'bundler'
 require 'pathname'
 require 'tempfile'
+require 'logger'
 
 module Buildkite
   module Builder
