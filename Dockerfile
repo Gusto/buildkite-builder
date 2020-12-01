@@ -1,10 +1,12 @@
 FROM ruby:2.7-slim
+ARG version
 
-ARG gem_version
-RUN if [ -z ${gem_version} ]; then                     \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git && \
+    if [ -z ${version} ]; then                     \
       gem install buildkite-builder;                   \
     else                                               \
-      gem install buildkite-builder -v ${gem_version}; \
+      gem install buildkite-builder -v ${version}; \
     fi
 
 CMD buildkite-builder run
