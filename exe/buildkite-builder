@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative File.expand_path('../lib/buildkite-builder', __dir__)
+require 'buildkite-builder'
 
 Buildkite::Builder::Commands.run

@@ -7,6 +7,7 @@ module Buildkite
       COMMANDS = {
         'files' => :Files,
         'preview' => :Preview,
+        'run' => :Run
       }.freeze
 
       autoload :Abstract, File.expand_path('commands/abstract', __dir__)
