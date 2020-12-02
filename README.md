@@ -1,63 +1,55 @@
-# Buildkite::Builder
+# Buildkite Builder
 
 ## Introduction
-Buildkite Builder provides a DSL to make it easier to build pipelines for Buildkite. It lets you specify how to build pipelines using Ruby instead of having a complicated YAML file.
+Buildkite Builder (BKB) is a Buildkite pipeline builder written in Ruby. It allows you to build your pipeline with a Ruby DSL for dynamically generated pipeline steps.
 
-## Installation
+## Gem Installation (optional)
 
-Add this line to your application's Gemfile:
+There are 2 components to this toolkit. The `buildkite-builder` Rubygem and the `buildkite-builder` Docker image. You technically only need the image to use Buildkite Builder, but installing the gem in your repo helps you preview your pipeline during development.
+
+To install the gem, add this line to your application's Gemfile:
 
 ```ruby
 gem 'buildkite-builder'
 ```
 
-And then execute:
+The gem provides a command line tool that lets you perform various operations on your pipelines:
 
-    $ bundle install
+```shell
+  $ buildkite-builder help
+```
 
-Or install it yourself as:
+## Pipeline Installation
 
-    $ gem install buildkite-builder
+As with every Buildkite pipeline, you'll need to define the initial pipeline step. You can do this directly in the Pipeline Settings or with a `.buildkite/pipeline.yml` file in your repository. You'll need to define a single step to kick off Buildkite Builder:
 
-Then access the commands:
-
-    $ buildkite-builder
-
-## Usage
-
-### Replacing `pipeline.yml`
-At it's core, Buildkite Builder generates a YAML file that it uploads to Buildkite, that takes the place of the pipeline file that Buildkite expects in `.buildkite/pipeline.yml`.
-
-Make a new `.buildkite/pipeline.yml` and replace it with:
 ```yaml
-# DO NOT MODIFY THIS FILE.
-#
-# This is the Buildkite Builder bootstrap step for all projects.
-#
-# If you're looking for your project's actual pipeline, look in:
-# .buildkite/pipelines/{PIPELINE_SLUG}/pipeline.rb
-
 steps:
   - label: ":toolbox:"
-    key: "buildkite-builder"
-    retry:
-      automatic:
-        - exit_status: -1   # Agent was lost
-          limit: 2
-        - exit_status: 255  # Forced agent shutdown
-          limit: 2
     plugins:
       - docker#v3.7.0:
           image: "gusto/buildkite-builder:1.0.0"
           always-pull: true
           propagate-environment: true
-          environment:
-            - "GITHUB_API_TOKEN"
-            - "BUILDKITE_API_TOKEN"
 ```
 
-### Creating a Buildkite Builder `pipeline.rb`
-Create a new directory for your pipeline in `.buildkite/pipelines/<your-pipeline-slug>/pipeline.rb`. 
+Some things to note:
+  - The `label` can be whatever you like.
+  - You'll want to update the `docker` plugin version from time to time.
+  - You can update the `buildkite-builder` version by bumping the Docker image tag.
+
+### Creating a BKB Pipeline
+
+Your repo can contain as many pipeline definitions as you'd like. By convention, pipeline file structure are as such:
+
+```
+.buildkite/
+  pipelines/
+    <your-pipeline1-slug>/
+      pipeline.rb
+    <your-pipeline2-slug>/
+      pipeline.rb
+```
 
 For an example, refer to the [dummy pipeline in the fixtures directory](https://github.com/Gusto/buildkite-builder/blob/main/spec/fixtures/basic/.buildkite/pipelines/dummy/pipeline.rb).
 
