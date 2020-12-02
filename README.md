@@ -38,8 +38,14 @@ Some things to note:
   - You'll want to update the `docker` plugin version from time to time.
   - You can update the `buildkite-builder` version by bumping the Docker image tag.
 
-### Creating a BKB Pipeline
+## Usage
 
+At its core, BKB is really just a YAML builder. This tool allows you to scale your needs when it comes to building a Buildkite pipeline. Your pipeline can be as straight forward as you'd like, or as complex as you need. Since you have Ruby at your disposal, you can do some cool things like:
+  - Perform pre-build code/diff analysis to determine whether or not to to add a step to the pipeline.
+  - Reorder pipeline steps dynamically.
+  - Augment your pipeline steps with BKB processors.
+  
+### Pipeline Files
 Your repo can contain as many pipeline definitions as you'd like. By convention, pipeline file structure are as such:
 
 ```
@@ -52,6 +58,62 @@ Your repo can contain as many pipeline definitions as you'd like. By convention,
 ```
 
 For an example, refer to the [dummy pipeline in the fixtures directory](https://github.com/Gusto/buildkite-builder/blob/main/spec/fixtures/basic/.buildkite/pipelines/dummy/pipeline.rb).
+
+### Defining Steps
+
+Buildkite Builder was designed to be as intuitive as possible by making DSL match Buildkite's attributes. Here's a basic pipeline:
+
+```ruby
+Buildkite::Builder.pipeline do
+  command do
+    label "Rspec", emoji: :rspec
+    command "bundle exec rspec"
+  end
+end
+```
+
+Which generates:
+
+```yaml
+steps:
+  - label: ":rspec: RSpec"
+    command: "bundle exec rspec"
+```
+
+If the step type or attribute exists in Buildkite docs, then it should exist in the DSL. **The only exception is the `if` attribute**. Since `if` is a ruby keyword, we've mapped it to `condition`.
+
+### Step Templates
+
+If your pipeline has a lot of steps, you should consider using Step Templates. Templates allow you to break out your build steps into reusable template files.
+
+```
+.buildkite/
+  pipelines/
+    foobar-widget/
+      pipeline.rb
+      templates/
+        rspec.rb
+        rubocop.rb
+```
+
+A template is basically a step that was extracted from the pipeline:
+
+`.buildkite/pipelines/foobar-widget/templates/rspec.rb`
+```ruby
+Buildkite::Builder.template do
+  label "Rspec", emoji: :rspec
+  commmand "bundle exec rspec"
+end
+```
+
+You can then include the template into the the pipeline once or as many time as you need. The template name will be the name of the file (without the extension).
+
+`.buildkite/pipelines/foobar-widget/pipeline.rb`
+```ruby
+Buildkite::Builder.pipeline do
+  command(:rspec)
+end
+```
 
 ## Development
 
