@@ -28,8 +28,7 @@ steps:
   - label: ":toolbox:"
     plugins:
       - docker#v3.7.0:
-          image: "gusto/buildkite-builder:1.0.0"
-          always-pull: true
+          image: gusto/buildkite-builder:1.0.0
           propagate-environment: true
 ```
 
