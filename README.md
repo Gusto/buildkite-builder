@@ -60,13 +60,19 @@ For an example, refer to the [dummy pipeline in the fixtures directory](https://
 
 ### Defining Steps
 
-Buildkite Builder was designed to be as intuitive as possible by making DSL match Buildkite's attributes. Here's a basic pipeline:
+Buildkite Builder was designed to be as intuitive as possible by making DSL match Buildkite's attributes and [step types](https://buildkite.com/docs/pipelines/defining-steps#step-types). Here's a basic pipeline:
 
 ```ruby
 Buildkite::Builder.pipeline do
   command do
     label "Rspec", emoji: :rspec
     command "bundle exec rspec"
+  end
+  
+  wait
+  
+  trigger do
+    trigger "deploy-pipeline"
   end
 end
 ```
@@ -77,6 +83,8 @@ Which generates:
 steps:
   - label: ":rspec: RSpec"
     command: "bundle exec rspec"
+  - wait
+  - trigger: deploy-pipeline
 ```
 
 If the step type or attribute exists in Buildkite docs, then it should exist in the DSL. **The only exception is the `if` attribute**. Since `if` is a ruby keyword, we've mapped it to `condition`.
