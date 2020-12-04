@@ -119,6 +119,11 @@ You can then include the template into the the pipeline once or as many time as 
 ```ruby
 Buildkite::Builder.pipeline do
   command(:rspec)
+  
+  # Reuse and agument templates on the fly.
+  command(:rspec) do
+    label "Run RSpec again!"
+  end
 end
 ```
 
