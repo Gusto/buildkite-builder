@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "buildkite-builder"
-  spec.version       = File.read('VERSION').strip
+  spec.version       = File.read("VERSION").strip
   spec.authors       = ["Ngan Pham", "Andrew Lee"]
   spec.email         = ["gusto-opensource-buildkite@gusto.com"]
 
@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.description   = <<~DESCRIPTION.strip
     Buildkite Builder is a tool that provides projects using Buildkite to have dynamic pipeline functionality.
   DESCRIPTION
-  spec.homepage      = 'https://github.com/Gusto/buildkite-builder'
-  spec.license       = 'MIT'
+  spec.homepage      = "https://github.com/Gusto/buildkite-builder"
+  spec.license       = "MIT"
   spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0")
 
   spec.metadata["homepage_uri"] = spec.homepage
@@ -19,10 +19,14 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "https://github.com/Gusto/buildkite-builder/blob/master/CHANGELOG.md"
   spec.metadata["bug_tracker_uri"] = "https://github.com/Gusto/buildkite-builder/issues"
 
-  # Specify which files should be added to the gem when it is released.
-  # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files         = Dir["VERSION", "CHANGELOG.md", "LICENSE.txt", "README.md", "lib/**/*", "bin/**/*"]
-  spec.bindir        = 'exe'
+  spec.bindir        = "exe"
   spec.executables   = Dir["exe/*"].map { |exe| File.basename(exe) }
   spec.require_paths = ["lib"]
+
+  spec.add_development_dependency "rake"
+  spec.add_development_dependency "byebug"
+  spec.add_development_dependency "pry-byebug"
+  spec.add_development_dependency "rspec"
+  spec.add_development_dependency "webmock"
 end
