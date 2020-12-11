@@ -8,6 +8,6 @@ Buildkite::Builder.pipeline do
       "bundle",
       "rake"
     plugin :docker,
-      image: "ruby:2.7-slim"
+      image: "ruby:latest"
   end
 end
