@@ -10,4 +10,13 @@ Buildkite::Builder.pipeline do
     plugin :docker,
       image: "ruby:latest"
   end
+
+  trigger do
+    label "Showcase", emoji: :buildkite
+    trigger :showcase
+    build \
+      message: "${BUILDKITE_MESSAGE}",
+      commit: "${BUILDKITE_COMMIT}",
+      branch: "${BUILDKITE_BRANCH}"
+  end
 end
