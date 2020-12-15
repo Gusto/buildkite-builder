@@ -23,6 +23,7 @@ Buildkite::Builder.pipeline do
   # Add a skipped step. You can see this step when you click the "eye" icon on
   # the Buildkite web UI.
   command do
+    command :noop
     label "Skipped Step"
 
     # Conditionally skip a step.
