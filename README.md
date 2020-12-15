@@ -39,6 +39,8 @@ Some things to note:
 
 ## Usage
 
+💡 We have a [Showcase pipeline](https://buildkite.com/gusto-open-source/showcase/builds/latest?branch=main) (defined in [`.buildkite/pipelines/showcase/pipeline.rb`](https://github.com/Gusto/buildkite-builder/blob/main/.buildkite/pipelines/showcase/pipeline.rb)) that, well, showcases some of the features and possibilities with Buildkite Builder. Sometimes the best way to learning something is seeing how it's used.
+
 At its core, BKB is really just a YAML builder. This tool allows you to scale your needs when it comes to building a Buildkite pipeline. Your pipeline can be as straight forward as you'd like, or as complex as you need. Since you have Ruby at your disposal, you can do some cool things like:
   - Perform pre-build code/diff analysis to determine whether or not to to add a step to the pipeline.
   - Reorder pipeline steps dynamically.
