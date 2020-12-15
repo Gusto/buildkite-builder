@@ -1,5 +1,6 @@
 Buildkite::Builder.pipeline do
   # Load the "rspec" template as a command.
+  # .buildkite/pipelines/showcase/templates/rspec.rb
   command(:rspec)
 
   # Load the "rspec" template and modify it on the fly.
