@@ -10,4 +10,9 @@ Buildkite::Builder.pipeline do
     plugin :docker,
       image: "ruby:latest"
   end
+
+  trigger do
+    label "Showcase"
+    trigger :showcase
+  end
 end
