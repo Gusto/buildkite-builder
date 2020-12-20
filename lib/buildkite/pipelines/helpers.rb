@@ -5,6 +5,7 @@ module Buildkite
     module Helpers
       ATTRIBUTE_HELPERS = {
         block: :Block,
+        blocked_state: :BlockedState,
         command: :Command,
         depends_on: :DependsOn,
         key: :Key,
