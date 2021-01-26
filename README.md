@@ -25,7 +25,7 @@ As with every Buildkite pipeline, you'll need to define the initial pipeline ste
 
 ```yaml
 steps:
-  - label: ":toolbox:"
+  - label: ":toolbox: Pipeline Builder"
     plugins:
       - docker#v3.7.0:
           image: gusto/buildkite-builder:1.0.0
@@ -45,7 +45,7 @@ At its core, BKB is really just a YAML builder. This tool allows you to scale yo
   - Perform pre-build code/diff analysis to determine whether or not to to add a step to the pipeline.
   - Reorder pipeline steps dynamically.
   - Augment your pipeline steps with BKB processors.
-  
+
 ### Pipeline Files
 Your repo can contain as many pipeline definitions as you'd like. By convention, pipeline file structure are as such:
 
@@ -70,9 +70,9 @@ Buildkite::Builder.pipeline do
     label "Rspec", emoji: :rspec
     command "bundle exec rspec"
   end
-  
+
   wait
-  
+
   trigger do
     trigger "deploy-pipeline"
   end
@@ -121,7 +121,7 @@ You can then include the template into the the pipeline once or as many time as 
 ```ruby
 Buildkite::Builder.pipeline do
   command(:rspec)
-  
+
   # Reuse and agument templates on the fly.
   command(:rspec) do
     label "Run RSpec again!"
