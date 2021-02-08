@@ -24,6 +24,9 @@ Gem::Specification.new do |spec|
   spec.executables   = Dir["exe/*"].map { |exe| File.basename(exe) }
   spec.require_paths = ["lib"]
 
+  spec.add_dependency "sorted_set"
+  spec.add_dependency "rainbow", ">= 3"
+
   spec.add_development_dependency "rake"
   spec.add_development_dependency "byebug"
   spec.add_development_dependency "pry-byebug"
