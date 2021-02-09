@@ -8,63 +8,39 @@ require 'logger'
 module Buildkite
   module Builder
     class Runner
-      include Definition::Helper
       include LoggingUtils
       using Rainbow
 
-      PIPELINES_PATH = Pathname.new('.buildkite/pipelines').freeze
-      PIPELINE_DEFINITION_PATH = Pathname.new('pipeline.rb').freeze
+      PIPELINES_PATH = Pathname.new('pipelines').freeze
 
       attr_reader :options
 
-      # This entrypoint is for running on CI. It expects certain environment variables to
-      # be set.
-      def self.run
-        new(
-          upload: true,
-          pipeline: Buildkite.env.pipeline_slug
-        ).run
-      end
 
       def initialize(**options)
-        @options = {
-          verbose: true,
-        }.merge(options)
+        @options = options
       end
 
       def run
         log.info "#{'+++ ' if Buildkite.env}🧰 " + 'Buildkite-builder'.color(:springgreen) + " ─ #{@options[:pipeline].yellow}"
+        context = Context.new(root, logger: log)
 
         results = benchmark("\nDone (%s)".color(:springgreen)) do
-          load_manifests
-          load_templates
-          load_processors
-          load_pipeline
-          run_processors
+          context.build
         end
-        log.info results
+        log.info(results)
 
-        upload! if options[:upload]
+        if options[:upload]
+          upload(context.pipeline)
+        end
+
         # Always return the pipeline.
-
-        pipeline
-      end
-
-      def pipeline
-        @pipeline ||= Buildkite::Pipelines::Pipeline.new
-      end
-
-      def pipeline_definition
-        @pipeline_definition ||= begin
-          expected = Definition::Pipeline
-          load_definition(Buildkite::Builder.root.join(".buildkite/pipelines/#{options[:pipeline]}").join(PIPELINE_DEFINITION_PATH), expected)
-        end
+        context.pipeline
       end
 
       def log
         @log ||= begin
-          Logger.new(options[:verbose] ? $stdout : StringIO.new).tap do |lgr|
-            lgr.formatter = proc do |_severity, _datetime, _progname, msg|
+          Logger.new($stdout).tap do |logger|
+            logger.formatter = proc do |_severity, _datetime, _progname, msg|
               "#{msg}\n"
             end
           end
@@ -73,7 +49,7 @@ module Buildkite
 
       private
 
-      def upload!
+      def upload(pipeline)
         Tempfile.create(['pipeline', '.yml']) do |file|
           file.sync = true
           file.write(pipeline.to_yaml)
@@ -85,30 +61,17 @@ module Buildkite
         end
       end
 
-      def load_manifests
-        Loaders::Manifests.load(options[:pipeline]).each do |name, asset|
-          Manifest[name] = asset
+      def root
+        @root ||= begin
+          path = Builder.root.join(Builder::BUILDKITE_DIRECTORY_NAME)
+          if options[:pipeline]
+            pipeline_path = path.join(PIPELINES_PATH).join(options[:pipeline])
+            if pipeline_path.directory?
+              path = pipeline_path
+            end
+          end
+          path
         end
-      end
-
-      def load_templates
-        Loaders::Templates.load(options[:pipeline]).each do |name, asset|
-          pipeline.template(name, &asset)
-        end
-      end
-
-      def load_processors
-        Loaders::Processors.load(options[:pipeline])
-      end
-
-      def run_processors
-        pipeline.processors.each do |processor|
-          processor.process(self)
-        end
-      end
-
-      def load_pipeline
-        pipeline.instance_eval(&pipeline_definition)
       end
     end
   end

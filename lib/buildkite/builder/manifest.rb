@@ -2,7 +2,7 @@
 
 require 'digest/md5'
 require 'pathname'
-require 'set'
+require 'sorted_set'
 
 module Buildkite
   module Builder

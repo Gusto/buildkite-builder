@@ -19,7 +19,7 @@ module Buildkite
           return unless path.directory?
 
           path.children.map do |file|
-            required_status = require(file)
+            required_status = require(file.to_s)
             add(file.basename, { required: required_status })
           end
         end
@@ -29,7 +29,7 @@ module Buildkite
         end
 
         def pipeline_processors_path
-          pipeline_path.join(PROCESSORS_PATH)
+          root.join(PROCESSORS_PATH)
         end
       end
     end

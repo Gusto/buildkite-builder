@@ -3,39 +3,6 @@
 require 'logger'
 
 RSpec.describe Buildkite::Builder::Runner do
-  describe '.run' do
-    before do
-      stub_buildkite_env(pipeline_slug: pipeline_slug)
-    end
-
-    let(:pipeline_slug) { 'dummy' }
-
-    it 'calls runner instance with prefilled arguments' do
-      runner = instance_double(described_class)
-      expect(runner).to receive(:run).once
-      expect(described_class).to receive(:new).with(
-        upload: true,
-        pipeline: pipeline_slug
-      ).and_return(runner)
-
-      described_class.run
-    end
-  end
-
-  describe '#pipeline_definition' do
-    let(:pipeline_name) { 'dummy' }
-    let(:options) { { pipeline: pipeline_name } }
-    let(:runner) { described_class.new(**options) }
-
-    context 'for a non-component pipeline' do
-      it 'returns the pipeline definition' do
-        setup_project(:basic)
-
-        expect(runner.pipeline_definition).to be_a(Buildkite::Builder::Definition::Pipeline)
-      end
-    end
-  end
-
   describe '#run' do
     before do
       setup_project(fixture_project)
@@ -133,62 +100,30 @@ RSpec.describe Buildkite::Builder::Runner do
           pipeline_contents = File.read(path)
         end
 
-        runner.run
+        pipeline = runner.run
 
         expect(File.exist?(artifact_path)).to eq(false)
         expect(File.exist?(pipeline_path)).to eq(false)
         expect(artifact_contents).to eq(pipeline_contents)
-        expect(pipeline_contents).to eq(runner.pipeline.to_yaml)
+        expect(pipeline_contents).to eq(pipeline.to_yaml)
       end
     end
   end
 
   describe '#log', skip_logging_stubs: true do
     let(:pipeline_name) { 'dummy' }
-    let(:options) { { pipeline: pipeline_name, verbose: verbose } }
-    let(:verbose) { false }
+    let(:options) { { pipeline: pipeline_name } }
     let(:runner) { described_class.new(**options) }
+    let(:options) { { pipeline: pipeline_name } }
 
-    context 'when verbose' do
-      context 'when option is explicitly set to true' do
-        let(:verbose) { true }
-
-        it 'returns a Logger' do
-          expect(runner.log).to be_a(Logger)
-        end
-
-        it 'logs to stdout' do
-          expect {
-            runner.log.info('foo')
-          }.to output("foo\n").to_stdout
-        end
-      end
-
-      context 'when option is not set explicitly' do
-        let(:options) { { pipeline: pipeline_name } }
-
-        it 'returns a Logger' do
-          expect(runner.log).to be_a(Logger)
-        end
-
-        it 'logs to stdout' do
-          expect {
-            runner.log.info('foo')
-          }.to output("foo\n").to_stdout
-        end
-      end
+    it 'returns a Logger' do
+      expect(runner.log).to be_a(Logger)
     end
 
-    context 'when not verbose' do
-      it 'returns a Logger' do
-        expect(runner.log).to be_a(Logger)
-      end
-
-      it 'does not logs to stdout' do
-        expect {
-          runner.log.info('foo')
-        }.not_to output.to_stdout
-      end
+    it 'logs to stdout' do
+      expect {
+        runner.log.info('foo')
+      }.to output("foo\n").to_stdout
     end
   end
 end

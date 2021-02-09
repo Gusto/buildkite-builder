@@ -15,7 +15,7 @@ module Buildkite
         end
 
         def manifests_path
-          pipeline_path.join(MANIFESTS_PATH)
+          root.join(MANIFESTS_PATH)
         end
       end
     end

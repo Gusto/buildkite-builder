@@ -56,7 +56,7 @@ module Buildkite
         end
 
         def pipelines_path
-          Buildkite::Builder.root.join(Runner::PIPELINES_PATH)
+          Builder.root.join(Builder::BUILDKITE_DIRECTORY_NAME).join(Runner::PIPELINES_PATH)
         end
       end
     end
