@@ -1,9 +1,7 @@
-FROM ruby:2.7-slim
+FROM ruby:3.0
 ARG version
 
-RUN apt-get update &&                                 \
-    apt-get install -y --no-install-recommends git && \
-    if [ -z ${version} ]; then                        \
+RUN if [ -z ${version} ]; then                        \
       gem install buildkite-builder;                  \
     else                                              \
       gem install buildkite-builder -v ${version};    \
