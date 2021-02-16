@@ -7,6 +7,7 @@ module Buildkite
 
       attr_reader :logger
       attr_reader :root
+      attr_reader :pipeline
 
       def self.build(root, logger: nil)
         context = new(root, logger: logger)
@@ -20,15 +21,15 @@ module Buildkite
       end
 
       def build
+        @pipeline = Pipelines::Pipeline.new
+
         load_manifests
         load_templates
         load_processors
         load_pipeline
         run_processors
-      end
 
-      def pipeline
-        @pipeline ||= Pipelines::Pipeline.new
+        @pipeline
       end
 
       private
