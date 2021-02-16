@@ -13,12 +13,13 @@ module Buildkite
           name.split('::').last.downcase.to_sym
         end
 
-        def initialize(pipeline, template = nil, &block)
+        def initialize(pipeline, template = nil, args = {}, &block)
           @pipeline = pipeline
           @template = template
+          context = StepContext.new(self, args)
 
-          instance_eval(&template) if template
-          instance_eval(&block) if block_given?
+          instance_exec(context, &template) if template
+          instance_exec(context, &block) if block_given?
         end
       end
     end

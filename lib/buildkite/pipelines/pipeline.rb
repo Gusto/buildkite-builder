@@ -27,8 +27,8 @@ module Buildkite
         Steps::Input,
         Steps::Trigger,
       ].each do |type|
-        define_method(type.to_sym) do |template = nil, &block|
-          add(type, template, &block)
+        define_method(type.to_sym) do |template = nil, args = {}, &block|
+          add(type, template, args, &block)
         end
       end
 
@@ -42,8 +42,8 @@ module Buildkite
         end
       end
 
-      def skip(template = nil, &block)
-        step = add(Steps::Skip, template, &block)
+      def skip(template = nil, args = {}, &block)
+        step = add(Steps::Skip, template, args, &block)
         # A skip step has a nil/noop command.
         step.command(nil)
         # Always set the skip attribute if it's in a falsey state.
@@ -114,8 +114,8 @@ module Buildkite
 
       private
 
-      def add(step_class, template = nil, &block)
-        steps.push(step_class.new(self, find_template(template), &block)).last
+      def add(step_class, template = nil, args = {}, &block)
+        steps.push(step_class.new(self, find_template(template), args, &block)).last
       end
 
       def find_template(name)
