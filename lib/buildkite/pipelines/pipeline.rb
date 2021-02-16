@@ -16,6 +16,7 @@ module Buildkite
         @plugins = {}
         @templates = {}
         @processors = []
+        @notify = []
 
         instance_eval(&definition) if definition
         instance_eval(&block) if block_given?
@@ -29,6 +30,16 @@ module Buildkite
       ].each do |type|
         define_method(type.to_sym) do |template = nil, **args, &block|
           add(type, template, **args, &block)
+        end
+      end
+
+      def notify(*args)
+        if args.empty?
+          @notify
+        elsif args.first.is_a?(Hash)
+          @notify.push(args.first.transform_keys(&:to_s))
+        else
+          raise ArgumentError, 'value must be hash'
         end
       end
 
@@ -100,9 +111,8 @@ module Buildkite
 
       def to_h
         pipeline = {}
-        if env.any?
-          pipeline[:env] = env
-        end
+        pipeline[:env] = env if env.any?
+        pipeline[:notify] = notify if notify.any?
         pipeline[:steps] = steps.map(&:to_h)
 
         Helpers.sanitize(pipeline)
