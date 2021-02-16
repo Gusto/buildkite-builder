@@ -120,6 +120,40 @@ RSpec.describe Buildkite::Pipelines::Pipeline do
     end
   end
 
+  describe '#notify' do
+    context 'when called without arguments' do
+      it 'returns the notify array' do
+        expect(pipeline.notify).to eq([])
+
+        pipeline.notify(email: 'foo@example.com')
+        expect(pipeline.notify).to eq([{ 'email' => 'foo@example.com' }])
+      end
+    end
+
+    context 'when called with a hash' do
+      it 'appends to notify' do
+        pipeline.notify(email: 'foo1@example.com')
+        expect(pipeline.notify).to eq([
+          { 'email' => 'foo1@example.com' }
+        ])
+
+        pipeline.notify(email: 'foo2@example.com')
+        expect(pipeline.notify).to eq([
+          { 'email' => 'foo1@example.com' },
+          { 'email' => 'foo2@example.com' }
+        ])
+      end
+    end
+
+    context 'when called with something invalid' do
+      it 'raises an error' do
+        expect {
+          pipeline.notify('invalid')
+        }.to raise_error(ArgumentError)
+      end
+    end
+  end
+
   describe '#env' do
     context 'when called without arguments' do
       it 'returns the env hash' do
