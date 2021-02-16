@@ -6,8 +6,16 @@ require 'pathname'
 module Spec
   module Support
     module Fixtures
-      def fixture_path_for(project, path)
-        Pathname.new('spec/fixtures').join(project.to_s).join(path).expand_path.to_s
+      def fixture_path_for(project)
+        Pathname.new('tmp/fixtures').join(project.to_s).expand_path
+      end
+
+      def fixture_buildkite_path_for(project)
+        fixture_path_for(project).join(Buildkite::Builder::BUILDKITE_DIRECTORY_NAME)
+      end
+
+      def fixture_pipeline_path_for(project, pipeline)
+        fixture_buildkite_path_for(project).join(Buildkite::Builder::Runner::PIPELINES_PATH).join(pipeline.to_s)
       end
 
       def setup_project(project)

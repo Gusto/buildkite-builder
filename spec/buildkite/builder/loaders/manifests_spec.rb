@@ -4,18 +4,19 @@ require 'fileutils'
 
 RSpec.describe Buildkite::Builder::Loaders::Manifests do
   describe '.load' do
-    let(:pipeline) { 'dummy' }
-
     context 'when manifests path exists' do
+      let(:root) { fixture_pipeline_path_for(:basic, :dummy) }
+
       before do
         setup_project(:basic)
       end
 
       it 'loads the manifests' do
-        Buildkite::Builder.root.join('basic').mkpath
-        FileUtils.touch(Buildkite::Builder.root.join('basic/foo.txt'))
+        project_root = fixture_path_for(:basic)
+        project_root.join('basic').mkpath
+        FileUtils.touch(project_root.join('basic/foo.txt'))
 
-        assets = described_class.load(pipeline)
+        assets = described_class.load(root)
         manifest = assets['basic']
 
         expect(assets.size).to eq(1)
@@ -27,12 +28,14 @@ RSpec.describe Buildkite::Builder::Loaders::Manifests do
     end
 
     context 'when manifests path does not exist' do
+      let(:root) { fixture_pipeline_path_for(:invalid_step, :dummy) }
+
       before do
         setup_project(:invalid_step)
       end
 
       it 'returns an empty hash' do
-        expect(described_class.load(pipeline)).to be_empty
+        expect(described_class.load(root)).to be_empty
       end
     end
   end

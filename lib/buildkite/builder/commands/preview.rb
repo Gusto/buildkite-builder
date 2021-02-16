@@ -9,19 +9,21 @@ module Buildkite
         self.description = 'Outputs the pipeline YAML.'
 
         def run
-          unless pipeline
-            raise 'You must specify a pipeline'
+          pipeline = ARGV.last
+
+          if !pipeline && !root_pipeline?
+            if available_pipelines.one?
+              pipeline = available_pipelines.first
+            else
+              raise 'You must specify a pipeline'
+            end
           end
 
           puts Runner.new(pipeline: pipeline).run.to_yaml
         end
 
-        def pipeline
-          @pipeline ||= ARGV.last || begin
-            if available_pipelines.one?
-              available_pipelines.first
-            end
-          end
+        def root_pipeline?
+          pipelines_path.join(Context::PIPELINE_DEFINITION_FILE).exist?
         end
       end
     end

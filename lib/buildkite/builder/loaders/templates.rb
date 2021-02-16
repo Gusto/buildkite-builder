@@ -17,7 +17,7 @@ module Buildkite
         end
 
         def templates_path
-          pipeline_path.join(TEMPLATES_PATH)
+          root.join(TEMPLATES_PATH)
         end
       end
     end

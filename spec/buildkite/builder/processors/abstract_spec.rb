@@ -4,7 +4,7 @@ require 'logger'
 
 RSpec.describe Buildkite::Builder::Processors::Abstract do
   let(:runner) do
-    instance_double(Buildkite::Builder::Runner, log: Logger.new)
+    instance_double(Buildkite::Builder::Context, logger: Logger.new)
   end
 
   describe '.process' do

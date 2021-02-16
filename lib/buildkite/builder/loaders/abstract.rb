@@ -5,14 +5,14 @@ module Buildkite
     module Loaders
       class Abstract
         attr_reader :assets
-        attr_reader :pipeline
+        attr_reader :root
 
-        def self.load(pipeline)
-          new(pipeline).assets
+        def self.load(root)
+          new(root).assets
         end
 
-        def initialize(pipeline)
-          @pipeline = pipeline
+        def initialize(root)
+          @root = root
           @assets = {}
           load
         end
@@ -20,11 +20,7 @@ module Buildkite
         private
 
         def buildkite_path
-          Buildkite::Builder.root.join('.buildkite')
-        end
-
-        def pipeline_path
-          buildkite_path.join("pipelines/#{pipeline}")
+          Builder.root.join(Builder::BUILDKITE_DIRECTORY_NAME)
         end
 
         def load

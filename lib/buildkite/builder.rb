@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'bundler'
 require 'pathname'
 
 module Buildkite
   module Builder
     autoload :Commands, File.expand_path('builder/commands', __dir__)
+    autoload :Context, File.expand_path('builder/context', __dir__)
     autoload :Definition, File.expand_path('builder/definition', __dir__)
     autoload :FileResolver, File.expand_path('builder/file_resolver', __dir__)
     autoload :Github, File.expand_path('builder/github', __dir__)
@@ -16,13 +16,23 @@ module Buildkite
     autoload :Rainbow, File.expand_path('builder/rainbow', __dir__)
     autoload :Runner, File.expand_path('builder/runner', __dir__)
 
-    BUILDKITE_DIRECTORY_NAME = '.buildkite/'
+    BUILDKITE_DIRECTORY_NAME = Pathname.new('.buildkite').freeze
 
     class << self
       def root(start_path: Dir.pwd, reset: false)
         @root = nil if reset
         @root ||= find_buildkite_directory(start_path)
       end
+
+      def template(&block)
+        Definition::Template.new(&block) if block_given?
+      end
+
+      def pipeline(&block)
+        Definition::Pipeline.new(&block) if block_given?
+      end
+
+      private
 
       def find_buildkite_directory(start_path)
         path = Pathname.new(start_path)
@@ -34,18 +44,6 @@ module Buildkite
         path.expand_path
       end
 
-      def expand_path(path)
-        path = Pathname.new(path)
-        path.absolute? ? path : root.join(path)
-      end
-
-      def template(&block)
-        Definition::Template.new(&block) if block_given?
-      end
-
-      def pipeline(&block)
-        Definition::Pipeline.new(&block) if block_given?
-      end
     end
   end
 end
