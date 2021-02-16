@@ -15,13 +15,12 @@ module Buildkite
 
       attr_reader :options
 
-
       def initialize(**options)
         @options = options
       end
 
       def run
-        log.info "#{'+++ ' if Buildkite.env}🧰 " + 'Buildkite-builder'.color(:springgreen) + " ─ #{@options[:pipeline].yellow}"
+        log.info "#{'+++ ' if Buildkite.env}🧰 " + 'Buildkite Builder'.color(:springgreen) + " ─ #{@options[:pipeline].yellow}"
         context = Context.new(root, logger: log)
 
         results = benchmark("\nDone (%s)".color(:springgreen)) do
@@ -37,6 +36,8 @@ module Buildkite
         context.pipeline
       end
 
+      private
+
       def log
         @log ||= begin
           Logger.new($stdout).tap do |logger|
@@ -46,8 +47,6 @@ module Buildkite
           end
         end
       end
-
-      private
 
       def upload(pipeline)
         Tempfile.create(['pipeline', '.yml']) do |file|

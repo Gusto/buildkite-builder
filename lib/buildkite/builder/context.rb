@@ -21,13 +21,15 @@ module Buildkite
       end
 
       def build
-        @pipeline = Pipelines::Pipeline.new
+        unless @pipeline
+          @pipeline = Pipelines::Pipeline.new
 
-        load_manifests
-        load_templates
-        load_processors
-        load_pipeline
-        run_processors
+          load_manifests
+          load_templates
+          load_processors
+          load_pipeline
+          run_processors
+        end
 
         @pipeline
       end
