@@ -9,6 +9,10 @@ Buildkite::Builder.pipeline do
     command "echo 'do something else'"
   end
 
+  # Pass arguments into templates.
+  command(:generic, foo: 'Foo1')
+  command(:generic, foo: 'Foo2')
+
   # Add complex conditions based on your cobebase as to whether or not a step
   # should be defined.
   if true == false
