@@ -114,8 +114,8 @@ module Buildkite
 
       private
 
-      def add(step_class, template = nil, args = {}, &block)
-        steps.push(step_class.new(self, find_template(template), args, &block)).last
+      def add(step_class, template = nil, **args, &block)
+        steps.push(step_class.new(self, find_template(template), **args, &block)).last
       end
 
       def find_template(name)
