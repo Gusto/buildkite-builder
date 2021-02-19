@@ -28,7 +28,7 @@ RSpec.describe Buildkite::Builder::Commands::Preview do
       it 'requires specifying a pipeline' do
         expect {
           described_class.execute
-        }.to raise_error(RuntimeError, 'You must specify a pipeline')
+        }.to raise_error(RuntimeError, 'Your project has multiple pipelines, please specify one.')
       end
     end
   end

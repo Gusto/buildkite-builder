@@ -14,7 +14,6 @@ module Buildkite
     autoload :Manifest, File.expand_path('builder/manifest', __dir__)
     autoload :Processors, File.expand_path('builder/processors', __dir__)
     autoload :Rainbow, File.expand_path('builder/rainbow', __dir__)
-    autoload :Runner, File.expand_path('builder/runner', __dir__)
 
     BUILDKITE_DIRECTORY_NAME = Pathname.new('.buildkite').freeze
 

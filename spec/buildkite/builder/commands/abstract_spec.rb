@@ -3,6 +3,7 @@
 require 'optparse'
 
 RSpec.describe Buildkite::Builder::Commands::Abstract do
+  let(:fixture_project) { :single_pipeline }
   let(:fake_command) do
     stub_const(
       'Buildkite::Builder::Commands::Fake',
@@ -24,6 +25,10 @@ RSpec.describe Buildkite::Builder::Commands::Abstract do
         end
       end)
     )
+  end
+
+  before do
+    setup_project(fixture_project)
   end
 
   describe '.description' do
