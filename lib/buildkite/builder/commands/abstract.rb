@@ -87,8 +87,8 @@ module Buildkite
         end
 
         def find_root_by_environment
-          if ENV['BUILDKITE_PIPELINE_PATH']
-            path = Pathname.new(ENV['BUILDKITE_PIPELINE_PATH'])
+          if ENV['BUILDKITE_BUILDER_PIPELINE_PATH']
+            path = Pathname.new(ENV['BUILDKITE_BUILDER_PIPELINE_PATH'])
             path.absolute? ? path : Builder.root.join(path)
           end
         end
