@@ -47,7 +47,7 @@ module Buildkite
           if options[:help]
             puts options[:help]
             return
-          elsif !pipeline_root_path
+          elsif !pipeline_path
             abort "Unable to find pipeline"
           end
 
@@ -79,16 +79,16 @@ module Buildkite
           end
         end
 
-        def pipeline_root_path
-          @pipeline_root_path ||=
+        def pipeline_path
+          @pipeline_path ||=
             find_root_by_environment ||
             find_root_by_main_pipeline ||
             find_root_by_multi_pipeline
         end
 
         def find_root_by_environment
-          if ENV['BUILDKITE_ROOT']
-            path = Pathname.new(ENV['BUILDKITE_ROOT'])
+          if ENV['BUILDKITE_PIPELINE_PATH']
+            path = Pathname.new(ENV['BUILDKITE_PIPELINE_PATH'])
             path.absolute? ? path : Builder.root.join(path)
           end
         end
