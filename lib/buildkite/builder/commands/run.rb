@@ -13,7 +13,7 @@ module Buildkite
         self.description = 'Builds and uploads the generated pipeline.'
 
         def run
-          pipeline_name = pipeline_slug || pipeline_path
+          pipeline_name = ENV['BUILDKITE_BUILDER_PIPELINE_PATH'] || pipeline_path
 
           # This entrypoint is for running on CI. It expects certain environment
           # variables to be set. It also uploads the pipeline to Buildkite.
@@ -29,7 +29,18 @@ module Buildkite
         end
   
         private
+
+        def pipeline_path
+          pipeline_path_override || super
+        end
   
+        def pipeline_path_override
+          if ENV['BUILDKITE_BUILDER_PIPELINE_PATH']
+            path = Pathname.new(ENV['BUILDKITE_BUILDER_PIPELINE_PATH'])
+            path.absolute? ? path : Builder.root.join(path)
+          end
+        end
+
         def upload(pipeline)
           # Upload the pipeline.
           Tempfile.create(['pipeline', '.yml']) do |file|

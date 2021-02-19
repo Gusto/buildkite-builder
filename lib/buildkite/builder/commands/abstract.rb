@@ -81,16 +81,8 @@ module Buildkite
 
         def pipeline_path
           @pipeline_path ||=
-            find_root_by_environment ||
             find_root_by_main_pipeline ||
             find_root_by_multi_pipeline
-        end
-
-        def find_root_by_environment
-          if ENV['BUILDKITE_BUILDER_PIPELINE_PATH']
-            path = Pathname.new(ENV['BUILDKITE_BUILDER_PIPELINE_PATH'])
-            path.absolute? ? path : Builder.root.join(path)
-          end
         end
 
         def find_root_by_main_pipeline
