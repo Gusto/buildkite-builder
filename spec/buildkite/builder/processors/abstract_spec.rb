@@ -3,7 +3,7 @@
 require 'logger'
 
 RSpec.describe Buildkite::Builder::Processors::Abstract do
-  let(:runner) do
+  let(:context) do
     instance_double(Buildkite::Builder::Context, logger: Logger.new)
   end
 
@@ -22,12 +22,12 @@ RSpec.describe Buildkite::Builder::Processors::Abstract do
     let(:abstract_processor) { described_class }
 
     it 'raises an error' do
-      expect { abstract_processor.process(runner) }.to raise_error(NotImplementedError)
+      expect { abstract_processor.process(context) }.to raise_error(NotImplementedError)
     end
 
     context 'with an implemented processor' do
       it 'processes' do
-        expect(foo_processor.process(runner)).to be_truthy
+        expect(foo_processor.process(context)).to be_truthy
       end
     end
   end

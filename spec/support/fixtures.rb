@@ -15,7 +15,7 @@ module Spec
       end
 
       def fixture_pipeline_path_for(project, pipeline)
-        fixture_buildkite_path_for(project).join(Buildkite::Builder::Runner::PIPELINES_PATH).join(pipeline.to_s)
+        fixture_buildkite_path_for(project).join(Buildkite::Builder::Commands::Abstract::PIPELINES_DIRECTORY).join(pipeline.to_s)
       end
 
       def setup_project(project)

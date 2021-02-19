@@ -1,3 +1,5 @@
+require 'logger'
+
 module Buildkite
   module Builder
     class Context
