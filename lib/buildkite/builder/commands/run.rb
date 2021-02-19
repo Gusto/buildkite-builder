@@ -13,11 +13,11 @@ module Buildkite
         self.description = 'Builds and uploads the generated pipeline.'
 
         def run
-          pipeline_name = ENV['BUILDKITE_BUILDER_PIPELINE_PATH'] || pipeline_path
+          relative_pipeline_path = pipeline_path.relative_path_from(Builder.root)
 
           # This entrypoint is for running on CI. It expects certain environment
           # variables to be set. It also uploads the pipeline to Buildkite.
-          log.info "#{'+++ ' if Buildkite.env}🧰 " + 'Buildkite Builder'.color(:springgreen) + " ─ #{pipeline_name.to_s.yellow}"
+          log.info "#{'+++ ' if Buildkite.env}🧰 " + 'Buildkite Builder'.color(:springgreen) + " ─ #{relative_pipeline_path.to_s.yellow}"
           context = Context.new(pipeline_path, logger: log)
   
           results = benchmark("\nDone (%s)".color(:springgreen)) do
