@@ -19,6 +19,8 @@ Buildkite::Builder.pipeline do
       commit: "${BUILDKITE_COMMIT}",
       branch: "${BUILDKITE_BRANCH}"
     notify \
-      github_commit_status: "Showcase Pipeline!"
+      github_commit_status: {
+        context: "Showcase Pipeline!"
+      }
   end
 end
