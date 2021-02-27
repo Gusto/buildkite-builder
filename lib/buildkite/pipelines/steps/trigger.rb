@@ -16,6 +16,7 @@ module Buildkite
         attribute :branches
         attribute :async
         attribute :build
+        attribute :notify, append: true
       end
     end
   end

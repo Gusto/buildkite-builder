@@ -18,5 +18,7 @@ Buildkite::Builder.pipeline do
       message: "${BUILDKITE_MESSAGE}",
       commit: "${BUILDKITE_COMMIT}",
       branch: "${BUILDKITE_BRANCH}"
+    notify \
+      github_commit_status: "Showcase Pipeline!"
   end
 end
