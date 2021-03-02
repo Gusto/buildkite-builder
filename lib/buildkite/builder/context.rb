@@ -10,6 +10,7 @@ module Buildkite
       attr_reader :logger
       attr_reader :root
       attr_reader :pipeline
+      attr_reader :artifacts
 
       def self.build(root, logger: nil)
         context = new(root, logger: logger)
@@ -20,6 +21,7 @@ module Buildkite
       def initialize(root, logger: nil)
         @root = root
         @logger = logger || Logger.new(File::NULL)
+        @artifacts = {}
       end
 
       def build
@@ -31,9 +33,14 @@ module Buildkite
           load_processors
           load_pipeline
           run_processors
+          upload_artifacts
         end
 
         @pipeline
+      end
+
+      def add_artifact(filename, &block)
+        @artifacts[filename] = yield
       end
 
       private
@@ -57,6 +64,18 @@ module Buildkite
       def run_processors
         pipeline.processors.each do |processor|
           processor.process(self)
+        end
+      end
+
+      def upload_artifacts
+        return if artifacts.empty?
+
+        artifacts.each do |filename, content|
+          Tempfile.create(filename) do |file|
+            file.sync = true
+            file.write(content)
+            Buildkite::Pipelines::Command.artifact!(:upload, file.path)
+          end
         end
       end
 

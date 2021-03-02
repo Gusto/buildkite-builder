@@ -87,6 +87,48 @@ RSpec.describe Buildkite::Builder::Context do
       expect(context.build).to be_a(Buildkite::Pipelines::Pipeline)
     end
 
+    context 'when has artifacts to upload' do
+      let(:foo) do
+        <<~YAML
+            foo: bar
+          YAML
+      end
+
+      let(:bar) do
+        { bar: :baz }.to_json
+      end
+
+      before do
+        context.add_artifact('foo.yml') { foo }
+        context.add_artifact('bar.json') { bar }
+      end
+
+      it 'uploads artifacts' do
+        artifact_paths = []
+        artifact_contents = {}
+
+        expect(Buildkite::Pipelines::Command).to receive(:artifact!).twice do |subcommand, path|
+          expect(subcommand).to eq(:upload)
+          artifact_paths << path
+          artifact_contents[path] = File.read(path)
+        end
+
+        context.build
+
+        artifact_paths.each do |path|
+          expect(File.exist?(path)).to eq(false)
+        end
+
+        artifact_contents.each do |filename, content|
+          if filename =~ /foo.yml/
+            expect(content).to eq(foo)
+          elsif filename =~ /bar.json/
+            expect(content).to eq(bar)
+          end
+        end
+      end
+    end
+
     context 'with an invalid pipeline' do
       let(:fixture_project) { :invalid_pipeline }
 
