@@ -1,9 +1,12 @@
 require 'logger'
+require 'tempfile'
 
 module Buildkite
   module Builder
     class Context
       include Definition::Helper
+      include LoggingUtils
+      using Rainbow
 
       PIPELINE_DEFINITION_FILE = Pathname.new('pipeline.rb').freeze
 
@@ -25,18 +28,38 @@ module Buildkite
       end
 
       def build
-        unless @pipeline
-          @pipeline = Pipelines::Pipeline.new
+        results = benchmark("\nDone (%s)".color(:springgreen)) do
+          unless @pipeline
+            @pipeline = Pipelines::Pipeline.new
 
-          load_manifests
-          load_templates
-          load_processors
-          load_pipeline
-          run_processors
-          upload_artifacts
+            load_manifests
+            load_templates
+            load_processors
+            load_pipeline
+            run_processors
+          end
         end
+        logger.info(results)
 
         @pipeline
+      end
+
+      def upload
+        build unless @pipeline
+
+        logger.info '+++ :paperclip: Uploading artifacts'
+        upload_artifacts
+
+        # Upload the pipeline.
+        Tempfile.create(['pipeline', '.yml']) do |file|
+          file.sync = true
+          file.write(pipeline.to_yaml)
+
+          logger.info '+++ :paperclip: Uploading pipeline.yml as artifact'
+          Buildkite::Pipelines::Command.artifact!(:upload, file.path)
+          logger.info '+++ :pipeline: Uploading pipeline'
+          Buildkite::Pipelines::Command.pipeline!(:upload, file.path)
+        end
       end
 
       private

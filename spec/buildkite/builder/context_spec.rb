@@ -87,45 +87,6 @@ RSpec.describe Buildkite::Builder::Context do
       expect(context.build).to be_a(Buildkite::Pipelines::Pipeline)
     end
 
-    context 'when has artifacts to upload' do
-      let(:bar) do
-        { bar: :baz }.to_json
-      end
-
-      let(:dummy_file) { File.open(Pathname.new('spec/fixtures/dummy_artifact')) }
-
-      before do
-        # Existing file
-        context.artifacts << dummy_file.path
-
-        # Tempfile on the fly
-        tempfile = Tempfile.new('bar.json')
-        tempfile.sync = true
-        tempfile.write(bar)
-        context.artifacts << tempfile.path
-      end
-
-      it 'uploads artifacts' do
-        artifact_paths = []
-        artifact_contents = {}
-
-        expect(Buildkite::Pipelines::Command).to receive(:artifact!).twice do |subcommand, path|
-          expect(subcommand).to eq(:upload)
-          artifact_contents[path] = File.read(path)
-        end
-
-        context.build
-
-        artifact_contents.each do |filename, content|
-          if filename =~ /dummy_artifact/
-            expect(content).to eq(dummy_file.read)
-          elsif filename =~ /bar.json/
-            expect(content).to eq(bar)
-          end
-        end
-      end
-    end
-
     context 'with an invalid pipeline' do
       let(:fixture_project) { :invalid_pipeline }
 
@@ -143,6 +104,93 @@ RSpec.describe Buildkite::Builder::Context do
         expect {
           context.build
         }.to raise_error(/must return a valid definition \(Buildkite::Builder::Definition::Template\)/)
+      end
+    end
+  end
+
+  describe '#upload' do
+    let(:context) { described_class.new(fixture_path) }
+
+    it 'sets pipeline and uploads to Buildkite' do
+      artifact_path = nil
+      pipeline_path = nil
+      artifact_contents = nil
+      pipeline_contents = nil
+
+      expect(Buildkite::Pipelines::Command).to receive(:artifact!).ordered do |subcommand, path|
+        expect(subcommand).to eq(:upload)
+        artifact_path = path
+        artifact_contents = File.read(path)
+      end
+
+      expect(Buildkite::Pipelines::Command).to receive(:pipeline!).ordered do |subcommand, path|
+        expect(subcommand).to eq(:upload)
+        pipeline_path = path
+        pipeline_contents = File.read(path)
+      end
+
+      expect(context.pipeline).to eq(nil)
+
+      context.upload
+
+      expect(context.pipeline).to be_a(Buildkite::Pipelines::Pipeline)
+      expect(File.exist?(artifact_path)).to eq(false)
+      expect(File.exist?(pipeline_path)).to eq(false)
+      expect(artifact_contents).to eq(pipeline_contents)
+      expect(pipeline_contents).to eq(<<~YAML)
+        ---
+        steps:
+        - label: Basic step
+          command:
+          - 'true'
+      YAML
+    end
+
+    context 'when has custom artifacts to upload' do
+      let(:bar) do
+        { bar: :baz }.to_json
+      end
+
+      let(:dummy_file) { File.open(Pathname.new('spec/fixtures/dummy_artifact')) }
+
+      before do
+        # Existing file
+        context.artifacts << dummy_file.path
+
+        # Tempfile on the fly
+        tempfile = Tempfile.new('bar.json')
+        tempfile.sync = true
+        tempfile.write(bar)
+        context.artifacts << tempfile.path
+      end
+
+      it 'uploads custom artifacts' do
+        artifact_paths = []
+        artifact_contents = {}
+
+        # 2 custom files, 1 pipeline.yml
+        expect(Buildkite::Pipelines::Command).to receive(:artifact!).exactly(3).times do |subcommand, path|
+          expect(subcommand).to eq(:upload)
+          artifact_contents[path] = File.read(path)
+        end
+
+        context.upload
+
+        artifact_contents.each do |filename, content|
+          if filename =~ /dummy_artifact/
+            expect(content).to eq(dummy_file.read)
+          elsif filename =~ /bar.json/
+            expect(content).to eq(bar)
+          elsif filename =~ /pipeline.yml/
+            expect(content).to eq(<<~YAML)
+              ---
+              steps:
+              - label: Basic step
+                command:
+                - 'true'
+            YAML
+          end
+        end
       end
     end
   end
