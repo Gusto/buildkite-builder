@@ -8,6 +8,7 @@ module Buildkite
 
         attr_reader :pipeline
         attr_reader :template
+        attr_reader :data
 
         def self.to_sym
           name.split('::').last.downcase.to_sym
@@ -17,6 +18,7 @@ module Buildkite
           @pipeline = pipeline
           @template = template
           context = StepContext.new(self, **args)
+          @data = context.data
 
           instance_exec(context, &template) if template
           instance_exec(context, &block) if block_given?
