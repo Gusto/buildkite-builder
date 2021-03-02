@@ -14,5 +14,6 @@ namespace :docker do
 
     puts "📦 Pushing to DockerHub: gusto/buildkite-builder:#{version}"
     system("docker push gusto/buildkite-builder:#{version}", exception: true)
+    puts "✅ Done!"
   end
 end
