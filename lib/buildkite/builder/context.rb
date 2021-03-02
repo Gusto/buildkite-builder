@@ -66,11 +66,10 @@ module Buildkite
       def upload_artifacts
         return if artifacts.empty?
 
-        artifacts.each do |file|
-          unless [Tempfile, File].any? { |file_type| file.is_a?(file_type) }
-            raise "Artifatcs must be an instance of `Tempfile` or `File`, got `#{file.class}` instead."
+        artifacts.each do |path|
+          if File.exist?(path)
+            Buildkite::Pipelines::Command.artifact!(:upload, path)
           end
-          Buildkite::Pipelines::Command.artifact!(:upload, file.path)
         end
       end
 

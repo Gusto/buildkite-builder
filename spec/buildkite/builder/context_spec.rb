@@ -88,19 +88,21 @@ RSpec.describe Buildkite::Builder::Context do
     end
 
     context 'when has artifacts to upload' do
-      let(:foo) do
-        <<~YAML
-            foo: bar
-          YAML
-      end
-
       let(:bar) do
         { bar: :baz }.to_json
       end
 
+      let(:dummy_file) { File.open(Pathname.new('spec/fixtures/dummy_artifact')) }
+
       before do
-        context.add_artifact('foo.yml') { foo }
-        context.add_artifact('bar.json') { bar }
+        # Existing file
+        context.artifacts << dummy_file.path
+
+        # Tempfile on the fly
+        tempfile = Tempfile.new('bar.json')
+        tempfile.sync = true
+        tempfile.write(bar)
+        context.artifacts << tempfile.path
       end
 
       it 'uploads artifacts' do
@@ -109,19 +111,14 @@ RSpec.describe Buildkite::Builder::Context do
 
         expect(Buildkite::Pipelines::Command).to receive(:artifact!).twice do |subcommand, path|
           expect(subcommand).to eq(:upload)
-          artifact_paths << path
           artifact_contents[path] = File.read(path)
         end
 
         context.build
 
-        artifact_paths.each do |path|
-          expect(File.exist?(path)).to eq(false)
-        end
-
         artifact_contents.each do |filename, content|
-          if filename =~ /foo.yml/
-            expect(content).to eq(foo)
+          if filename =~ /dummy_artifact/
+            expect(content).to eq(dummy_file.read)
           elsif filename =~ /bar.json/
             expect(content).to eq(bar)
           end
