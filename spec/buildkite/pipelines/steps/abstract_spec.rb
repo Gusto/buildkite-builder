@@ -42,6 +42,22 @@ RSpec.describe Buildkite::Pipelines::Steps::Abstract do
         expect(step.bar_attribute).to eq('val2')
       end
     end
+
+    context 'when data provided' do
+      let(:template) do
+        pipeline.template(:foo_template) do |context|
+          context.data[:foo] = :bar
+          context.data[:baz] = :boo
+        end
+      end
+
+      let(:step) { step_class.new(pipeline, template) }
+
+      it 'passes the data through' do
+        expect(step.data[:foo]).to eq(:bar)
+        expect(step.data[:baz]).to eq(:boo)
+      end
+    end
   end
 
   describe '#template' do
