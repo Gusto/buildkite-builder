@@ -5,10 +5,12 @@ module Buildkite
     class StepContext
       attr_reader :step
       attr_reader :args
+      attr_reader :data
 
       def initialize(step, **args)
         @step = step
         @args = args
+        @data = {}
       end
 
       def pipeline
