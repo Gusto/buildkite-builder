@@ -52,6 +52,14 @@ module Buildkite
           steps
         end
 
+        def add_artifact(filename, &block)
+          file = Tempfile.new(filename)
+          file.sync = true
+          file.write(yield)
+
+          context.artifacts << file
+        end
+
         def _log_run
           log.info "\nProcessing ".color(:dimgray) + self.class.name.color(:springgreen)
 

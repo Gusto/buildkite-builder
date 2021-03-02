@@ -21,7 +21,7 @@ module Buildkite
       def initialize(root, logger: nil)
         @root = root
         @logger = logger || Logger.new(File::NULL)
-        @artifacts = {}
+        @artifacts = []
       end
 
       def build
@@ -37,10 +37,6 @@ module Buildkite
         end
 
         @pipeline
-      end
-
-      def add_artifact(filename, &block)
-        @artifacts[filename] = yield
       end
 
       private
@@ -70,12 +66,11 @@ module Buildkite
       def upload_artifacts
         return if artifacts.empty?
 
-        artifacts.each do |filename, content|
-          Tempfile.create(filename) do |file|
-            file.sync = true
-            file.write(content)
-            Buildkite::Pipelines::Command.artifact!(:upload, file.path)
+        artifacts.each do |file|
+          unless [Tempfile, File].any? { |file_type| file.is_a?(file_type) }
+            raise "Artifatcs must be an instance of `Tempfile` or `File`, got `#{file.class}` instead."
           end
+          Buildkite::Pipelines::Command.artifact!(:upload, file.path)
         end
       end
 
