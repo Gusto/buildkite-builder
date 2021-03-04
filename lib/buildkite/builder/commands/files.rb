@@ -9,14 +9,13 @@ module Buildkite
         self.description = 'Outputs files that match the specified manifest.'
 
         def run
-          pipeline, manifest = ARGV.first.to_s.split('/')
-          if !pipeline || !manifest
-            raise 'You must specify a pipeline and a manifest (eg "mypipeline/mymanifest")'
-          end
+          manifests = Loaders::Manifests.load(pipeline_path)
+          puts manifests[options[:manifest]].files.sort.join("\n")
+        end
 
-          manifests = Loaders::Manifests.load(pipeline)
-          manifests[manifest].files.each do |file|
-            puts file
+        def parse_options(opts)
+          opts.on('--manifest MANIFEST', 'The manifest to use') do |manifest|
+            options[:manifest] = manifest
           end
         end
       end

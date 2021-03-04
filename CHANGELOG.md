@@ -1,3 +1,6 @@
+## 1.4.0
+* Fix the `files` command. You now pass in the manifest with the `--manifest` CLI argument.
+
 ## 1.3.1
 * Expose `data` from `StepContext` to `Step`
 
