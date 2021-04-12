@@ -11,7 +11,7 @@ module Buildkite
       ACCEPT_HEADER = 'application/vnd.github.v3+json'
       LINK_HEADER = 'link'
       NEXT_LINK_REGEX = /<(?<uri>.+)>; rel="next"/.freeze
-      REPO_REGEX = /github\.com(?::|\/)(.*)\.git\z/.freeze
+      REPO_REGEX = /github\.com(?::|\/)(.*?)(?:\.git)?\z/.freeze
       PER_PAGE = 100
 
       def self.pull_request_files
