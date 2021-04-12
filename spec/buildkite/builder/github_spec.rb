@@ -20,9 +20,12 @@ RSpec.describe Buildkite::Builder::Github do
   end
   let(:github) { described_class.new(env) }
   let(:init_uri) { URI.join(described_class::BASE_URI, "repos/Gusto/buildkite-builder/pulls/12345/files?per_page=#{described_class::PER_PAGE}") }
+  let(:repo_url) { 'github.com/Gusto/buildkite-builder.git' }
+
+  subject { github.pull_request_files }
 
   before do
-    stub_buildkite_env(repo: 'github.com/Gusto/buildkite-builder.git', pull_request: '12345')
+    stub_buildkite_env(repo: repo_url, pull_request: '12345')
   end
 
   describe '#pull_request_files' do
@@ -33,7 +36,7 @@ RSpec.describe Buildkite::Builder::Github do
       end
 
       it 'returns files from first page' do
-        expect(github.pull_request_files).to eq(files_page_1)
+        expect(subject).to eq(files_page_1)
       end
     end
 
@@ -62,7 +65,16 @@ RSpec.describe Buildkite::Builder::Github do
         expect(http_2).to receive(:request).with(anything).and_return(response_3)
         expect(response_3).to receive(:[]).with(described_class::LINK_HEADER).and_return(nil)
 
-        expect(github.pull_request_files).to eq(files_page_1 + files_page_2 + files_page_3)
+        expect(subject).to eq(files_page_1 + files_page_2 + files_page_3)
+      end
+    end
+
+    context 'when has no .git extenion for Buildkite.env.repo' do
+      let(:repo_url) { 'git@github.com/Gusto/buildkite-builder' }
+
+      it 'calls a valid API endpoint' do
+        expect(URI).to receive(:join).with(described_class::BASE_URI, "repos/Gusto/buildkite-builder/pulls/12345/files?per_page=100")
+        subject
       end
     end
   end
