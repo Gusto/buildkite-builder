@@ -1,3 +1,6 @@
+## 1.4.1
+* Fix the Github API Builder to account for Buildkite having both `.git` and no file exention repository URIs (#33)
+
 ## 1.4.0
 * Fix the `files` command. You now pass in the manifest with the `--manifest` CLI argument.
 
