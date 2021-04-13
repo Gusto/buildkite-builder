@@ -1,3 +1,6 @@
+## 1.4.2
+* Use `bundle exec` when executing buildkite-builder in the docker image.
+
 ## 1.4.1
 * Fix the Github API Builder to account for Buildkite having both `.git` and no file exention repository URIs (#33)
 
