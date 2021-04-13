@@ -7,4 +7,4 @@ RUN if [ -z ${version} ]; then                        \
       gem install buildkite-builder -v ${version};    \
     fi
 
-CMD buildkite-builder run
+CMD bundle exec buildkite-builder run
