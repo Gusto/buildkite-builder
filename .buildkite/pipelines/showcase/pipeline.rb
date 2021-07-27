@@ -1,12 +1,14 @@
 Buildkite::Builder.pipeline do
-  # Load the "rspec" template as a command.
-  # .buildkite/pipelines/showcase/templates/rspec.rb
-  command(:rspec)
+  group do
+    # Load the "rspec" template as a command.
+    # .buildkite/pipelines/showcase/templates/rspec.rb
+    command(:rspec)
 
-  # Load the "rspec" template and modify it on the fly.
-  command(:rspec) do
-    label "RSpec relabeled"
-    command "echo 'do something else'"
+    # Load the "rspec" template and modify it on the fly.
+    command(:rspec) do
+      label "RSpec relabeled"
+      command "echo 'do something else'"
+    end
   end
 
   # Pass arguments into templates.

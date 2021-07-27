@@ -4,7 +4,9 @@ module Buildkite
   module Pipelines
     autoload :Api, File.expand_path('pipelines/api', __dir__)
     autoload :Attributes, File.expand_path('pipelines/attributes', __dir__)
+    autoload :Builder, File.expand_path('pipelines/builder', __dir__)
     autoload :Command, File.expand_path('pipelines/command', __dir__)
+    autoload :Group, File.expand_path('pipelines/group', __dir__)
     autoload :Helpers, File.expand_path('pipelines/helpers', __dir__)
     autoload :Pipeline, File.expand_path('pipelines/pipeline', __dir__)
     autoload :Plugin, File.expand_path('pipelines/plugin', __dir__)
