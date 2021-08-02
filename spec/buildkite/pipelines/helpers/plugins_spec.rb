@@ -15,7 +15,7 @@ RSpec.describe Buildkite::Pipelines::Helpers::Plugins do
     end
   end
 
-  let(:pipeline) { Buildkite::Pipelines::Pipeline.new }
+  let(:pipeline) { Buildkite::Builder::Pipeline.new(setup_project_fixture(:simple)) }
 
   let(:step) { step_klass.new(pipeline) }
 

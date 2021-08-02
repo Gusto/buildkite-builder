@@ -8,9 +8,9 @@ module Buildkite
       class Abstract
         PIPELINES_DIRECTORY = 'pipelines'
         POSSIBLE_PIPELINE_PATHS = [
-          File.join('.buildkite', Context::PIPELINE_DEFINITION_FILE),
-          File.join('buildkite', Context::PIPELINE_DEFINITION_FILE),
-          File.join(Context::PIPELINE_DEFINITION_FILE)
+          File.join('.buildkite', Pipeline::PIPELINE_DEFINITION_FILE),
+          File.join('buildkite', Pipeline::PIPELINE_DEFINITION_FILE),
+          File.join(Pipeline::PIPELINE_DEFINITION_FILE)
         ].freeze
         POSSIBLE_PIPELINES_PATHS = [
           File.join('.buildkite', PIPELINES_DIRECTORY),
@@ -91,7 +91,7 @@ module Buildkite
 
         def find_root_by_multi_pipeline
           pipelines_path = POSSIBLE_PIPELINES_PATHS.map { |path| Builder.root.join(path) }.find(&:directory?)
-          
+
           if pipelines_path
             if pipeline_slug
               path = pipelines_path.join(pipeline_slug)

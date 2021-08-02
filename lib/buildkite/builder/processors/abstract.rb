@@ -7,12 +7,12 @@ module Buildkite
         include LoggingUtils
         using Rainbow
 
-        def self.process(context)
-          new(context).run
+        def self.process(pipeline)
+          new(pipeline).run
         end
 
-        def initialize(context)
-          @context = context
+        def initialize(pipeline)
+          @pipeline = pipeline
         end
 
         def run
@@ -21,18 +21,14 @@ module Buildkite
 
         private
 
-        attr_reader :context
+        attr_reader :pipeline
 
         def process
           raise NotImplementedError
         end
 
         def log
-          context.logger
-        end
-
-        def pipeline
-          context.pipeline
+          pipeline.logger
         end
 
         def buildkite

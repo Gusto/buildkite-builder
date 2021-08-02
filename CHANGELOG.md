@@ -1,3 +1,6 @@
+## 1.5.0
+* Merge `BuildKite::Builder::Context` and `BuildKite::Pipelines::Pipeline` to `BuildKite::Builder::Pipeline` (#37)
+
 ## 1.4.1
 * Fix the Github API Builder to account for Buildkite having both `.git` and no file exention repository URIs (#33)
 

@@ -16,7 +16,7 @@ module Buildkite
           # This entrypoint is for running on CI. It expects certain environment
           # variables to be set. It also uploads the pipeline to Buildkite.
           log.info "#{'+++ ' if Buildkite.env}🧰 " + 'Buildkite Builder'.color(:springgreen) + " ─ #{relative_pipeline_path.to_s.yellow}"
-          Context.new(pipeline_path, logger: log).upload
+          Pipeline.new(pipeline_path, logger: log).upload
         end
 
         private

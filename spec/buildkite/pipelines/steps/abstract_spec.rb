@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Buildkite::Pipelines::Steps::Abstract do
-  let(:pipeline) { Buildkite::Pipelines::Pipeline.new }
+  let(:pipeline) { Buildkite::Builder::Pipeline.new(setup_project_fixture(:simple)) }
   let(:step) { step_class.new(pipeline) }
   let(:step_class) do
     stub_const(
