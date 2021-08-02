@@ -3,7 +3,7 @@
 RSpec.describe Buildkite::Builder::Commands::Run do
   let(:argv) { [] }
   let(:fixture_project) { :single_pipeline }
-  let(:context) { instance_double(Buildkite::Builder::Context) }
+  let(:pipeline) { instance_double(Buildkite::Builder::Pipeline) }
 
   before do
     stub_const('ARGV', argv)
@@ -12,8 +12,8 @@ RSpec.describe Buildkite::Builder::Commands::Run do
 
   describe '.execute' do
     it 'uplaods the context' do
-      expect(Buildkite::Builder::Context).to receive(:new).and_return(context)
-      expect(context).to receive(:upload)
+      expect(Buildkite::Builder::Pipeline).to receive(:new).and_return(pipeline)
+      expect(pipeline).to receive(:upload)
 
       described_class.execute
     end

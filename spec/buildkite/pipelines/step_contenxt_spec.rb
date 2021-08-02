@@ -20,7 +20,7 @@ RSpec.describe Buildkite::Pipelines::StepContext do
 
   describe '#pipeline' do
     it 'returns the pipeline' do
-      pipeline = instance_double(Buildkite::Pipelines::Pipeline)
+      pipeline = instance_double(Buildkite::Builder::Pipeline)
       allow(step).to receive(:pipeline).and_return(pipeline)
       context = described_class.new(step, **args)
 

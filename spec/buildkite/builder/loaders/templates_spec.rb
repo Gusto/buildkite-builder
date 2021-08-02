@@ -16,7 +16,7 @@ RSpec.describe Buildkite::Builder::Loaders::Templates do
         expect(assets.size).to eq(1)
         expect(template).to be_a(Buildkite::Builder::Definition::Template)
 
-        step = Buildkite::Pipelines::Steps::Command.new(instance_double(Buildkite::Pipelines::Pipeline), template)
+        step = Buildkite::Pipelines::Steps::Command.new(instance_double(Buildkite::Builder::Pipeline), template)
         expect(step.label).to eq('Basic step')
         expect(step.command).to eq(['true'])
       end
