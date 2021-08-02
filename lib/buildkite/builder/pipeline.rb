@@ -47,7 +47,7 @@ module Buildkite
           end
         end
         logger.info(results)
-
+        @built = true
         self
       end
 
