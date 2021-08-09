@@ -114,6 +114,10 @@ module Buildkite
         YAML.dump(to_h)
       end
 
+      def compose(&block)
+        pipeline_dsl.instance_eval(&block)
+      end
+
       private
 
       def load_manifests

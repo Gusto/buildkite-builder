@@ -21,14 +21,12 @@ module Buildkite
 
         private
 
-        attr_reader :pipeline
-
         def process
           raise NotImplementedError
         end
 
         def log
-          pipeline.logger
+          @pipeline.logger
         end
 
         def buildkite
@@ -46,6 +44,11 @@ module Buildkite
           types = types.flatten
           steps = steps.select { |step| types.include?(step.class.to_sym) } if types.any?
           steps
+        end
+
+        def pipeline(&block)
+          return @pipeline unless block_given?
+          @pipeline.compose(&block)
         end
 
         def _log_run
