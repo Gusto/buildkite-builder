@@ -12,7 +12,7 @@ module Buildkite
 
       PIPELINE_DEFINITION_FILE = Pathname.new('pipeline.rb').freeze
 
-      attr_reader :logger, :root, :artifacts, :steps, :plugins, :templates, :pipeline_dsl
+      attr_reader :logger, :root, :artifacts, :plugins, :pipeline_dsl
 
       def self.build(root, logger: nil)
         pipeline = new(root, logger: logger)
@@ -24,12 +24,13 @@ module Buildkite
         @logger = logger || Logger.new(File::NULL)
         @artifacts = []
         @pipeline_dsl = DSL::Pipeline.new
-        @steps = []
         @plugins = {}
-        @templates = {}
         @processors = []
-        @notify = []
         @built = false
+      end
+
+      def steps
+        pipeline_dsl.data[:steps] || []
       end
 
       def built?
@@ -69,26 +70,6 @@ module Buildkite
         end
       end
 
-      [
-        Pipelines::Steps::Block,
-        Pipelines::Steps::Command,
-        Pipelines::Steps::Input,
-        Pipelines::Steps::Trigger,
-      ].each do |type|
-        define_method(type.to_sym) do |template = nil, **args, &block|
-          add(type, template, **args, &block)
-        end
-      end
-
-      def wait(attributes = {}, &block)
-        step = add(Pipelines::Steps::Wait, &block)
-        step.wait(nil)
-        attributes.each do |key, value|
-          step.set(key, value)
-        end
-        step
-      end
-
       def plugin(name, uri, version)
         name = name.to_s
 
@@ -120,7 +101,10 @@ module Buildkite
         if pipeline_dsl.data[:env]
           pipeline_data[:env] = pipeline_dsl.data[:env]
         end
-        pipeline_data[:notify] = notify if notify.any?
+        if pipeline_dsl.data[:notify]
+          pipeline_data[:notify] = pipeline_dsl.data[:notify]
+        end
+
         pipeline_data[:steps] = steps.map(&:to_h)
 
         Pipelines::Helpers.sanitize(pipeline_data)
@@ -170,10 +154,6 @@ module Buildkite
 
       def pipeline_definition
         @pipeline_definition ||= load_definition(root.join(PIPELINE_DEFINITION_FILE), Definition::Pipeline)
-      end
-
-      def add(step_class, template = nil, **args, &block)
-        steps.push(step_class.new(self, find_template(template), **args, &block)).last
       end
     end
   end

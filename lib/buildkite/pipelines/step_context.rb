@@ -13,10 +13,6 @@ module Buildkite
         @data = {}
       end
 
-      def pipeline
-        step.pipeline
-      end
-
       def [](key)
         args[key]
       end
