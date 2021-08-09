@@ -34,7 +34,7 @@ module Buildkite
 
         def add_to_steps(step_class, template = nil, **args, &block)
           data[:steps] ||= []
-          data[:steps].push(step_class.new(self, find_template(template), **args, &block)).last
+          data[:steps].push(step_class.new(find_template(template), **args, &block)).last
         end
       end
     end

@@ -17,7 +17,7 @@ module Buildkite
           name.split('::').last.downcase.to_sym
         end
 
-        def initialize(pipeline, template = nil, **args, &block)
+        def initialize(template = nil, **args, &block)
           @template = template
           @context = StepContext.new(self, **args)
 
