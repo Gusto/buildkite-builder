@@ -7,10 +7,6 @@ module Buildkite
         include LoggingUtils
         using Rainbow
 
-        def self.process(pipeline)
-          new(pipeline).run
-        end
-
         def initialize(pipeline)
           @pipeline = pipeline
         end

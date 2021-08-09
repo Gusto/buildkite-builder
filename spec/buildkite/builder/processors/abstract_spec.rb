@@ -7,7 +7,7 @@ RSpec.describe Buildkite::Builder::Processors::Abstract do
     instance_double(Buildkite::Builder::Pipeline, logger: Logger.new)
   end
 
-  describe '.process' do
+  describe '#run' do
     let(:foo_processor) do
       Class.new(Buildkite::Builder::Processors::Abstract) do
         def self.name
@@ -22,12 +22,12 @@ RSpec.describe Buildkite::Builder::Processors::Abstract do
     let(:abstract_processor) { described_class }
 
     it 'raises an error' do
-      expect { abstract_processor.process(pipeline) }.to raise_error(NotImplementedError)
+      expect { abstract_processor.new(pipeline).run }.to raise_error(NotImplementedError)
     end
 
     context 'with an implemented processor' do
       it 'processes' do
-        expect(foo_processor.process(pipeline)).to be_truthy
+        expect(foo_processor.new(pipeline).run).to be_truthy
       end
     end
   end
