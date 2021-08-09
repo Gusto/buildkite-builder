@@ -12,7 +12,7 @@ module Buildkite
 
       PIPELINE_DEFINITION_FILE = Pathname.new('pipeline.rb').freeze
 
-      attr_reader :logger, :root, :artifacts, :steps, :plugins, :templates
+      attr_reader :logger, :root, :artifacts, :steps, :plugins, :templates, :pipeline_dsl
 
       def self.build(root, logger: nil)
         pipeline = new(root, logger: logger)
@@ -23,7 +23,7 @@ module Buildkite
         @root = root
         @logger = logger || Logger.new(File::NULL)
         @artifacts = []
-        @env = {}
+        @pipeline_dsl = DSL::Pipeline.new
         @steps = []
         @plugins = {}
         @templates = {}
@@ -42,7 +42,7 @@ module Buildkite
             load_manifests
             load_templates
             load_processors
-            load_pipeline
+            pipeline_dsl.instance_eval(&pipeline_definition)
             run_processors
           end
         end
@@ -80,35 +80,6 @@ module Buildkite
         end
       end
 
-      def notify(*args)
-        if args.empty?
-          @notify
-        elsif args.first.is_a?(Hash)
-          @notify.push(args.first.transform_keys(&:to_s))
-        else
-          raise ArgumentError, 'value must be hash'
-        end
-      end
-
-      def env(*args)
-        if args.empty?
-          @env
-        elsif args.first.is_a?(Hash)
-          @env.merge!(args.first.transform_keys(&:to_s))
-        else
-          raise ArgumentError, 'value must be hash'
-        end
-      end
-
-      def skip(template = nil, **args, &block)
-        step = add(Pipelines::Steps::Skip, template, **args, &block)
-        # A skip step has a nil/noop command.
-        step.command(nil)
-        # Always set the skip attribute if it's in a falsey state.
-        step.skip(true) if !step.get(:skip) || step.skip.empty?
-        step
-      end
-
       def wait(attributes = {}, &block)
         step = add(Pipelines::Steps::Wait, &block)
         step.wait(nil)
@@ -126,18 +97,6 @@ module Buildkite
         end
 
         @plugins[name] = [uri, version]
-      end
-
-      def template(name, &definition)
-        name = name.to_s
-
-        if templates.key?(name)
-          raise ArgumentError, "Template already defined: #{name}"
-        elsif !block_given?
-          raise ArgumentError, 'Template definition block must be given'
-        end
-
-        @templates[name.to_s] = definition
       end
 
       def processors(*processor_classes)
@@ -158,7 +117,9 @@ module Buildkite
 
       def to_h
         pipeline_data = {}
-        pipeline_data[:env] = env if env.any?
+        if pipeline_dsl.data[:env]
+          pipeline_data[:env] = pipeline_dsl.data[:env]
+        end
         pipeline_data[:notify] = notify if notify.any?
         pipeline_data[:steps] = steps.map(&:to_h)
 
@@ -179,7 +140,7 @@ module Buildkite
 
       def load_templates
         Loaders::Templates.load(root).each do |name, asset|
-          template(name, &asset)
+          pipeline_dsl.template(name, &asset)
         end
       end
 
@@ -204,7 +165,7 @@ module Buildkite
       end
 
       def load_pipeline
-        instance_eval(&pipeline_definition)
+        pipeline_dsl.instance_eval(&pipeline_definition)
       end
 
       def pipeline_definition
@@ -213,14 +174,6 @@ module Buildkite
 
       def add(step_class, template = nil, **args, &block)
         steps.push(step_class.new(self, find_template(template), **args, &block)).last
-      end
-
-      def find_template(name)
-        return unless name
-
-        templates[name.to_s] || begin
-          raise ArgumentError, "Template not defined: #{name}"
-        end
       end
     end
   end

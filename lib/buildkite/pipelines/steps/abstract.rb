@@ -11,7 +11,6 @@ module Buildkite
 
         def_delegator :@context, :data
 
-        attr_reader :pipeline
         attr_reader :template
 
         def self.to_sym
@@ -19,7 +18,6 @@ module Buildkite
         end
 
         def initialize(pipeline, template = nil, **args, &block)
-          @pipeline = pipeline
           @template = template
           @context = StepContext.new(self, **args)
 

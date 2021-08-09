@@ -32,10 +32,10 @@ module Buildkite
         puts <<~HELP
           #{'SYNOPSIS'.bright}
           \t#{'buildkite-builder'.bright} COMMAND [OPTIONS] [PIPELINE]
-  
+
           \t#{'To see available options for specific commands:'.color(:dimgray)}
           \t#{'buildkite-builder'.bright} COMMAND --help
-  
+
           #{'COMMANDS'.bright}
         HELP
         COMMANDS.each do |command, klass|
