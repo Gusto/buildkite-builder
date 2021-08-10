@@ -11,8 +11,8 @@ module Buildkite
           @pipeline = pipeline
         end
 
-        def run
-          _log_run { process }
+        def run(**args)
+          _log_run { process(**args) }
         end
 
         private

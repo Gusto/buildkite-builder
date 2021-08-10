@@ -27,7 +27,7 @@ module Buildkite
         @steps = []
         @plugins = {}
         @templates = {}
-        @processors = []
+        @processors = {}
         @notify = []
         @built = false
       end
@@ -145,7 +145,7 @@ module Buildkite
           raise "#{processor} must inherit from Buildkite::Builder::Processors::Abstract"
         end
 
-        @processors << processor.new(self, **args)
+        @processors[processor.new(self)] = args
       end
 
       def to_h
@@ -180,8 +180,8 @@ module Buildkite
       end
 
       def run_processors
-        processors.each do |processor|
-          processor.run
+        processors.each do |processor, args|
+          processor.run(**args)
         end
       end
 
