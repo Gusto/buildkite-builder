@@ -23,7 +23,7 @@ module Buildkite
         @root = root
         @logger = logger || Logger.new(File::NULL)
         @artifacts = []
-        @pipeline_dsl = DSL::Pipeline.new
+        @pipeline_dsl = Dsl::Pipeline.new
         @plugins = {}
         @processors = []
         @built = false

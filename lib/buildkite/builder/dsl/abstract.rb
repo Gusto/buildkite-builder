@@ -1,6 +1,6 @@
 module Buildkite
   module Builder
-    module DSL
+    module Dsl
       class Abstract
         def data
           @data ||= {}

@@ -1,6 +1,6 @@
 module Buildkite
   module Builder
-    module DSL
+    module Dsl
       module Features
         module Wait
           def wait(attributes = {}, &block)

@@ -1,6 +1,6 @@
 module Buildkite
   module Builder
-    module DSL
+    module Dsl
       class Pipeline < Abstract
         include Features::Env
         include Features::Notify

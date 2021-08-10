@@ -2,7 +2,7 @@
 
 module Buildkite
   module Builder
-    module DSL
+    module Dsl
       module Features
         module Notify
           def notify(*args)

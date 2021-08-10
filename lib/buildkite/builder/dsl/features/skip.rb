@@ -2,7 +2,7 @@
 
 module Buildkite
   module Builder
-    module DSL
+    module Dsl
       module Features
         module Skip
           def skip(template = nil, **args, &block)

@@ -1,6 +1,6 @@
 module Buildkite
   module Builder
-    module DSL
+    module Dsl
       module Features
         module Block
           def block(template = nil, **args, &block)

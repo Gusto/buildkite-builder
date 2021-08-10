@@ -2,7 +2,7 @@
 
 module Buildkite
   module Builder
-    module DSL
+    module Dsl
       module Features
         autoload :Env, File.expand_path('features/env', __dir__)
         autoload :Block, File.expand_path('features/block', __dir__)

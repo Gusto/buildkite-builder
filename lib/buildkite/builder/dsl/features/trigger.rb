@@ -1,6 +1,6 @@
 module Buildkite
   module Builder
-    module DSL
+    module Dsl
       module Features
         module Trigger
           def trigger(template = nil, **args, &block)
