@@ -12,7 +12,7 @@ module Buildkite
 
       PIPELINE_DEFINITION_FILE = Pathname.new('pipeline.rb').freeze
 
-      attr_reader :logger, :root, :artifacts, :steps, :plugins, :templates
+      attr_reader :logger, :root, :artifacts, :steps, :plugins, :templates, :processors
 
       def self.build(root, logger: nil)
         pipeline = new(root, logger: logger)
@@ -27,7 +27,7 @@ module Buildkite
         @steps = []
         @plugins = {}
         @templates = {}
-        @processors = []
+        @processors = {}
         @notify = []
         @built = false
       end
@@ -140,20 +140,12 @@ module Buildkite
         @templates[name.to_s] = definition
       end
 
-      def processors(*processor_classes)
-        unless processor_classes.empty?
-          @processors.clear
-
-          processor_classes.flatten.each do |processor|
-            unless processor < Buildkite::Builder::Processors::Abstract
-              raise "#{processor} must inherit from Buildkite::Builder::Processors::Abstract"
-            end
-
-            @processors << processor
-          end
+      def use(processor, **args)
+        unless processor < Buildkite::Builder::Processors::Abstract
+          raise "#{processor} must inherit from Buildkite::Builder::Processors::Abstract"
         end
 
-        @processors
+        @processors[processor.new(self)] = args
       end
 
       def to_h
@@ -188,8 +180,8 @@ module Buildkite
       end
 
       def run_processors
-        processors.each do |processor|
-          processor.process(self)
+        processors.each do |processor, args|
+          processor.run(**args)
         end
       end
 

@@ -1,7 +1,6 @@
 Buildkite::Builder.pipeline do
-  processors(
-    Processors::PipelineSpecificProcessor,
-    Processors::SharedProcessor
-  )
+  use(Processors::PipelineSpecificProcessor, foo: :bar)
+  use(Processors::SharedProcessor)
+
   command(:basic)
 end
