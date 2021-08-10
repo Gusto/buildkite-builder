@@ -18,7 +18,7 @@ Buildkite::Builder.pipeline do
   if true == false
     command do
       label "This won't run"
-      command :noop
+      command 'true'
     end
   end
 
@@ -28,7 +28,7 @@ Buildkite::Builder.pipeline do
   # Add a skipped step. You can see this step when you click the "eye" icon on
   # the Buildkite web UI.
   command do
-    command :noop
+    command 'true'
     label "Skipped Step"
 
     # Conditionally skip a step.

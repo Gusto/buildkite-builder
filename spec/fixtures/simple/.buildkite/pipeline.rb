@@ -1,6 +1,6 @@
 Buildkite::Builder.pipeline do
   command do
     label 'Simple step'
-    command :noop
+    command 'true'
   end
 end
