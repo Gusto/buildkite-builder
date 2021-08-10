@@ -25,7 +25,7 @@ module Buildkite
         @artifacts = []
         @pipeline_dsl = Dsl::Pipeline.new
         @plugins = {}
-        @processors = []
+        @processors = {}
         @built = false
       end
 
@@ -80,20 +80,12 @@ module Buildkite
         @plugins[name] = [uri, version]
       end
 
-      def processors(*processor_classes)
-        unless processor_classes.empty?
-          @processors.clear
-
-          processor_classes.flatten.each do |processor|
-            unless processor < Buildkite::Builder::Processors::Abstract
-              raise "#{processor} must inherit from Buildkite::Builder::Processors::Abstract"
-            end
-
-            @processors << processor
-          end
+      def use(processor, **args)
+        unless processor < Buildkite::Builder::Processors::Abstract
+          raise "#{processor} must inherit from Buildkite::Builder::Processors::Abstract"
         end
 
-        @processors
+        @processors[processor.new(self)] = args
       end
 
       def to_h
@@ -137,8 +129,8 @@ module Buildkite
       end
 
       def run_processors
-        processors.each do |processor|
-          processor.process(self)
+        processors.each do |processor, args|
+          processor.run(**args)
         end
       end
 

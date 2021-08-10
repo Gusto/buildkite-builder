@@ -1,4 +1,4 @@
 Buildkite::Builder.pipeline do
-  processors(Processors::Basic)
+  use(Processors::Basic)
   command(:basic)
 end

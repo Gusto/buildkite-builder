@@ -8,11 +8,7 @@ module Buildkite
           return super if values.empty?
 
           values.flatten.each do |value|
-            if value == :noop
-              super('true')
-            else
-              super(value)
-            end
+            super(value)
           end
         end
       end
