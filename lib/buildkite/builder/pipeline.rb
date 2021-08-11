@@ -12,7 +12,16 @@ module Buildkite
 
       PIPELINE_DEFINITION_FILE = Pathname.new('pipeline.rb').freeze
 
-      attr_reader :logger, :root, :artifacts, :plugins, :pipeline_dsl
+      attr_reader :logger,
+                  :root,
+                  :artifacts,
+                  :plugins,
+                  :pipeline_dsl,
+                  :env,
+                  :templates,
+                  :notify,
+                  :steps,
+                  :groups
 
       def self.build(root, logger: nil)
         pipeline = new(root, logger: logger)
@@ -23,14 +32,15 @@ module Buildkite
         @root = root
         @logger = logger || Logger.new(File::NULL)
         @artifacts = []
-        @pipeline_dsl = Dsl::Pipeline.new
         @plugins = {}
         @processors = {}
+        @env = {}
+        @templates = {}
+        @steps = []
+        @notify = []
+        @groups = []
         @built = false
-      end
-
-      def steps
-        pipeline_dsl.data[:steps] || []
+        @pipeline_dsl = Dsl::Pipeline.new(self)
       end
 
       def built?
@@ -90,14 +100,17 @@ module Buildkite
 
       def to_h
         pipeline_data = {}
-        if pipeline_dsl.data[:env]
-          pipeline_data[:env] = pipeline_dsl.data[:env]
-        end
-        if pipeline_dsl.data[:notify]
-          pipeline_data[:notify] = pipeline_dsl.data[:notify]
-        end
+        pipeline_data[:env] = env if env.any?
+        pipeline_data[:notify] = notify if notify.any?
+        if groups.any?
+          pipeline_data[:steps] = groups.map do |group|
+            { group: group[:group], steps: group[:steps].map(&:to_h) }
+          end
 
-        pipeline_data[:steps] = steps.map(&:to_h)
+          pipeline_data[:steps] += steps.map(&:to_h)
+        else
+          pipeline_data[:steps] = steps.map(&:to_h)
+        end
 
         Pipelines::Helpers.sanitize(pipeline_data)
       end
@@ -129,7 +142,7 @@ module Buildkite
       end
 
       def run_processors
-        processors.each do |processor, args|
+        @processors.each do |processor, args|
           processor.run(**args)
         end
       end

@@ -4,7 +4,7 @@ module Buildkite
       module Features
         module Command
           def command(template = nil, **args, &block)
-            add_to_steps(Pipelines::Steps::Command, template, **args, &block)
+            Helpers.add_to_steps(_context, Pipelines::Steps::Command, template, **args, &block)
           end
         end
       end

@@ -4,7 +4,7 @@ module Buildkite
       module Features
         module Trigger
           def trigger(template = nil, **args, &block)
-            add_to_steps(Pipelines::Steps::Trigger, template, **args, &block)
+            Helpers.add_to_steps(_context, Pipelines::Steps::Trigger, template, **args, &block)
           end
         end
       end

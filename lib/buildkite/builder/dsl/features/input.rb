@@ -4,7 +4,7 @@ module Buildkite
       module Features
         module Input
           def input(template = nil, **args, &block)
-            add_to_steps(Pipelines::Steps::Input, template, **args, &block)
+            Helpers.add_to_steps(_context, Pipelines::Steps::Input, template, **args, &block)
           end
         end
       end
