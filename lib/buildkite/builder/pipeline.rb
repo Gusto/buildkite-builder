@@ -34,6 +34,10 @@ module Buildkite
         @built = false
         @data = Data.new(env: {}, notify: [], steps: [])
         @dsl = Dsl.new(self, @data, extensions: true)
+
+        register(Extensions::Env)
+        register(Extensions::Notify)
+        register(Extensions::Steps)
       end
 
       def built?
