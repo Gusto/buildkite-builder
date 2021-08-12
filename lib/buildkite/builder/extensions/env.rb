@@ -1,7 +1,7 @@
 module Buildkite
   module Builder
     module Extensions
-      class Steps < Extension
+      class Env < Extension
         dsl do
           def env(*args)
             if args.first.is_a?(Hash)

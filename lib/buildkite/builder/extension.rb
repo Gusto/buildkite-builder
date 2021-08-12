@@ -3,7 +3,7 @@
 module Buildkite
   module Builder
     class Extension
-      class < self
+      class << self
         attr_reader :dsl_module
 
         def dsl(&block)
@@ -12,11 +12,9 @@ module Buildkite
       end
 
       attr_reader :context
-      attr_reader :data
 
-      def initialize(context, data)
+      def initialize(context)
         @context = context
-        @data = data
       end
 
       def build

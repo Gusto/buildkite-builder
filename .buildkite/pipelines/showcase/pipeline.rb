@@ -1,4 +1,13 @@
 Buildkite::Builder.pipeline do
+  use(Buildkite::Builder::Extensions::Steps)
+  use(Buildkite::Builder::Extensions::Env)
+  use(Buildkite::Builder::Extensions::Notify)
+
+  env(CI: '1')
+  env(DEPLOYABLE: '1')
+  notify(email: "dev@acmeinc.com")
+  notify( basecamp_campfire: "https://3.basecamp.com/1234567/integrations/qwertyuiop/buckets/1234567/chats/1234567/lines")
+
   group do
     # Load the "rspec" template as a command.
     # .buildkite/pipelines/showcase/templates/rspec.rb

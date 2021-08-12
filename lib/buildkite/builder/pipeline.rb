@@ -30,14 +30,10 @@ module Buildkite
         @artifacts = []
         @plugins = {}
         @extensions = {}
-        @env = {}
         @templates = {}
-        @steps = []
-        @notify = []
-        @groups = []
         @built = false
-        @data = Data
-        @dsl = Dsl.new(self, @data, extentions: true)
+        @data = Data.new(steps: [], env: {}, notify: [])
+        @dsl = Dsl.new(self, @data, extensions: true)
       end
 
       def built?
@@ -86,6 +82,18 @@ module Buildkite
         @plugins[name] = [uri, version]
       end
 
+      def template(name, &definition)
+        name = name.to_s
+
+        if @templates.key?(name)
+          raise ArgumentError, "Template already defined: #{name}"
+        elsif !block_given?
+          raise ArgumentError, 'Template definition block must be given'
+        end
+
+        @templates[name.to_s] = definition
+      end
+
       def register(extension_class, **args)
         unless extension_class < Buildkite::Builder::Extension
           raise "#{extension_class} must inherit from Buildkite::Builder::Extension"
@@ -96,11 +104,11 @@ module Buildkite
       end
 
       def to_h
-        @extensions.each do |klass, args|
-          klass.new(self, data).build(**args)
+        @extensions.each do |extension, args|
+          extension.build(**args)
         end
 
-        Pipelines::Helpers.sanitize(data)
+        Pipelines::Helpers.sanitize(@data.to_pipeline)
       end
 
       def to_yaml
@@ -117,8 +125,7 @@ module Buildkite
 
       def load_templates
         Loaders::Templates.load(root).each do |name, asset|
-          # TODO: templates should sit here, not dsl.
-          pipeline_dsl.template(name, &asset)
+          template(name, &asset)
         end
       end
 

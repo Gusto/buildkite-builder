@@ -1,28 +1,19 @@
-# frozen_string_literal: true
-
 module Buildkite
   module Builder
-    module Processors
-      class Abstract
-        include LoggingUtils
-        using Rainbow
-
-        def initialize(pipeline)
-          @pipeline = pipeline
-        end
-
-        def run(**args)
-          _log_run { process(**args) }
+    module Extensions
+      class Processor < Extension
+        def build(**args)
+          _log_run { run(**args) }
         end
 
         private
 
-        def process
+        def run
           raise NotImplementedError
         end
 
         def log
-          @pipeline.logger
+          context.logger
         end
 
         def buildkite
@@ -36,15 +27,10 @@ module Buildkite
         end
 
         def pipeline_steps(*types)
-          steps = pipeline.steps
+          steps = datap[:steps]
           types = types.flatten
           steps = steps.select { |step| types.include?(step.class.to_sym) } if types.any?
           steps
-        end
-
-        def pipeline(&block)
-          return @pipeline unless block_given?
-          @pipeline.compose(&block)
         end
 
         def _log_run

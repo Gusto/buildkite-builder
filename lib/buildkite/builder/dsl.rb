@@ -9,15 +9,15 @@ module Buildkite
       def initialize(context, data, extensions: false)
         @context = context
         @data = data
-        @_supports_extentions = extensions
+        @_supports_extensions = extensions
       end
 
       def use(extension_class, **args)
-        unless @_supports_extentions
+        unless @_supports_extensions
           raise "Context (#{_context}) does not support extensions"
         end
 
-        _context.register(extension_class, **args)
+        context.register(extension_class, **args)
       end
     end
   end
