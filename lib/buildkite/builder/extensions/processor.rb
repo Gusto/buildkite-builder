@@ -27,7 +27,7 @@ module Buildkite
         end
 
         def pipeline_steps(*types)
-          steps = datap[:steps]
+          steps = data[:steps]
           types = types.flatten
           steps = steps.select { |step| types.include?(step.class.to_sym) } if types.any?
           steps
