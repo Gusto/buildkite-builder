@@ -16,12 +16,8 @@ module Buildkite
                   :root,
                   :artifacts,
                   :plugins,
-                  :pipeline_dsl,
-                  :env,
-                  :templates,
-                  :notify,
-                  :steps,
-                  :groups
+                  :dsl,
+                  :templates
 
       def self.build(root, logger: nil)
         pipeline = new(root, logger: logger)
@@ -33,14 +29,15 @@ module Buildkite
         @logger = logger || Logger.new(File::NULL)
         @artifacts = []
         @plugins = {}
-        @processors = {}
+        @extensions = {}
         @env = {}
         @templates = {}
         @steps = []
         @notify = []
         @groups = []
         @built = false
-        @pipeline_dsl = Dsl::Pipeline.new(self)
+        @data = Data
+        @dsl = Dsl.new(self, @data, extentions: true)
       end
 
       def built?
@@ -52,9 +49,8 @@ module Buildkite
           unless built?
             load_manifests
             load_templates
-            load_processors
-            pipeline_dsl.instance_eval(&pipeline_definition)
-            run_processors
+            load_extensions
+            dsl.instance_eval(&pipeline_definition)
           end
         end
         logger.info(results)
@@ -90,37 +86,25 @@ module Buildkite
         @plugins[name] = [uri, version]
       end
 
-      def use(processor, **args)
-        unless processor < Buildkite::Builder::Processors::Abstract
-          raise "#{processor} must inherit from Buildkite::Builder::Processors::Abstract"
+      def register(extension_class, **args)
+        unless extension_class < Buildkite::Builder::Extension
+          raise "#{extension_class} must inherit from Buildkite::Builder::Extension"
         end
 
-        @processors[processor.new(self)] = args
+        @extensions[extension_class.new(self)] = args
+        dsl.extend(extension_class.dsl_module)
       end
 
       def to_h
-        pipeline_data = {}
-        pipeline_data[:env] = env if env.any?
-        pipeline_data[:notify] = notify if notify.any?
-        if groups.any?
-          pipeline_data[:steps] = groups.map do |group|
-            { group: group[:group], steps: group[:steps].map(&:to_h) }
-          end
-
-          pipeline_data[:steps] += steps.map(&:to_h)
-        else
-          pipeline_data[:steps] = steps.map(&:to_h)
+        @extensions.each do |klass, args|
+          klass.new(self, data).build(**args)
         end
 
-        Pipelines::Helpers.sanitize(pipeline_data)
+        Pipelines::Helpers.sanitize(data)
       end
 
       def to_yaml
         YAML.dump(to_h)
-      end
-
-      def compose(&block)
-        pipeline_dsl.instance_eval(&block)
       end
 
       private
@@ -133,18 +117,13 @@ module Buildkite
 
       def load_templates
         Loaders::Templates.load(root).each do |name, asset|
+          # TODO: templates should sit here, not dsl.
           pipeline_dsl.template(name, &asset)
         end
       end
 
-      def load_processors
-        Loaders::Processors.load(root)
-      end
-
-      def run_processors
-        @processors.each do |processor, args|
-          processor.run(**args)
-        end
+      def load_extensions
+        Loaders::Extensions.load(root)
       end
 
       def upload_artifacts
@@ -155,10 +134,6 @@ module Buildkite
             Buildkite::Pipelines::Command.artifact!(:upload, path)
           end
         end
-      end
-
-      def load_pipeline
-        pipeline_dsl.instance_eval(&pipeline_definition)
       end
 
       def pipeline_definition

@@ -2,11 +2,23 @@
 
 module Buildkite
   module Builder
-    module Dsl
-      autoload :Abstract, File.expand_path('dsl/abstract', __dir__)
-      autoload :Features, File.expand_path('dsl/features', __dir__)
-      autoload :Group, File.expand_path('dsl/group', __dir__)
-      autoload :Pipeline, File.expand_path('dsl/pipeline', __dir__)
+    class Dsl
+      attr_reader :context
+      attr_reader :data
+
+      def initialize(context, data, extensions: false)
+        @context = context
+        @data = data
+        @_supports_extentions = extensions
+      end
+
+      def use(extension_class, **args)
+        unless @_supports_extentions
+          raise "Context (#{_context}) does not support extensions"
+        end
+
+        _context.register(extension_class, **args)
+      end
     end
   end
 end

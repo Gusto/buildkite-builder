@@ -1,11 +1,20 @@
 module Buildkite
   module Builder
     class Group
-      attr_reader :steps, :templates
+      attr_reader :label
+      attr_reader :data
 
-      def initialize(_context)
-        @steps = []
-        @templates = _context.templates
+      def initialize(label, &block)
+        @label = label
+        @data = Data
+
+        dsl = Dsl.new(self, @data)
+        dsl.extend(Extensions::Steps.dsl_module)
+        dsl.instance_eval(&block)
+      end
+
+      def to_pipeline
+        # TODO: translate group data
       end
     end
   end
