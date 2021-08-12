@@ -32,7 +32,7 @@ module Buildkite
         @extensions = {}
         @templates = {}
         @built = false
-        @data = Data.new(steps: [], env: {}, notify: [])
+        @data = Data.new(env: {}, notify: [], steps: [])
         @dsl = Dsl.new(self, @data, extensions: true)
       end
 

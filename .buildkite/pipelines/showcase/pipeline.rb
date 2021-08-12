@@ -1,7 +1,7 @@
 Buildkite::Builder.pipeline do
-  use(Buildkite::Builder::Extensions::Steps)
   use(Buildkite::Builder::Extensions::Env)
   use(Buildkite::Builder::Extensions::Notify)
+  use(Buildkite::Builder::Extensions::Steps)
 
   env(CI: '1')
   env(DEPLOYABLE: '1')
