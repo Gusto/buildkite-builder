@@ -12,12 +12,22 @@ module Buildkite
       end
 
       attr_reader :context
+      attr_reader :options
 
-      def initialize(context)
+      def initialize(context, **options)
         @context = context
+        @options = options
+
+        prepare
       end
 
       def build
+        # Override to provide extra functionality.
+      end
+
+      private
+
+      def prepare
         # Override to provide extra functionality.
       end
     end

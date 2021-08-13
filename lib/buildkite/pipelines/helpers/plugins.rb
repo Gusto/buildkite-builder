@@ -12,7 +12,7 @@ module Buildkite
             raise ArgumentError, "Plugin already used for command step: #{plugin_name}"
           end
 
-          uri, version = pipeline.plugins.fetch(plugin_name)
+          uri, version = pipeline.data[:plugins].fetch(plugin_name)
           new_plugin = Plugin.new(uri, version, options)
           @plugins[plugin_name] = new_plugin
 

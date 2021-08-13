@@ -4,11 +4,9 @@ module Buildkite
   module Builder
     class Dsl
       attr_reader :context
-      attr_reader :data
 
-      def initialize(context, data, extensions: false)
+      def initialize(context, extensions: false)
         @context = context
-        @data = data
         @_supports_extensions = extensions
       end
 

@@ -3,20 +3,23 @@ module Buildkite
     class Group
       attr_reader :label
       attr_reader :data
-      attr_reader :templates
 
-      def initialize(label, templates, &block)
+      def initialize(label, pipeline, &block)
         @label = label
-        @data = Data.new(steps: [])
-        @templates = templates
 
-        dsl = Dsl.new(self, @data)
+        @data = pipeline.data.dup
+        @data[:steps] = StepsCollection.new(pipeline)
+
+        dsl = Dsl.new(self)
         dsl.extend(Extensions::Steps.dsl_module)
         dsl.instance_eval(&block)
       end
 
-      def to_pipeline
-        { group: label, steps: data[:steps].map(&:to_pipeline) }
+      def to_h
+        {
+          group: label,
+          steps: data[:steps].to_definition
+        }
       end
     end
   end

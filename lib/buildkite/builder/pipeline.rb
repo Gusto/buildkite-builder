@@ -17,6 +17,7 @@ module Buildkite
                   :artifacts,
                   :plugins,
                   :dsl,
+                  :data,
                   :templates
 
       def self.build(root, logger: nil)
@@ -29,11 +30,11 @@ module Buildkite
         @logger = logger || Logger.new(File::NULL)
         @artifacts = []
         @plugins = {}
-        @extensions = {}
+        @extensions = []
         @templates = {}
         @built = false
-        @data = Data.new(env: {}, notify: [], steps: [])
-        @dsl = Dsl.new(self, @data, extensions: true)
+        @data = {}
+        @dsl = Dsl.new(self, extensions: true)
 
         register(Extensions::Env)
         register(Extensions::Notify)
@@ -103,16 +104,21 @@ module Buildkite
           raise "#{extension_class} must inherit from Buildkite::Builder::Extension"
         end
 
-        @extensions[extension_class.new(self)] = args
+        @extensions.push(extension_class.new(self, **args))
         dsl.extend(extension_class.dsl_module)
       end
 
       def to_h
-        @extensions.each do |extension, args|
-          extension.build(**args)
+        # Build all extensions.
+        @extensions.each(&:build)
+
+        # Build the pipeline definition from pipeline data.
+        definition = data.each_with_object({}) do |(key, value), hash|
+          next unless value = value.to_definition
+          hash[key] = value
         end
 
-        Pipelines::Helpers.sanitize(@data.to_pipeline)
+        Pipelines::Helpers.sanitize(definition)
       end
 
       def to_yaml
