@@ -2,10 +2,14 @@ module Buildkite
   module Builder
     module Extensions
       class Notify < Extension
+        def prepare
+          context.data[:notify] = []
+        end
+
         dsl do
           def notify(*args)
             if args.first.is_a?(Hash)
-              data[:notify].push(args.first.transform_keys(&:to_s))
+              context.data[:notify].push(args.first.transform_keys(&:to_s))
             else
               raise ArgumentError, 'value must be hash'
             end

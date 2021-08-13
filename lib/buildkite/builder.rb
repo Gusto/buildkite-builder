@@ -8,7 +8,6 @@ module Buildkite
     autoload :Group, File.expand_path('builder/group', __dir__)
     autoload :Pipeline, File.expand_path('builder/pipeline', __dir__)
     autoload :Definition, File.expand_path('builder/definition', __dir__)
-    autoload :Data, File.expand_path('builder/data', __dir__)
     autoload :Dsl, File.expand_path('builder/dsl', __dir__)
     autoload :Extension, File.expand_path('builder/extension', __dir__)
     autoload :Extensions, File.expand_path('builder/extensions', __dir__)
@@ -19,6 +18,9 @@ module Buildkite
     autoload :Manifest, File.expand_path('builder/manifest', __dir__)
     autoload :Processors, File.expand_path('builder/processors', __dir__)
     autoload :Rainbow, File.expand_path('builder/rainbow', __dir__)
+    autoload :StepsCollection, File.expand_path('builder/steps_collection', __dir__)
+    autoload :TemplateRegistry, File.expand_path('builder/template_registry', __dir__)
+    autoload :PluginRegistry, File.expand_path('builder/plugin_registry', __dir__)
 
     BUILDKITE_DIRECTORY_NAME = Pathname.new('.buildkite').freeze
 

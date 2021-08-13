@@ -1,16 +1,28 @@
 module Buildkite
   module Builder
     class TemplateRegistry
-      def initialize
-        # Load templates here...
+      attr_reader :context
+
+      def initialize(context)
+        @templates = {}
+
+        Loaders::Templates.load(context.root).each do |name, asset|
+          @templates[name.to_s] = asset
+        end
       end
 
       def find(name)
         return unless name
 
-        name = name.to_s
+        definition = @templates[name.to_s]
+
+        raise ArgumentError, "Template not defined: #{name}" unless definition
+
         definition
-        raise ArgumentError, "Template not defined: #{template}"
+      end
+
+      def to_definition
+        # No-op
       end
     end
   end

@@ -17,8 +17,7 @@ module Buildkite
                   :artifacts,
                   :plugins,
                   :dsl,
-                  :data,
-                  :templates
+                  :data
 
       def self.build(root, logger: nil)
         pipeline = new(root, logger: logger)
@@ -31,7 +30,6 @@ module Buildkite
         @artifacts = []
         @plugins = {}
         @extensions = []
-        @templates = {}
         @built = false
         @data = {}
         @dsl = Dsl.new(self, extensions: true)
@@ -49,7 +47,6 @@ module Buildkite
         results = benchmark("\nDone (%s)".color(:springgreen)) do
           unless built?
             load_manifests
-            load_templates
             load_extensions
             dsl.instance_eval(&pipeline_definition)
           end
@@ -77,28 +74,6 @@ module Buildkite
         end
       end
 
-      def plugin(name, uri, version)
-        name = name.to_s
-
-        if plugins.key?(name)
-          raise ArgumentError, "Plugin already defined: #{name}"
-        end
-
-        @plugins[name] = [uri, version]
-      end
-
-      def template(name, &definition)
-        name = name.to_s
-
-        if @templates.key?(name)
-          raise ArgumentError, "Template already defined: #{name}"
-        elsif !block_given?
-          raise ArgumentError, 'Template definition block must be given'
-        end
-
-        @templates[name.to_s] = definition
-      end
-
       def register(extension_class, **args)
         unless extension_class < Buildkite::Builder::Extension
           raise "#{extension_class} must inherit from Buildkite::Builder::Extension"
@@ -110,11 +85,14 @@ module Buildkite
 
       def to_h
         # Build all extensions.
-        @extensions.each(&:build)
+        @extensions.each(&:_build)
 
         # Build the pipeline definition from pipeline data.
         definition = data.each_with_object({}) do |(key, value), hash|
-          next unless value = value.to_definition
+          value = value.respond_to?(:to_definition) ? value.to_definition : value
+
+          next unless value
+
           hash[key] = value
         end
 
@@ -130,12 +108,6 @@ module Buildkite
       def load_manifests
         Loaders::Manifests.load(root).each do |name, asset|
           Manifest[name] = asset
-        end
-      end
-
-      def load_templates
-        Loaders::Templates.load(root).each do |name, asset|
-          template(name, &asset)
         end
       end
 

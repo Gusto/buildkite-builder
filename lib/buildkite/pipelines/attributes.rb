@@ -46,7 +46,7 @@ module Buildkite
         attributes.delete(validate(attr))
       end
 
-      def to_pipeline
+      def to_h
         permitted_attributes.each_with_object({}) do |attr, hash|
           hash[attr] = get(attr) if has?(attr)
         end
