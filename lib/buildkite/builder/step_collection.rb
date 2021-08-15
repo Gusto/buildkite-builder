@@ -1,6 +1,6 @@
 module Buildkite
   module Builder
-    class StepsCollection
+    class StepCollection
       attr_reader :context
 
       def initialize(context)
