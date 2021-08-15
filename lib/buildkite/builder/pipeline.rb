@@ -34,10 +34,10 @@ module Buildkite
         @data = {}
         @dsl = Dsl.new(self)
 
-        register(Extensions::Use)
-        register(Extensions::Env)
-        register(Extensions::Notify)
-        register(Extensions::Steps)
+        use(Extensions::Use)
+        use(Extensions::Env)
+        use(Extensions::Notify)
+        use(Extensions::Steps)
       end
 
       def built?
@@ -75,7 +75,7 @@ module Buildkite
         end
       end
 
-      def register(extension_class, **args)
+      def use(extension_class, **args)
         unless extension_class < Buildkite::Builder::Extension
           raise "#{extension_class} must inherit from Buildkite::Builder::Extension"
         end

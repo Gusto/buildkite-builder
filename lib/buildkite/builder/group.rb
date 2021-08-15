@@ -8,7 +8,7 @@ module Buildkite
         @label = label
 
         @data = pipeline.data.dup
-        @data[:steps] = StepsCollection.new(pipeline)
+        @data[:steps] = StepCollection.new(pipeline)
 
         dsl = Dsl.new(self)
         dsl.extend(Extensions::Steps.dsl_module)

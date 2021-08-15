@@ -3,7 +3,7 @@ module Buildkite
     module Extensions
       class Steps < Extension
         def prepare
-          context.data[:steps] = StepsCollection.new(context)
+          context.data[:steps] = StepCollection.new(context)
           context.data[:templates] = TemplateRegistry.new(context)
           context.data[:plugins] = PluginRegistry.new
         end
