@@ -32,8 +32,9 @@ module Buildkite
         @extensions = []
         @built = false
         @data = {}
-        @dsl = Dsl.new(self, extensions: true)
+        @dsl = Dsl.new(self)
 
+        register(Extensions::Use)
         register(Extensions::Env)
         register(Extensions::Notify)
         register(Extensions::Steps)
