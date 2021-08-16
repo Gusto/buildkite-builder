@@ -29,10 +29,10 @@ module Buildkite
         @logger = logger || Logger.new(File::NULL)
         @artifacts = []
         @plugins = {}
-        @extensions = []
+        @dsl = Dsl.new(self)
+        @extensions = ExtensionManager.new(self)
         @built = false
         @data = Data.new
-        @dsl = Dsl.new(self)
 
         use(Extensions::Use)
         use(Extensions::Env)
@@ -75,18 +75,12 @@ module Buildkite
         end
       end
 
-      def use(extension_class, **args)
-        unless extension_class < Buildkite::Builder::Extension
-          raise "#{extension_class} must inherit from Buildkite::Builder::Extension"
-        end
-
-        @extensions.push(extension_class.new(self, **args))
-        dsl.extend(extension_class)
+      def use(extension, **args)
+        extensions.use(extension, **args)
       end
 
       def to_h
-        # Build all extensions.
-        @extensions.each(&:_build)
+        extensions.build
 
         # Build the pipeline definition from pipeline data.
         Pipelines::Helpers.sanitize(data.to_definition)
@@ -97,6 +91,8 @@ module Buildkite
       end
 
       private
+
+      attr_reader :extensions
 
       def load_manifests
         Loaders::Manifests.load(root).each do |name, asset|
