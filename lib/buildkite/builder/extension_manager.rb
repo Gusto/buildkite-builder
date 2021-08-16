@@ -3,7 +3,7 @@ module Buildkite
     class ExtensionManager
       def initialize(context)
         @context = context
-        @extensions = {}
+        @extensions = []
       end
 
       def use(extension, **args)
@@ -11,8 +11,8 @@ module Buildkite
           raise "#{extension} must subclass Buildkite::Builder::Extension"
         end
 
-        @extensions.push(extension.new(self, **args))
-        context.dsl.extend(extension)
+        @extensions.push(extension.new(@context, **args))
+        @context.dsl.extend(extension)
       end
 
       def build

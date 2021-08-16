@@ -3,7 +3,7 @@ module Buildkite
     module Extensions
       class Env < Extension
         def prepare
-          context.data[:env] = {}
+          context.data.env = {}
         end
 
         dsl do

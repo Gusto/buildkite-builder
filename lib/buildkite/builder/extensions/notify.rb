@@ -3,7 +3,7 @@ module Buildkite
     module Extensions
       class Notify < Extension
         def prepare
-          context.data[:notify] = []
+          context.data.notify = []
         end
 
         dsl do
