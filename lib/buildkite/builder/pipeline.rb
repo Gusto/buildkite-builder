@@ -31,7 +31,7 @@ module Buildkite
         @plugins = {}
         @extensions = []
         @built = false
-        @data = {}
+        @data = Data.new
         @dsl = Dsl.new(self)
 
         use(Extensions::Use)

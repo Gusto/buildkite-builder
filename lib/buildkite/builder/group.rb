@@ -6,12 +6,12 @@ module Buildkite
 
       def initialize(label, steps, &block)
         @label = label
-        @data = {
+        @data = Data.new(
           steps: StepCollection.new(
             steps.templates,
             steps.plugins
           )
-        }
+        )
 
         dsl = Dsl.new(self)
         dsl.extend(Extensions::Steps)
@@ -21,7 +21,7 @@ module Buildkite
       def to_h
         {
           group: label,
-          steps: data[:steps].to_definition
+          steps: data.steps.to_definition
         }
       end
     end

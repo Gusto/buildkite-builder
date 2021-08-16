@@ -9,7 +9,7 @@ module Buildkite
         dsl do
           def env(*args)
             if args.first.is_a?(Hash)
-              context.data[:env].merge!(args.first.transform_keys(&:to_s))
+              context.data.env.merge!(args.first.transform_keys(&:to_s))
             else
               raise ArgumentError, 'value must be hash'
             end

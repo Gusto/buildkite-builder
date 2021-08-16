@@ -8,6 +8,7 @@ module Buildkite
     autoload :Group, File.expand_path('builder/group', __dir__)
     autoload :Pipeline, File.expand_path('builder/pipeline', __dir__)
     autoload :Definition, File.expand_path('builder/definition', __dir__)
+    autoload :Data, File.expand_path('builder/data', __dir__)
     autoload :Dsl, File.expand_path('builder/dsl', __dir__)
     autoload :Extension, File.expand_path('builder/extension', __dir__)
     autoload :Extensions, File.expand_path('builder/extensions', __dir__)
