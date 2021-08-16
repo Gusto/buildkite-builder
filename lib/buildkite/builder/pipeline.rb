@@ -81,7 +81,7 @@ module Buildkite
         end
 
         @extensions.push(extension_class.new(self, **args))
-        dsl.extend(extension_class.dsl_module)
+        dsl.extend(extension_class)
       end
 
       def to_h

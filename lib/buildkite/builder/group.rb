@@ -4,14 +4,17 @@ module Buildkite
       attr_reader :label
       attr_reader :data
 
-      def initialize(label, pipeline, &block)
+      def initialize(label, steps, &block)
         @label = label
-
-        @data = pipeline.data.dup
-        @data[:steps] = StepCollection.new(pipeline)
+        @data = {
+          steps: StepCollection.new(
+            steps.templates,
+            steps.plugins
+          )
+        }
 
         dsl = Dsl.new(self)
-        dsl.extend(Extensions::Steps.dsl_module)
+        dsl.extend(Extensions::Steps)
         dsl.instance_eval(&block)
       end
 

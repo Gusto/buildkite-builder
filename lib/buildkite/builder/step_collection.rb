@@ -1,10 +1,13 @@
 module Buildkite
   module Builder
     class StepCollection
-      attr_reader :context
+      attr_reader :templates
+      attr_reader :plugins
+      attr_reader :steps
 
-      def initialize(context)
-        @context = context
+      def initialize(templates, plugins)
+        @templates = templates
+        @plugins = plugins
         @steps = []
       end
 
@@ -18,12 +21,6 @@ module Buildkite
 
       def to_definition
         @steps.map(&:to_h)
-      end
-
-      private
-
-      def templates
-        context.data[:templates]
       end
     end
   end

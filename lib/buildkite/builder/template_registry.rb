@@ -1,12 +1,10 @@
 module Buildkite
   module Builder
     class TemplateRegistry
-      attr_reader :context
-
-      def initialize(context)
+      def initialize(root)
         @templates = {}
 
-        Loaders::Templates.load(context.root).each do |name, asset|
+        Loaders::Templates.load(root).each do |name, asset|
           @templates[name.to_s] = asset
         end
       end
@@ -14,11 +12,19 @@ module Buildkite
       def find(name)
         return unless name
 
-        definition = @templates[name.to_s]
-
-        raise ArgumentError, "Template not defined: #{name}" unless definition
+        unless definition = @templates[name.to_s]
+          raise ArgumentError, "Template not defined: #{name}"
+        end
 
         definition
+      end
+
+      def find!(name)
+        unless name
+          raise ArgumentError, "Template name cannot be nil"
+        end
+
+        find(name)
       end
 
       def to_definition

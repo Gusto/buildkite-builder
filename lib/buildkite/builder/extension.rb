@@ -7,10 +7,11 @@ module Buildkite
       using Rainbow
 
       class << self
-        attr_reader :dsl_module
+        attr_reader :dsl
 
         def dsl(&block)
-          @dsl_module = Module.new(&block)
+          @dsl = Module.new(&block) if block_given?
+          @dsl
         end
       end
 
