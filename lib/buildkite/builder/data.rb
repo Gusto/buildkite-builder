@@ -14,7 +14,14 @@ module Buildkite
         @data[key.to_sym] = value
       end
 
-      def to_pipeline
+      def to_definition
+        @data.each_with_object({}) do |(key, value), hash|
+          value = value.respond_to?(:to_definition) ? value.to_definition : value
+
+          next unless value
+
+          hash[key] = value
+        end
       end
 
       private
@@ -26,7 +33,7 @@ module Buildkite
           return @data[name]
         end
 
-        @data.public_send(name, *args, &block)
+        super
       end
 
       def respond_to_missing?(symbol, *)

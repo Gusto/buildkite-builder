@@ -19,10 +19,7 @@ module Buildkite
       end
 
       def to_h
-        {
-          group: label,
-          steps: data.steps.to_definition
-        }
+        { group: label }.merge(data.to_definition)
       end
     end
   end

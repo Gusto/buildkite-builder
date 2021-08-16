@@ -89,15 +89,7 @@ module Buildkite
         @extensions.each(&:_build)
 
         # Build the pipeline definition from pipeline data.
-        definition = data.each_with_object({}) do |(key, value), hash|
-          value = value.respond_to?(:to_definition) ? value.to_definition : value
-
-          next unless value
-
-          hash[key] = value
-        end
-
-        Pipelines::Helpers.sanitize(definition)
+        Pipelines::Helpers.sanitize(data.to_definition)
       end
 
       def to_yaml
