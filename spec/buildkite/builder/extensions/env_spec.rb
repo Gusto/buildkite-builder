@@ -1,13 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Buildkite::Builder::Extensions::Env do
-  let(:context) do
-    Class.new do
-      def data
-        @data ||= Buildkite::Builder::Data.new
-      end
-    end.new
-  end
+  let(:context) { OpenStruct.new(data: Buildkite::Builder::Data.new) }
   let(:dsl) do
     Buildkite::Builder::Dsl.new(context).extend(described_class)
   end
