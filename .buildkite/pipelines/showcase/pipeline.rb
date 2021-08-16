@@ -14,7 +14,7 @@ Buildkite::Builder.pipeline do
     plugin :skip_checkout
   end
 
-  group do
+  group("Cool Group") do
     # Load the "rspec" template as a command.
     # .buildkite/pipelines/showcase/templates/rspec.rb
     command(:rspec)
@@ -23,6 +23,7 @@ Buildkite::Builder.pipeline do
     command(:rspec) do
       label "RSpec relabeled"
       command "echo 'do something else'"
+      plugin :skip_checkout
     end
   end
 

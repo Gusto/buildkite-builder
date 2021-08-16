@@ -19,14 +19,6 @@ module Buildkite
         definition
       end
 
-      def find!(name)
-        unless name
-          raise ArgumentError, "Template name cannot be nil"
-        end
-
-        find(name)
-      end
-
       def to_definition
         # No-op
       end

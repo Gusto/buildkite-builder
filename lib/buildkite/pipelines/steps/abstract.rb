@@ -12,13 +12,15 @@ module Buildkite
         def_delegator :@context, :data
 
         attr_reader :template
+        attr_reader :step_collection
 
         def self.to_sym
           name.split('::').last.downcase.to_sym
         end
 
-        def initialize(template = nil, **args, &block)
-          @template = template
+        def initialize(step_collection, template_name, **args, &block)
+          @step_collection = step_collection
+          @template = step_collection.templates.find(template_name)
           @context = StepContext.new(self, **args)
 
           instance_exec(@context, &template) if template

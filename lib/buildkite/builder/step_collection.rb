@@ -12,7 +12,7 @@ module Buildkite
       end
 
       def add(step_class, template = nil, **args, &block)
-        @steps.push(step_class.new(templates.find(template), **args, &block)).last
+        @steps.push(step_class.new(self, template, **args, &block)).last
       end
 
       def push(step)

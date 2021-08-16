@@ -13,7 +13,7 @@ module Buildkite
           def group(label = nil, &block)
             raise "Group does not allow nested in another Group" if context.is_a?(Group)
 
-            context.data[:steps].push(Buildkite::Builder::Group.new(label, context, &block))
+            context.data[:steps].push(Buildkite::Builder::Group.new(label, context.data[:steps], &block))
           end
 
           def plugin(name, uri, version)

@@ -5,8 +5,8 @@ module Buildkite
     class Dsl
       attr_reader :context
 
-      def self.extend(mod)
-        mod.is_a?(Extension) ? super(mod.dsl) : super
+      def extend(mod)
+        mod < Extension ? super(mod.dsl) : super
       end
 
       def initialize(context)
