@@ -4,6 +4,8 @@ module Buildkite
       def initialize(context)
         @context = context
         @extensions = []
+
+        Loaders::Extensions.load(@context.root)
       end
 
       def use(extension, **args)

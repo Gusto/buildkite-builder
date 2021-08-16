@@ -48,7 +48,6 @@ module Buildkite
         results = benchmark("\nDone (%s)".color(:springgreen)) do
           unless built?
             load_manifests
-            load_extensions
             dsl.instance_eval(&pipeline_definition)
           end
         end
@@ -98,10 +97,6 @@ module Buildkite
         Loaders::Manifests.load(root).each do |name, asset|
           Manifest[name] = asset
         end
-      end
-
-      def load_extensions
-        Loaders::Extensions.load(root)
       end
 
       def upload_artifacts
