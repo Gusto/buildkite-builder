@@ -53,6 +53,11 @@ module Buildkite
         # Override to provide extra functionality.
       end
 
+      def pipeline(&block)
+        context.dsl.instance_eval(&block) if block_given?
+        context
+      end
+
       def _log_run
         log.info "\nProcessing ".color(:dimgray) + self.class.name.color(:springgreen)
 
