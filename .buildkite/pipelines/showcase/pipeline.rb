@@ -9,6 +9,7 @@ Buildkite::Builder.pipeline do
 
   command do
     label "Step w/ Plugin"
+    key :step_with_plugin
     command "true"
     # Reference the plugin by its assigned name.
     plugin :skip_checkout
@@ -25,6 +26,9 @@ Buildkite::Builder.pipeline do
       command "echo 'do something else'"
       plugin :skip_checkout
     end
+
+    depends_on :step_with_plugin
+    key :cool_group
   end
 
   # Pass arguments into templates.

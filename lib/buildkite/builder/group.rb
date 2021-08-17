@@ -1,8 +1,13 @@
 module Buildkite
   module Builder
     class Group
+      include Buildkite::Pipelines::Attributes
+
       attr_reader :label
       attr_reader :data
+
+      attribute :depends_on, append: true
+      attribute :key
 
       def initialize(label, steps, &block)
         @label = label
@@ -13,13 +18,18 @@ module Buildkite
           )
         )
 
-        dsl = Dsl.new(self)
-        dsl.extend(Extensions::Steps)
-        dsl.instance_eval(&block)
+        @dsl = Dsl.new(self)
+        @dsl.extend(Extensions::Steps)
+        instance_eval(&block)
       end
 
       def to_h
-        { group: label }.merge(data.to_definition)
+        attributes = super
+        { group: label }.merge(attributes).merge(data.to_definition)
+      end
+
+      def method_missing(method_name, *_args, &_block)
+        @dsl.public_send(method_name, *_args, &_block)
       end
     end
   end
