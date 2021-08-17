@@ -3,9 +3,6 @@
 module Buildkite
   module Builder
     class Extension
-      include LoggingUtils
-      using Rainbow
-
       class << self
         attr_reader :dsl
 
@@ -26,16 +23,14 @@ module Buildkite
       end
 
       def _build
-        _log_run { build(**options) }
+        build(**options)
       end
 
       def build
         # Override to provide extra functionality.
       end
 
-      def log
-        context.logger
-      end
+      private
 
       def buildkite
         @buildkite ||= begin
@@ -47,8 +42,6 @@ module Buildkite
         end
       end
 
-      private
-
       def prepare
         # Override to provide extra functionality.
       end
@@ -56,25 +49,6 @@ module Buildkite
       def pipeline(&block)
         context.dsl.instance_eval(&block) if block_given?
         context
-      end
-
-      def _log_run
-        log.info "\nProcessing ".color(:dimgray) + self.class.name.color(:springgreen)
-
-        results = benchmark('└──'.color(:springgreen) + ' Finished in %s'.color(:dimgray)) do
-          formatter = log.formatter
-          log.formatter = proc do |_severity, _datetime, _progname, msg|
-            '│'.color(:springgreen) + " #{msg}\n"
-          end
-
-          begin
-            yield
-          ensure
-            log.formatter = formatter
-          end
-        end
-
-        log.info results
       end
     end
   end
