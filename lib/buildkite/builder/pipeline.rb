@@ -2,15 +2,19 @@ require 'logger'
 require 'tempfile'
 require 'yaml'
 require 'pathname'
+require 'forwardable'
 
 module Buildkite
   module Builder
     class Pipeline
+      extend Forwardable
       include Definition::Helper
       include LoggingUtils
       using Rainbow
 
       PIPELINE_DEFINITION_FILE = Pathname.new('pipeline.rb').freeze
+
+      def_delegator :@extensions, :use
 
       attr_reader :logger,
                   :root,
@@ -72,10 +76,6 @@ module Buildkite
           logger.info '+++ :pipeline: Uploading pipeline'
           Buildkite::Pipelines::Command.pipeline!(:upload, file.path)
         end
-      end
-
-      def use(extension, **args)
-        extensions.use(extension, **args)
       end
 
       def to_h
