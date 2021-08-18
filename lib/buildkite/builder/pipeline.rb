@@ -24,8 +24,7 @@ module Buildkite
                   :data
 
       def self.build(root, logger: nil)
-        pipeline = new(root, logger: logger)
-        pipeline.build
+        new(root, logger: logger)
       end
 
       def initialize(root, logger: nil)
@@ -35,34 +34,16 @@ module Buildkite
         @plugins = {}
         @dsl = Dsl.new(self)
         @extensions = ExtensionManager.new(self)
-        @built = false
         @data = Data.new
 
         use(Extensions::Use)
         use(Extensions::Env)
         use(Extensions::Notify)
         use(Extensions::Steps)
-      end
-
-      def built?
-        @built
-      end
-
-      def build
-        results = benchmark("\nDone (%s)".color(:springgreen)) do
-          unless built?
-            load_manifests
-            dsl.instance_eval(&pipeline_definition)
-          end
-        end
-        logger.info(results)
-        @built = true
-        self
+        load_manifests
       end
 
       def upload
-        build unless built?
-
         logger.info '+++ :paperclip: Uploading artifacts'
         upload_artifacts
 
@@ -79,10 +60,15 @@ module Buildkite
       end
 
       def to_h
-        extensions.build
-
-        # Build the pipeline definition from pipeline data.
-        Pipelines::Helpers.sanitize(data.to_definition)
+        @pipeline_hash ||= begin
+          results = benchmark("\nDone (%s)".color(:springgreen)) do
+            dsl.instance_eval(&pipeline_definition)
+            extensions.build
+          end
+          logger.info(results)
+          # Build the pipeline definition from pipeline data.
+          Pipelines::Helpers.sanitize(data.to_definition)
+        end
       end
 
       def to_yaml

@@ -22,7 +22,7 @@ module Buildkite
 
       def build
         @extensions.each do |extension|
-          log_build(extension.class.name) { extension._build }
+          log_build(extension.class.name) { extension.build }
         end
       end
 

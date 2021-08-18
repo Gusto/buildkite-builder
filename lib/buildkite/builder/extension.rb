@@ -22,10 +22,6 @@ module Buildkite
         prepare
       end
 
-      def _build
-        build(**options)
-      end
-
       def build
         # Override to provide extra functionality.
       end
