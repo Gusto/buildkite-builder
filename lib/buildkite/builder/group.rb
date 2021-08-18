@@ -15,11 +15,13 @@ module Buildkite
           steps: StepCollection.new(
             steps.templates,
             steps.plugins
-          )
+          ),
+          notify: []
         )
 
         @dsl = Dsl.new(self)
         @dsl.extend(Extensions::Steps)
+        @dsl.extend(Extensions::Notify)
         instance_eval(&block)
       end
 
