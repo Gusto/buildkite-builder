@@ -14,7 +14,7 @@ module Buildkite
         @data.each_with_object({}) do |(key, value), hash|
           value = value.respond_to?(:to_definition) ? value.to_definition : value
 
-          next unless value
+          next if value.empty?
 
           hash[key] = value
         end
