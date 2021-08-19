@@ -2,30 +2,22 @@
 
 RSpec.describe Buildkite::Pipelines::Helpers::Plugins do
   let(:step_klass) do
-    Class.new do
-      include Buildkite::Pipelines::Attributes
-
+    Class.new(Buildkite::Pipelines::Steps::Abstract) do
       attribute :plugins, append: true
-
-      attr_reader :pipeline
-
-      def initialize(pipeline)
-        @pipeline = pipeline
-      end
     end
   end
 
   let(:pipeline) { Buildkite::Builder::Pipeline.new(setup_project_fixture(:simple)) }
 
-  let(:step) { step_klass.new(pipeline) }
+  let(:step) { step_klass.new(pipeline.data.steps, nil) }
 
   before do
-    pipeline.plugin(:code_cache, 'ssh://git@github.com/Gusto/code-cache-buildkite-plugin.git', '65610a')
-    pipeline.plugin(:docker_compose, 'docker-compose', 'v3.7.0')
-    pipeline.plugin(:artifacts, 'artifacts', 'v1.3.0')
-    pipeline.plugin(:gusto_artifacts, 'ssh://git@github.com/Gusto/artifacts-buildkite-plugin.git', '0.2')
-    pipeline.plugin(:monorepo_diff, 'chronotc/monorepo-diff', 'v1.1.1')
-    pipeline.plugin(:ecr, 'ecr', 'v2.0.0')
+    pipeline.dsl.plugin(:code_cache, 'ssh://git@github.com/Gusto/code-cache-buildkite-plugin.git', '65610a')
+    pipeline.dsl.plugin(:docker_compose, 'docker-compose', 'v3.7.0')
+    pipeline.dsl.plugin(:artifacts, 'artifacts', 'v1.3.0')
+    pipeline.dsl.plugin(:gusto_artifacts, 'ssh://git@github.com/Gusto/artifacts-buildkite-plugin.git', '0.2')
+    pipeline.dsl.plugin(:monorepo_diff, 'chronotc/monorepo-diff', 'v1.1.1')
+    pipeline.dsl.plugin(:ecr, 'ecr', 'v2.0.0')
   end
 
   describe '#plugin' do

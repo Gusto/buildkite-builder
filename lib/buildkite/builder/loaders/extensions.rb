@@ -5,17 +5,17 @@ require 'pathname'
 module Buildkite
   module Builder
     module Loaders
-      class Processors < Abstract
-        PROCESSORS_PATH = Pathname.new('processors').freeze
+      class Extensions < Abstract
+        EXTENSIONS_PATH = Pathname.new('extensions').freeze
 
         def load
-          load_processors_from_path(global_processors_path)
-          load_processors_from_path(pipeline_processors_path)
+          load_extensions_from_path(global_extensions_path)
+          load_extensions_from_path(pipeline_extensions_path)
         end
 
         private
 
-        def load_processors_from_path(path)
+        def load_extensions_from_path(path)
           return unless path.directory?
 
           path.children.map do |file|
@@ -24,12 +24,12 @@ module Buildkite
           end
         end
 
-        def global_processors_path
-          buildkite_path.join(PROCESSORS_PATH)
+        def global_extensions_path
+          buildkite_path.join(EXTENSIONS_PATH)
         end
 
-        def pipeline_processors_path
-          root.join(PROCESSORS_PATH)
+        def pipeline_extensions_path
+          root.join(EXTENSIONS_PATH)
         end
       end
     end

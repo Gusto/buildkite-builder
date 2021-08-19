@@ -1,5 +1,5 @@
-module Processors
-  class Basic < Buildkite::Builder::Processors::Abstract
+module Extensions
+  class Basic < Buildkite::Builder::Extension
     private
 
     def process

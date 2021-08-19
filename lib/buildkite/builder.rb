@@ -5,8 +5,14 @@ require 'pathname'
 module Buildkite
   module Builder
     autoload :Commands, File.expand_path('builder/commands', __dir__)
+    autoload :Group, File.expand_path('builder/group', __dir__)
     autoload :Pipeline, File.expand_path('builder/pipeline', __dir__)
     autoload :Definition, File.expand_path('builder/definition', __dir__)
+    autoload :Data, File.expand_path('builder/data', __dir__)
+    autoload :Dsl, File.expand_path('builder/dsl', __dir__)
+    autoload :Extension, File.expand_path('builder/extension', __dir__)
+    autoload :ExtensionManager, File.expand_path('builder/extension_manager', __dir__)
+    autoload :Extensions, File.expand_path('builder/extensions', __dir__)
     autoload :FileResolver, File.expand_path('builder/file_resolver', __dir__)
     autoload :Github, File.expand_path('builder/github', __dir__)
     autoload :Loaders, File.expand_path('builder/loaders', __dir__)
@@ -14,6 +20,9 @@ module Buildkite
     autoload :Manifest, File.expand_path('builder/manifest', __dir__)
     autoload :Processors, File.expand_path('builder/processors', __dir__)
     autoload :Rainbow, File.expand_path('builder/rainbow', __dir__)
+    autoload :StepCollection, File.expand_path('builder/step_collection', __dir__)
+    autoload :TemplateRegistry, File.expand_path('builder/template_registry', __dir__)
+    autoload :PluginRegistry, File.expand_path('builder/plugin_registry', __dir__)
 
     BUILDKITE_DIRECTORY_NAME = Pathname.new('.buildkite').freeze
 
