@@ -4,6 +4,10 @@ RSpec.describe Buildkite::Builder::StepCollection do
   let(:root) { Buildkite::Builder.root }
   let(:collection) { described_class.new(Buildkite::Builder::TemplateRegistry.new(root), Buildkite::Builder::PluginRegistry.new) }
 
+  describe '#each' do
+    # TODO: write specs
+  end
+
   describe '#add' do
     it 'adds to steps' do
       step = collection.add(Buildkite::Pipelines::Steps::Command)

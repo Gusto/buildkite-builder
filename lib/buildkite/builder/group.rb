@@ -9,6 +9,10 @@ module Buildkite
       attribute :depends_on, append: true
       attribute :key
 
+      def self.to_sym
+        name.split('::').last.downcase.to_sym
+      end
+
       def initialize(label, steps, &block)
         @label = label
         @data = Data.new

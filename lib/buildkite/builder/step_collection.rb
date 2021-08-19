@@ -11,6 +11,22 @@ module Buildkite
         @steps = []
       end
 
+      def each(*types)
+        types = types.flatten
+
+        @steps.each do |step|
+          if types.include?(step.class.to_sym)
+            yield step
+          end
+
+          if step.is_a?(Group)
+            step.data.steps.each(*types) do |step|
+              yield step
+            end
+          end
+        end
+      end
+
       def add(step_class, template = nil, **args, &block)
         @steps.push(step_class.new(self, template, **args, &block)).last
       end
