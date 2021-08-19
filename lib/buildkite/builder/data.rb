@@ -1,13 +1,8 @@
 module Buildkite
   module Builder
     class Data
-      def initialize(source_hash = nil)
+      def initialize
         @data = Hash.new
-
-        if source_hash
-          source_hash.transform_keys(&:to_sym)
-          @data.merge!(source_hash)
-        end
       end
 
       def to_definition

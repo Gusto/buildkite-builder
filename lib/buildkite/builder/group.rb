@@ -11,13 +11,12 @@ module Buildkite
 
       def initialize(label, steps, &block)
         @label = label
-        @data = Data.new(
-          steps: StepCollection.new(
-            steps.templates,
-            steps.plugins
-          ),
-          notify: []
+        @data = Data.new
+        @data.steps = StepCollection.new(
+          steps.templates,
+          steps.plugins
         )
+        @data.notify = []
 
         @dsl = Dsl.new(self)
         @dsl.extend(Extensions::Steps)

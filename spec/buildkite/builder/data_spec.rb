@@ -15,14 +15,5 @@ RSpec.describe Buildkite::Builder::Data do
         data.foo = 2
       }.to raise_error(ArgumentError, "Data already contains key 'foo'")
     end
-
-    context 'with source hash' do
-      it 'sets to data hash' do
-        data = described_class.new(foo: 'bar', bar: 'baz')
-
-        expect(data.foo).to eq('bar')
-        expect(data.bar).to eq('baz')
-      end
-    end
   end
 end
