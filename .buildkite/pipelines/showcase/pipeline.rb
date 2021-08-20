@@ -1,5 +1,6 @@
 Buildkite::Builder.pipeline do
-  use(Extensions::MyCoolExtension)
+  use(MyCoolExtension)
+  use(ExtensionWithDsl)
 
   env CI: "1"
   env DEPLOYABLE: "1"
@@ -31,6 +32,10 @@ Buildkite::Builder.pipeline do
 
     depends_on :step_with_plugin
     key :cool_group
+  end
+
+  component("Cool Component") do
+    command(:generic, foo: "Bar")
   end
 
   # Pass arguments into templates.

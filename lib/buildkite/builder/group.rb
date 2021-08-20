@@ -26,6 +26,7 @@ module Buildkite
         @dsl.extend(Extensions::Steps)
         @dsl.extend(Extensions::Notify)
         instance_eval(&block) if block_given?
+        self
       end
 
       def to_h
