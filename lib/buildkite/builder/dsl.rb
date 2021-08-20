@@ -6,7 +6,11 @@ module Buildkite
       attr_reader :context
 
       def extend(mod)
-        mod < Extension ? super(mod.dsl) : super
+        if mod < Extension
+          super(mod.dsl) if mod.dsl
+        else
+          super
+        end
       end
 
       def initialize(context)

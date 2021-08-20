@@ -8,10 +8,10 @@ module Buildkite
         @context = context
         @extensions = []
 
-        Loaders::Extensions.load(@context.root)
+        @loader = Loaders::Extensions.load(@context.root)
       end
 
-      def use(extension, **args)
+      def use(extension, native: false, **args)
         unless extension < Buildkite::Builder::Extension
           raise "#{extension} must subclass Buildkite::Builder::Extension"
         end

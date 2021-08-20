@@ -9,7 +9,7 @@ module Buildkite
         self.description = 'Outputs the pipeline YAML.'
 
         def run
-          puts Pipeline.build(pipeline_path).to_yaml
+          puts Pipeline.new(pipeline_path).to_yaml
         end
       end
     end

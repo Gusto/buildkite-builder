@@ -23,10 +23,6 @@ module Buildkite
                   :dsl,
                   :data
 
-      def self.build(root, logger: nil)
-        new(root, logger: logger)
-      end
-
       def initialize(root, logger: nil)
         @root = root
         @logger = logger || Logger.new(File::NULL)

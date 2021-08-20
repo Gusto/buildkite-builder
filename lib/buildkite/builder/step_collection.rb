@@ -17,12 +17,12 @@ module Buildkite
         @steps.each do |step|
           if types.include?(step.class.to_sym)
             yield step
-          end
-
-          if step.is_a?(Group)
+          elsif step.is_a?(Group)
             step.data.steps.each(*types) do |step|
               yield step
             end
+          elsif types.empty?
+            yield step
           end
         end
       end

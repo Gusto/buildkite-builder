@@ -7,14 +7,6 @@ RSpec.describe Buildkite::Builder::Pipeline do
   let(:fixture_project) { :basic }
   let(:fixture_path) { fixture_pipeline_path_for(fixture_project, :dummy) }
 
-  describe '.build' do
-    it 'initializes and builds the pipeline' do
-      pipeline = described_class.build(fixture_path)
-
-      expect(pipeline).to be_a(Buildkite::Builder::Pipeline)
-    end
-  end
-
   describe '.new' do
     let(:pipeline) { described_class.new(fixture_path) }
 
@@ -207,6 +199,23 @@ RSpec.describe Buildkite::Builder::Pipeline do
           expect {
             described_class.new(fixture_path).to_h
           }.to raise_error(/must return a valid definition \(Buildkite::Builder::Definition::Pipeline\)/)
+        end
+      end
+
+      context 'with sharedextensions' do
+        let(:fixture_project) { :basic_with_shared_and_pipeline_extensions }
+        let(:payload) do
+          {
+            'steps' => [
+              { 'command' => ['true'], 'label' => 'Basic step' },
+              { 'command' => ['echo 1'], 'label' => 'Appended By Extensions::PipelineSpecificExtension' },
+              { 'command' => ['echo 1'], 'label' => 'Appended By Extensions::SharedExtension' }
+            ]
+          }
+        end
+
+        it 'builds the pipeline hash' do
+          expect(described_class.new(fixture_path).to_h).to eq(payload)
         end
       end
     end

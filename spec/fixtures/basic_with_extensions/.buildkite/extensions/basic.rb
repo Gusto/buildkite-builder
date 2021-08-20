@@ -1,8 +1,6 @@
 module Extensions
   class Basic < Buildkite::Builder::Extension
-    private
-
-    def process
+    def build
       pipeline.command do
         label 'Appended Step'
         command 'echo 1'
