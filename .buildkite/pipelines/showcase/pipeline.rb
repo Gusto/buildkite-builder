@@ -1,5 +1,5 @@
 Buildkite::Builder.pipeline do
-  use(Extensions::Feature)
+  use(Extensions::MyCoolExtension)
 
   env CI: "1"
   env DEPLOYABLE: "1"

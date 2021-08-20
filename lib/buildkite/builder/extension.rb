@@ -29,7 +29,7 @@ module Buildkite
       private
 
       def log
-        @context.logger
+        context.logger
       end
 
       def buildkite
