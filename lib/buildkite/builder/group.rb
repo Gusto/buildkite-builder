@@ -34,8 +34,8 @@ module Buildkite
         { group: label }.merge(attributes).merge(data.to_definition)
       end
 
-      def method_missing(method_name, *_args, &_block)
-        @dsl.public_send(method_name, *_args, &_block)
+      def method_missing(method_name, *args, **kwargs, &_block)
+        @dsl.public_send(method_name, *args, **kwargs, &_block)
       end
     end
   end
