@@ -28,6 +28,10 @@ module Buildkite
 
       private
 
+      def log
+        @context.logger
+      end
+
       def buildkite
         @buildkite ||= begin
           unless Buildkite.env
@@ -43,8 +47,7 @@ module Buildkite
       end
 
       def pipeline(&block)
-        context.dsl.instance_eval(&block) if block_given?
-        context
+        context.dsl.instance_eval(&block)
       end
     end
   end

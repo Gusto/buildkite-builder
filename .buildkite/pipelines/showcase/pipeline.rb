@@ -1,4 +1,6 @@
 Buildkite::Builder.pipeline do
+  use(Extensions::Feature)
+
   env CI: "1"
   env DEPLOYABLE: "1"
   notify email: "dev@acmeinc.com"
