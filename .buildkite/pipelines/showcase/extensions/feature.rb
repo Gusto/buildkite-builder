@@ -1,9 +1,9 @@
 module Extensions
-  class PipelineSpecificExtension < Buildkite::Builder::Extension
+  class Feature < Buildkite::Builder::Extension
     def build
       pipeline do
         command do
-          label 'Appended By Extensions::PipelineSpecificExtension'
+          label 'Appended Step'
           command 'echo 1'
         end
       end

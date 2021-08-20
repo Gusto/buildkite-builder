@@ -25,7 +25,7 @@ module Buildkite
         @dsl = Dsl.new(self)
         @dsl.extend(Extensions::Steps)
         @dsl.extend(Extensions::Notify)
-        instance_eval(&block)
+        instance_eval(&block) if block_given?
       end
 
       def to_h
