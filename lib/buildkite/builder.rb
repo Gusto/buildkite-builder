@@ -21,8 +21,8 @@ module Buildkite
     autoload :Processors, File.expand_path('builder/processors', __dir__)
     autoload :Rainbow, File.expand_path('builder/rainbow', __dir__)
     autoload :StepCollection, File.expand_path('builder/step_collection', __dir__)
-    autoload :TemplateRegistry, File.expand_path('builder/template_registry', __dir__)
-    autoload :PluginRegistry, File.expand_path('builder/plugin_registry', __dir__)
+    autoload :TemplateManager, File.expand_path('builder/template_manager', __dir__)
+    autoload :PluginManager, File.expand_path('builder/plugin_manager', __dir__)
 
     BUILDKITE_DIRECTORY_NAME = Pathname.new('.buildkite').freeze
 

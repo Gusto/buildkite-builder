@@ -16,8 +16,8 @@ RSpec.describe Buildkite::Builder::Loaders::Templates do
         expect(assets.size).to eq(1)
         expect(template).to be_a(Buildkite::Builder::Definition::Template)
         step_collection = Buildkite::Builder::StepCollection.new(
-          Buildkite::Builder::TemplateRegistry.new(root),
-          Buildkite::Builder::PluginRegistry.new
+          Buildkite::Builder::TemplateManager.new(root),
+          Buildkite::Builder::PluginManager.new
         )
         step = Buildkite::Pipelines::Steps::Command.new(step_collection, 'basic')
         expect(step.label).to eq('Basic step')

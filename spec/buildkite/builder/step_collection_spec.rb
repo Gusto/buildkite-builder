@@ -2,7 +2,7 @@
 
 RSpec.describe Buildkite::Builder::StepCollection do
   let(:root) { Buildkite::Builder.root }
-  let(:collection) { described_class.new(Buildkite::Builder::TemplateRegistry.new(root), Buildkite::Builder::PluginRegistry.new) }
+  let(:collection) { described_class.new(Buildkite::Builder::TemplateManager.new(root), Buildkite::Builder::PluginManager.new) }
 
   describe '#each' do
     before do

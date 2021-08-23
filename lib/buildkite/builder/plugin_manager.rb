@@ -1,6 +1,6 @@
 module Buildkite
   module Builder
-    class PluginRegistry
+    class PluginManager
       def initialize
         @plugins = {}
       end

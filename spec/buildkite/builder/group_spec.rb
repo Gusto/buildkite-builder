@@ -2,7 +2,7 @@
 
 RSpec.describe Buildkite::Builder::Group do
   let(:root) { Buildkite::Builder.root }
-  let(:steps) { Buildkite::Builder::StepCollection.new(Buildkite::Builder::TemplateRegistry.new(root), Buildkite::Builder::PluginRegistry.new) }
+  let(:steps) { Buildkite::Builder::StepCollection.new(Buildkite::Builder::TemplateManager.new(root), Buildkite::Builder::PluginManager.new) }
 
   describe '#to_h' do
     let(:group) { described_class.new('foo', steps) }

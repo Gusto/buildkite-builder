@@ -1,6 +1,6 @@
 module Buildkite
   module Builder
-    class TemplateRegistry
+    class TemplateManager
       def initialize(root)
         @templates = {}
 
