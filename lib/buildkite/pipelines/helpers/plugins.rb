@@ -4,19 +4,18 @@ module Buildkite
   module Pipelines
     module Helpers
       module Plugins
-        def plugin(plugin_name, options = nil)
-          plugin_name = plugin_name.to_s
-          @plugins ||= {}
+        def plugin(name_or_source, options = nil)
+          append(:plugins, plugin_collection.add(name_or_source, options).to_h)
+        end
 
-          if @plugins.key?(plugin_name)
-            raise ArgumentError, "Plugin already used for command step: #{plugin_name}"
-          end
+        def plugins
+          plugin_collection
+        end
 
-          uri, version = step_collection.plugins.fetch(plugin_name)
-          new_plugin = Plugin.new(uri, version, options)
-          @plugins[plugin_name] = new_plugin
+        private
 
-          plugins(new_plugin.to_h)
+        def plugin_collection
+          @plugin_collection ||= Buildkite::Builder::PluginCollection.new(step_collection.plugins)
         end
       end
     end

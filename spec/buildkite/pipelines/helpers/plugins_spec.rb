@@ -12,12 +12,12 @@ RSpec.describe Buildkite::Pipelines::Helpers::Plugins do
   let(:step) { step_klass.new(pipeline.data.steps, nil) }
 
   before do
-    pipeline.dsl.plugin(:code_cache, 'ssh://git@github.com/Gusto/code-cache-buildkite-plugin.git', '65610a')
-    pipeline.dsl.plugin(:docker_compose, 'docker-compose', 'v3.7.0')
-    pipeline.dsl.plugin(:artifacts, 'artifacts', 'v1.3.0')
-    pipeline.dsl.plugin(:gusto_artifacts, 'ssh://git@github.com/Gusto/artifacts-buildkite-plugin.git', '0.2')
-    pipeline.dsl.plugin(:monorepo_diff, 'chronotc/monorepo-diff', 'v1.1.1')
-    pipeline.dsl.plugin(:ecr, 'ecr', 'v2.0.0')
+    pipeline.dsl.plugin(:code_cache, 'ssh://git@github.com/Gusto/code-cache-buildkite-plugin.git#65610a')
+    pipeline.dsl.plugin(:docker_compose, 'docker-compose#v3.7.0')
+    pipeline.dsl.plugin(:artifacts, 'artifacts#v1.3.0')
+    pipeline.dsl.plugin(:gusto_artifacts, 'ssh://git@github.com/Gusto/artifacts-buildkite-plugin.git#0.2')
+    pipeline.dsl.plugin(:monorepo_diff, 'chronotc/monorepo-diff#v1.1.1')
+    pipeline.dsl.plugin(:ecr, 'ecr#v2.0.0')
   end
 
   describe '#plugin' do
@@ -40,16 +40,6 @@ RSpec.describe Buildkite::Pipelines::Helpers::Plugins do
         { 'chronotc/monorepo-diff#v1.1.1' => nil },
         { 'ecr#v2.0.0' => nil },
       ])
-    end
-
-    context 'when already used' do
-      it 'raises error' do
-        step.plugin(:code_cache)
-
-        expect {
-          step.plugin(:code_cache)
-        }.to raise_error(ArgumentError, 'Plugin already used for command step: code_cache')
-      end
     end
   end
 end

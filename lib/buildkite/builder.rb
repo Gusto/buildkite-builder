@@ -20,6 +20,8 @@ module Buildkite
     autoload :Manifest, File.expand_path('builder/manifest', __dir__)
     autoload :Processors, File.expand_path('builder/processors', __dir__)
     autoload :Rainbow, File.expand_path('builder/rainbow', __dir__)
+    autoload :Plugin, File.expand_path('builder/plugin', __dir__)
+    autoload :PluginCollection, File.expand_path('builder/plugin_collection', __dir__)
     autoload :StepCollection, File.expand_path('builder/step_collection', __dir__)
     autoload :TemplateManager, File.expand_path('builder/template_manager', __dir__)
     autoload :PluginManager, File.expand_path('builder/plugin_manager', __dir__)
