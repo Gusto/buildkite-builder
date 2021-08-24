@@ -40,6 +40,10 @@ module Buildkite
           plugin.source == source_string
         end
       end
+
+      def to_definition
+        @collection.map(&:to_h)
+      end
     end
   end
 end
