@@ -12,7 +12,7 @@ module Buildkite
           raise ArgumentError, "Plugin already defined: #{name}"
         end
 
-        @plugins[name] = [uri, version]
+        @plugins[name] = "#{uri}##{version}"
       end
 
       def fetch(name)

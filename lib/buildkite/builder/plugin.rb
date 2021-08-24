@@ -13,7 +13,7 @@ module Buildkite
       end
 
       def to_h
-        Helpers.sanitize(uri => options)
+        Buildkite::Pipelines::Helpers.sanitize(uri => options)
       end
     end
   end
