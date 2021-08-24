@@ -19,9 +19,9 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
 
     describe 'plugin' do
       it 'adds plugin to plugins in collection' do
-        dsl.plugin :skip_checkout, 'thedyrt/skip-checkout', 'v0.1.1'
+        dsl.plugin :skip_checkout, 'thedyrt/skip-checkout#v0.1.1'
 
-        expect(context.data.steps.plugins.fetch('skip_checkout')).to eq(['thedyrt/skip-checkout', 'v0.1.1'])
+        expect(context.data.steps.plugins.fetch('skip_checkout')).to eq('thedyrt/skip-checkout#v0.1.1')
       end
     end
 

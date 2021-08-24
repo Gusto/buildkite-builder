@@ -8,7 +8,6 @@ module Buildkite
       def initialize(uri, options = nil)
         @uri = uri
         @source, @version = uri.split('#')
-        @version = version
         @options = options
       end
 

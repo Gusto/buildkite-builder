@@ -8,7 +8,7 @@ Buildkite::Builder.pipeline do
   notify basecamp_campfire: "https://3.basecamp.com/1234567/integrations/qwertyuiop/buckets/1234567/chats/1234567/lines"
 
   # Register a plugin for steps to use.
-  plugin :skip_checkout, 'thedyrt/skip-checkout', 'v0.1.1'
+  plugin :skip_checkout, 'thedyrt/skip-checkout#v0.1.1'
 
   command do
     label "Step w/ Plugin"
