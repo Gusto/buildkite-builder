@@ -33,12 +33,16 @@ module Buildkite
           case source
           when String then source
           when Plugin then source.source
-          else raise ArgumentError, "Unknown source #{source.inpect}"
+          else raise ArgumentError, "Unknown source #{source.inspect}"
           end
 
         @collection.select do |plugin|
           plugin.source == source_string
         end
+      end
+
+      def to_definition
+        @collection.map(&:to_h)
       end
     end
   end

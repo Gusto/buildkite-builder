@@ -24,7 +24,7 @@ RSpec.describe Buildkite::Pipelines::Helpers::Plugins do
     it 'sets plugin' do
       step.plugin(:code_cache)
 
-      expect(step.get(:plugins)).to eq([{ 'ssh://git@github.com/Gusto/code-cache-buildkite-plugin.git#65610a' => nil }])
+      expect(step.plugins.to_definition).to eq([{ 'ssh://git@github.com/Gusto/code-cache-buildkite-plugin.git#65610a' => nil }])
 
       step.plugin(:docker_compose)
       step.plugin(:artifacts)
@@ -32,7 +32,7 @@ RSpec.describe Buildkite::Pipelines::Helpers::Plugins do
       step.plugin(:monorepo_diff)
       step.plugin(:ecr)
 
-      expect(step.get(:plugins)).to eq([
+      expect(step.plugins.to_definition).to eq([
         { 'ssh://git@github.com/Gusto/code-cache-buildkite-plugin.git#65610a' => nil },
         { 'docker-compose#v3.7.0' => nil },
         { 'artifacts#v1.3.0' => nil },
