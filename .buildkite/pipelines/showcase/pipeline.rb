@@ -18,7 +18,7 @@ Buildkite::Builder.pipeline do
     plugin :skip_checkout
   end
 
-  group("Cool Group") do
+  group("Cool Group", emoji: :partyparrot) do
     # Load the "rspec" template as a command.
     # .buildkite/pipelines/showcase/templates/rspec.rb
     command(:rspec)

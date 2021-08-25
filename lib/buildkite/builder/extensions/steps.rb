@@ -10,8 +10,13 @@ module Buildkite
         end
 
         dsl do
-          def group(label = nil, &block)
+          def group(label = nil, emoji: nil, &block)
             raise "Group does not allow nested in another Group" if context.is_a?(Group)
+
+            if emoji
+              emoji = Array(emoji).map { |name| ":#{name}:" }.join
+              label = [emoji, label].compact.join(' ')
+            end
 
             context.data.steps.push(Buildkite::Builder::Group.new(label, context.data.steps, &block))
           end
