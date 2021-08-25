@@ -35,6 +35,17 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
 
         expect(context.data.steps.steps.first).to be_a(Buildkite::Builder::Group)
       end
+
+      it 'supports emoji' do
+        dsl.group('Label', emoji: :foo) do
+          command do
+            command 'true'
+          end
+        end
+
+        group = context.data.steps.steps.first
+        expect(group.label).to eq(':foo: Label')
+      end
     end
 
     context 'steps' do
