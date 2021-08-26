@@ -79,6 +79,55 @@ RSpec.describe Buildkite::Builder::StepCollection do
     end
   end
 
+  describe '#find' do
+    let!(:command_step) do
+      collection.add(Buildkite::Pipelines::Steps::Command) do
+        key 'command'
+      end
+    end
+    let!(:block_step) do
+      collection.add(Buildkite::Pipelines::Steps::Block) do
+        key 'block'
+      end
+    end
+    let!(:command_step_without_key) do
+      collection.add(Buildkite::Pipelines::Steps::Command)
+    end
+
+    it 'finds the step by key' do
+      expect(collection.find(:command)).to eq(command_step)
+      expect(collection.find(:block)).to eq(block_step)
+    end
+
+    it 'returns nil if step not found' do
+      expect(collection.find(:foo)).to be_nil
+    end
+  end
+
+  describe '#find!' do
+    let!(:command_step) do
+      collection.add(Buildkite::Pipelines::Steps::Command) do
+        key 'command'
+      end
+    end
+    let!(:block_step) do
+      collection.add(Buildkite::Pipelines::Steps::Block) do
+        key 'block'
+      end
+    end
+
+    it 'finds the step by key' do
+      expect(collection.find!(:command)).to eq(command_step)
+      expect(collection.find!(:block)).to eq(block_step)
+    end
+
+    it 'raises error if key not found' do
+      expect {
+        collection.find!(:foo)
+      }.to raise_error(ArgumentError, "Can't find step with key: foo")
+    end
+  end
+
   describe '#add' do
     it 'adds to steps' do
       step = collection.add(Buildkite::Pipelines::Steps::Command)

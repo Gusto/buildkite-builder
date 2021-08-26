@@ -27,6 +27,14 @@ module Buildkite
         end
       end
 
+      def find(key)
+        @steps.find { |step| step.has?(:key) && step.key == key.to_s }
+      end
+
+      def find!(key)
+        find(key) || raise(ArgumentError, "Can't find step with key: #{key}")
+      end
+
       def add(step_class, template = nil, **args, &block)
         @steps.push(step_class.new(self, template, **args, &block)).last
       end
