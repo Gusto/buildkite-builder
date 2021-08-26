@@ -32,9 +32,7 @@ module Buildkite
       end
 
       def find!(key)
-        raise ArgumentError, "Can't find step with key: #{key}" unless (step = find(key))
-
-        step
+        find(key) || raise(ArgumentError, "Can't find step with key: #{key}")
       end
 
       def add(step_class, template = nil, **args, &block)
