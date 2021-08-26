@@ -30,10 +30,21 @@ RSpec.describe Buildkite::Pipelines::Command do
   describe '.artifact!' do
     it 'aborts on failure' do
       args = double
-      expect(described_class).to receive(:pipeline).with(args).and_return(false)
+      expect(described_class).to receive(:artifact).with(args).and_return(false)
 
       expect {
-        described_class.pipeline!(args)
+        described_class.artifact!(args)
+      }.to raise_error(an_instance_of(SystemExit).and(having_attributes(status: 1)))
+    end
+  end
+
+  describe '.annotate!' do
+    it 'aborts on failure' do
+      args = double
+      expect(described_class).to receive(:annotate).with(args).and_return(false)
+
+      expect {
+        described_class.annotate!(args)
       }.to raise_error(an_instance_of(SystemExit).and(having_attributes(status: 1)))
     end
   end
@@ -44,6 +55,10 @@ RSpec.describe Buildkite::Pipelines::Command do
 
   describe '.artifact' do
     include_examples 'command helper', :artifact
+  end
+
+  describe '.annotate' do
+    include_examples 'command helper', :annotate
   end
 
   describe '#run' do
