@@ -21,6 +21,14 @@ module Buildkite
         new(:artifact, subcommand, *args).run
       end
 
+      def self.annotate(body, *args)
+        new(:annotate, body, *args).run
+      end
+
+      def self.annotate!(*args)
+        abort unless annotate(*args)
+      end
+
       def initialize(command, subcommand, *args)
         @command = command.to_s
         @subcommand = subcommand.to_s
