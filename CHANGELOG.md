@@ -2,8 +2,8 @@
 * Fix a bug introduced in 2.0.0 where artifacts were being uploaded before extensions had a chance to do work.
 * Remove `SortedSet` dependency.
 * Add `annotate` pipeline command helper.
-# Add `StepCollection#find` and `StepCollection#find!` for ease of finding a step by its key in extensions.
-# `group` now supports the `emoji:` helper. (Eg. `group "foobar", emoji: :smile`)
+* Add `StepCollection#find` and `StepCollection#find!` for ease of finding a step by its key in extensions.
+* `group` now supports the `emoji:` helper. (Eg. `group "foobar", emoji: :smile`)
 
 ## 2.0.0
 * Add support for `group`.
