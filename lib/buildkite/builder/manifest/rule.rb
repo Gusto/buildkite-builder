@@ -36,7 +36,7 @@ module Buildkite
           matched.map! { |file| Pathname.new(file) }
           matched.reject!(&:directory?)
           matched.map! { |file| file.relative_path_from(Builder.root) }
-          SortedSet.new(matched)
+          Set.new(matched.sort!)
         end
       end
 

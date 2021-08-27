@@ -66,8 +66,8 @@ RSpec.describe Buildkite::Builder::Manifest::Rule do
       expect(rule.files).not_to include(dir.relative_path_from(Buildkite::Builder.root))
     end
 
-    it 'returns a SortedSet' do
-      expect(rule.files).to be_a(SortedSet)
+    it 'returns a Set' do
+      expect(rule.files).to be_a(Set)
     end
 
     context 'when pattern is for specific files' do
@@ -76,7 +76,7 @@ RSpec.describe Buildkite::Builder::Manifest::Rule do
       it 'returns matched files' do
         FileUtils.touch(root.join('bar'))
 
-        expect(rule.files).to eq(SortedSet.new([root.join('foo').relative_path_from(Buildkite::Builder.root)]))
+        expect(rule.files).to eq(Set.new([root.join('foo').relative_path_from(Buildkite::Builder.root)]))
       end
     end
 
@@ -86,7 +86,7 @@ RSpec.describe Buildkite::Builder::Manifest::Rule do
       it 'supports dotfiles' do
         FileUtils.touch(root.join('.bar'))
 
-        expected = SortedSet.new([
+        expected = Set.new([
           root.join('.bar').relative_path_from(Buildkite::Builder.root),
           root.join('foo').relative_path_from(Buildkite::Builder.root),
         ])
@@ -103,7 +103,7 @@ RSpec.describe Buildkite::Builder::Manifest::Rule do
         FileUtils.touch(root.join('foo.y'))
         FileUtils.touch(root.join('foo.z'))
 
-        expected = SortedSet.new([
+        expected = Set.new([
           root.join('foo.x').relative_path_from(Buildkite::Builder.root),
           root.join('foo.y').relative_path_from(Buildkite::Builder.root),
         ])
