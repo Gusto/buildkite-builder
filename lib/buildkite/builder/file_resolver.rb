@@ -20,7 +20,7 @@ module Buildkite
       end
 
       def initialize
-        @modified_files = SortedSet.new(pull_request? ? files_from_pull_request : files_from_git)
+        @modified_files = Set.new(pull_request? ? files_from_pull_request.sort! : files_from_git.sort!)
       end
 
       private

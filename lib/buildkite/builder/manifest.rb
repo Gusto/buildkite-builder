@@ -2,7 +2,6 @@
 
 require 'digest/md5'
 require 'pathname'
-require 'sorted_set'
 
 module Buildkite
   module Builder
@@ -56,7 +55,7 @@ module Buildkite
       end
 
       def files
-        @files ||= inclusion_rules.map(&:files).reduce(SortedSet.new, :merge) - exclusion_rules.map(&:files).reduce(SortedSet.new, :merge)
+        @files ||= (inclusion_rules.map(&:files).reduce(Set.new, :merge) - exclusion_rules.map(&:files).reduce(Set.new, :merge)).sort.to_set
       end
 
       def digest

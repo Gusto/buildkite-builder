@@ -92,7 +92,7 @@ RSpec.describe Buildkite::Builder::Manifest do
       before do
         resolver = instance_double(Buildkite::Builder::FileResolver)
         allow(Buildkite::Builder::FileResolver).to receive(:resolve).and_return(resolver)
-        allow(resolver).to receive(:modified_files).and_return(SortedSet.new([
+        allow(resolver).to receive(:modified_files).and_return(Set.new([
           'foo/bar',
         ]))
       end
@@ -107,7 +107,7 @@ RSpec.describe Buildkite::Builder::Manifest do
       before do
         resolver = instance_double(Buildkite::Builder::FileResolver)
         allow(Buildkite::Builder::FileResolver).to receive(:resolve).and_return(resolver)
-        allow(resolver).to receive(:modified_files).and_return(SortedSet.new([
+        allow(resolver).to receive(:modified_files).and_return(Set.new([
           'foo/bar',
         ]))
       end
@@ -138,7 +138,7 @@ RSpec.describe Buildkite::Builder::Manifest do
     end
 
     it 'returns only included files' do
-      expect(manifest.files).to eq(SortedSet.new([Pathname.new('bar/include'), Pathname.new('foo')]))
+      expect(manifest.files).to eq(Set.new([Pathname.new('bar/include'), Pathname.new('foo')]))
     end
   end
 
