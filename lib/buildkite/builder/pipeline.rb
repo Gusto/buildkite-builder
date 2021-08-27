@@ -40,9 +40,6 @@ module Buildkite
       end
 
       def upload
-        logger.info '+++ :paperclip: Uploading artifacts'
-        upload_artifacts
-
         # Upload the pipeline.
         Tempfile.create(['pipeline', '.yml']) do |file|
           file.sync = true
@@ -53,6 +50,9 @@ module Buildkite
           logger.info '+++ :pipeline: Uploading pipeline'
           Buildkite::Pipelines::Command.pipeline!(:upload, file.path)
         end
+
+        logger.info '+++ :paperclip: Uploading artifacts'
+        upload_artifacts
       end
 
       def to_h
