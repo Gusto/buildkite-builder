@@ -1,3 +1,16 @@
+## 2.1.0
+* Fix a bug introduced in 2.0.0 where artifacts were being uploaded before extensions had a chance to do work.
+* Remove `SortedSet` dependency.
+* Add `annotate` pipeline command helper.
+# Add `StepCollection#find` and `StepCollection#find!` for ease of finding a step by its key in extensions.
+# `group` now supports the `emoji:` helper. (Eg. `group "foobar", emoji: :smile`)
+
+## 2.0.0
+* Add support for `group`.
+* `Processor`s has been renamed to `Extension`. Extensions add more capabilities (will document separately).
+* `plugin` no longer takes 2 arguments (source, version). It's simply 1 arg that is both source and version, separated by a `#`. This is more akin to Buildkite's usage.
+* Full refactor of pipeline code allowing for extensions to extend DSL methods.
+
 ## 1.5.0
 * Merge `BuildKite::Builder::Context` and `BuildKite::Pipelines::Pipeline` to `BuildKite::Builder::Pipeline` (#37)
 
