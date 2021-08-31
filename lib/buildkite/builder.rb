@@ -46,7 +46,7 @@ module Buildkite
 
       def find_buildkite_directory(start_path)
         path = Pathname.new(start_path)
-        until path.join(BUILDKITE_DIRECTORY_NAME).exist? && path.join(BUILDKITE_DIRECTORY_NAME).directory?
+        until path.join(BUILDKITE_DIRECTORY_NAME).directory?
           raise "Unable to find #{BUILDKITE_DIRECTORY_NAME} from #{start_path}" if path == path.parent
 
           path = path.parent

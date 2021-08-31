@@ -1,6 +1,10 @@
 Buildkite::Builder.pipeline do
+  require 'cool_lib'
+
   use(MyCoolExtension)
   use(ExtensionWithDsl)
+
+  CoolLib.resolve(context.logger)
 
   env CI: "1"
   env DEPLOYABLE: "1"
