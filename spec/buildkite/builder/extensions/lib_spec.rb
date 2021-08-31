@@ -17,7 +17,7 @@ RSpec.describe Buildkite::Builder::Extensions::Lib do
       it 'adds .buildkite/lib to load path' do
         Buildkite::Builder::Pipeline.new(fixture_path)
 
-        expect($LOAD_PATH).to be_include(Buildkite::Builder.root.join(Buildkite::Builder::BUILDKITE_DIRECTORY_NAME, 'lib'))
+        expect($LOAD_PATH).to include(Buildkite::Builder.root.join(Buildkite::Builder::BUILDKITE_DIRECTORY_NAME, 'lib'))
       end
     end
 
