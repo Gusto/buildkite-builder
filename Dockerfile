@@ -1,10 +1,11 @@
-FROM ruby:3.0
+FROM ruby:3.0-alpine
 ARG version
 
-RUN if [ -z ${version} ]; then                        \
+RUN apk add git                                       \
+    && if [ -z ${version} ]; then                     \
       gem install buildkite-builder;                  \
     else                                              \
       gem install buildkite-builder -v ${version};    \
     fi
 
-CMD buildkite-builder run
+CMD bundle exec buildkite-builder run
