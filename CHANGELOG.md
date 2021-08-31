@@ -1,4 +1,7 @@
 ## 2.1.0
+* Add `.buildkite/lib` directory to $LOAD_PATH if it exists.
+
+## 2.1.0
 * Fix a bug introduced in 2.0.0 where artifacts were being uploaded before extensions had a chance to do work.
 * Remove `SortedSet` dependency.
 * Add `annotate` pipeline command helper.
