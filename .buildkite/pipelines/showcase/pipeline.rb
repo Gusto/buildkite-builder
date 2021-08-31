@@ -1,6 +1,6 @@
-require 'cool_lib'
-
 Buildkite::Builder.pipeline do
+  require 'cool_lib'
+
   use(MyCoolExtension)
   use(ExtensionWithDsl)
 

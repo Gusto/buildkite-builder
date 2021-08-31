@@ -33,6 +33,7 @@ module Buildkite
         @data = Data.new
 
         use(Extensions::Use)
+        use(Extensions::Lib)
         use(Extensions::Env)
         use(Extensions::Notify)
         use(Extensions::Steps)
