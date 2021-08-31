@@ -3,8 +3,11 @@ module Buildkite
     module Extensions
       class Lib < Extension
         def prepare
-          lib_dir = Buildkite::Builder::BUILDKITE_DIRECTORY_NAME.join('lib')
-          $LOAD_PATH.unshift(lib_dir) unless $LOAD_PATH.include?(lib_dir)
+          lib_dir = Buildkite::Builder.root.join(Buildkite::Builder::BUILDKITE_DIRECTORY_NAME, 'lib')
+
+          if lib_dir.exist? && lib_dir.directory? && !$LOAD_PATH.include?(lib_dir)
+            $LOAD_PATH.unshift(lib_dir)
+          end
         end
       end
     end
