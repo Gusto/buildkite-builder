@@ -6,7 +6,7 @@ Buildkite Builder (BKB) is a Buildkite pipeline builder written in Ruby. It allo
 
 ## Gem Installation (optional)
 
-There are 2 components to this toolkit. The `buildkite-builder` Rubygem and the `buildkite-builder` Docker image. You technically only need the image to use Buildkite Builder, but installing the gem in your repo helps you preview your pipeline during development.
+There are 2 components to this toolkit. The `buildkite-builder` RubyGem and the `buildkite-builder` Docker image. You technically only need the image to use Buildkite Builder, but installing the gem in your repo helps you preview your pipeline during development.
 
 To install the gem, add this line to your application's Gemfile:
 
