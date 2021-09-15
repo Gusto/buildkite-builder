@@ -1,6 +1,7 @@
 # Buildkite Builder [![Build status](https://badge.buildkite.com/a26bf804e9a93fb118d29824d5695a601a248ceec51591be23.svg?branch=main)](https://buildkite.com/gusto-open-source/buildkite-builder/builds?branch=main)
 
 ## Introduction
+
 Buildkite Builder (BKB) is a Buildkite pipeline builder written in Ruby. It allows you to build your pipeline with a Ruby DSL for dynamically generated pipeline steps.
 
 ## Gem Installation (optional)
@@ -16,7 +17,7 @@ gem 'buildkite-builder'
 The gem provides a command line tool that lets you perform various operations on your pipelines:
 
 ```shell
-  $ buildkite-builder help
+  buildkite-builder help
 ```
 
 ## Pipeline Installation
@@ -33,23 +34,26 @@ steps:
 ```
 
 Some things to note:
-  - The `label` can be whatever you like.
-  - You'll want to update the `docker` plugin version from time to time.
-  - You can update the `buildkite-builder` version by bumping the Docker image tag.
+
+- The `label` can be whatever you like.
+- You'll want to update the `docker` plugin version from time to time.
+- You can update the `buildkite-builder` version by bumping the Docker image tag.
 
 ## Usage
 
 💡 We have a [Showcase pipeline](https://buildkite.com/gusto-open-source/showcase/builds/latest?branch=main) (defined in [`.buildkite/pipelines/showcase/pipeline.rb`](https://github.com/Gusto/buildkite-builder/blob/main/.buildkite/pipelines/showcase/pipeline.rb)) that, well, showcases some of the features and possibilities with Buildkite Builder. Sometimes the best way to learning something is seeing how it's used.
 
 At its core, BKB is really just a YAML builder. This tool allows you to scale your needs when it comes to building a Buildkite pipeline. Your pipeline can be as straight forward as you'd like, or as complex as you need. Since you have Ruby at your disposal, you can do some cool things like:
-  - Perform pre-build code/diff analysis to determine whether or not to to add a step to the pipeline.
-  - Reorder pipeline steps dynamically.
-  - Augment your pipeline steps with BKB processors.
+
+- Perform pre-build code/diff analysis to determine whether or not to to add a step to the pipeline.
+- Reorder pipeline steps dynamically.
+- Augment your pipeline steps with BKB processors.
   
 ### Pipeline Files
+
 Your repo can contain as many pipeline definitions as you'd like. By convention, pipeline file structure are as such:
 
-```
+```console
 .buildkite/
   pipelines/
     <your-pipeline1-slug>/
@@ -95,7 +99,7 @@ If the step type or attribute exists in Buildkite docs, then it should exist in 
 
 If your pipeline has a lot of steps, you should consider using Step Templates. Templates allow you to break out your build steps into reusable template files.
 
-```
+```console
 .buildkite/
   pipelines/
     foobar-widget/
@@ -108,6 +112,7 @@ If your pipeline has a lot of steps, you should consider using Step Templates. T
 A template is basically a step that was extracted from the pipeline:
 
 `.buildkite/pipelines/foobar-widget/templates/rspec.rb`
+
 ```ruby
 Buildkite::Builder.template do
   label "Rspec", emoji: :rspec
@@ -118,6 +123,7 @@ end
 You can then include the template into the the pipeline once or as many time as you need. The template name will be the name of the file (without the extension).
 
 `.buildkite/pipelines/foobar-widget/pipeline.rb`
+
 ```ruby
 Buildkite::Builder.pipeline do
   command(:rspec)
@@ -137,7 +143,7 @@ To install this gem onto your local machine, run `bundle exec rake install`.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/gusto/buildkite-builder. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/gusto/buildkite-builder/blob/main/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at <https://github.com/gusto/buildkite-builder>. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/gusto/buildkite-builder/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
 
