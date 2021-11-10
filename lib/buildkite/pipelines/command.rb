@@ -25,7 +25,7 @@ module Buildkite
         end
 
         def meta_data(subcommand, *args)
-          new(:'meta-data', subcommand, *args)
+          new(:'meta-data', subcommand, *args).run
         end
       end
 

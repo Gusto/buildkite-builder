@@ -41,6 +41,10 @@ RSpec.describe Buildkite::Builder::Pipeline do
   end
 
   describe '#upload' do
+    before do
+      stub_buildkite_env(job_id: '25cd9b9a-9ce3-4a92-99fb-6cab9f755dab')
+    end
+
     let(:pipeline) { described_class.new(fixture_path) }
 
     it 'sets pipeline and uploads to Buildkite' do

@@ -11,7 +11,7 @@ RSpec.describe Buildkite::Builder::Commands::Run do
   end
 
   describe '.execute' do
-    it 'uplaods the context' do
+    it 'uploads the context' do
       expect(Buildkite::Builder::Pipeline).to receive(:new).and_return(pipeline)
       expect(pipeline).to receive(:upload)
 
