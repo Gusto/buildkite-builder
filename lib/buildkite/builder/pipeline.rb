@@ -89,7 +89,7 @@ module Buildkite
       def upload_artifacts
         return if artifacts.empty?
 
-        logger.info "+++ :paperclip: Uploading #{artifacts.size.color(:yellow)} artifact#{'s' if artifact.size != 1}"
+        logger.info "+++ :paperclip: Uploading #{artifacts.size.to_s.color(:yellow)} artifact#{'s' if artifact.size != 1}"
 
         artifacts.each do |path|
           if File.exist?(path)
