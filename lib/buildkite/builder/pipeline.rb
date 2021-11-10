@@ -41,11 +41,9 @@ module Buildkite
       end
 
       def upload
-        # Generate the pipeline YAML.
+        # Generate the pipeline YAML first.
         contents = to_yaml
 
-        # Upload artifacts.
-        logger.info '+++ :paperclip: Uploading artifacts'
         upload_artifacts
 
         # Upload the pipeline.
@@ -58,7 +56,7 @@ module Buildkite
           logger.info '+++ :pipeline: Uploading pipeline'
           Buildkite::Pipelines::Command.pipeline!(:upload, file.path)
           logger.info "+++ :toolbox: Setting job meta-data to #{Buildkite.env.job_id.color(:yellow)}"
-          Buildkite::Pipelines::Command.meta_data!(:set, Builder::META_DATA[:job], Buildkite.env.job_id)
+          Buildkite::Pipelines::Command.meta_data!(:set, Builder::META_DATA.fetch(:job), Buildkite.env.job_id)
         end
       end
 
@@ -90,6 +88,8 @@ module Buildkite
 
       def upload_artifacts
         return if artifacts.empty?
+
+        logger.info "+++ :paperclip: Uploading #{artifacts.size.color(:yellow)} artifact#{'s' if artifact.size != 1}"
 
         artifacts.each do |path|
           if File.exist?(path)

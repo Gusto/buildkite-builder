@@ -17,7 +17,7 @@ module Buildkite
           # variables to be set. It also uploads the pipeline to Buildkite.
           log.info "🧰 #{'Buildkite Builder'.color(:springgreen)} ─ #{relative_pipeline_path.to_s.yellow}"
 
-          if Buildkite::Pipelines::Command.meta_data(:exists, Builder::META_DATA[:pipeline])
+          if Buildkite::Pipelines::Command.meta_data(:exists, Builder::META_DATA.fetch(:job))
             log.info 'Pipeline already uploaded'.color(:dimgray)
           else
             Pipeline.new(pipeline_path, logger: log).upload
