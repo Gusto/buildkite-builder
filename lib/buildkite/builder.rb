@@ -28,7 +28,7 @@ module Buildkite
 
     BUILDKITE_DIRECTORY_NAME = Pathname.new('.buildkite').freeze
     META_DATA = {
-      job: 'buildkite-builder.job'
+      job: 'buildkite-builder:job'
     }.freeze
 
     class << self

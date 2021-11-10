@@ -21,6 +21,7 @@ module Buildkite
             log.info 'Pipeline already uploaded'.color(:dimgray)
           else
             Pipeline.new(pipeline_path, logger: log).upload
+            abort.'fake failure'
           end
         end
 
