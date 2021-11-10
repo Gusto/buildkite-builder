@@ -27,6 +27,9 @@ module Buildkite
     autoload :PluginManager, File.expand_path('builder/plugin_manager', __dir__)
 
     BUILDKITE_DIRECTORY_NAME = Pathname.new('.buildkite').freeze
+    META_DATA = {
+      job: 'buildkite-builder.job'
+    }.freeze
 
     class << self
       def root(start_path: Dir.pwd, reset: false)

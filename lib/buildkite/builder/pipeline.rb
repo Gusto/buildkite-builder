@@ -41,19 +41,25 @@ module Buildkite
       end
 
       def upload
+        # Generate the pipeline YAML.
+        contents = to_yaml
+
+        # Upload artifacts.
+        logger.info '+++ :paperclip: Uploading artifacts'
+        upload_artifacts
+
         # Upload the pipeline.
         Tempfile.create(['pipeline', '.yml']) do |file|
           file.sync = true
-          file.write(to_yaml)
+          file.write(contents)
 
           logger.info '+++ :paperclip: Uploading pipeline.yml as artifact'
           Buildkite::Pipelines::Command.artifact!(:upload, file.path)
           logger.info '+++ :pipeline: Uploading pipeline'
           Buildkite::Pipelines::Command.pipeline!(:upload, file.path)
+          logger.info "+++ :toolbox: Setting job meta-data to #{Buildkite.env.job_id.color(:yellow)}"
+          Buildkite::Pipelines::Command.meta_data!(:set, Builder::META_DATA[:job], Buildkite.env.job_id)
         end
-
-        logger.info '+++ :paperclip: Uploading artifacts'
-        upload_artifacts
       end
 
       def to_h

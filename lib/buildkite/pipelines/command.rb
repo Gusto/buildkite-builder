@@ -4,29 +4,35 @@ module Buildkite
   module Pipelines
     class Command
       BIN_PATH = 'buildkite-agent'
+      COMMANDS = %w(
+        pipeline
+        artifact
+        annotate
+        meta_data
+      )
 
-      def self.pipeline!(*args)
-        abort unless pipeline(*args)
+      class << self
+        def pipeline(subcommand, *args)
+          new(:pipeline, subcommand, *args).run
+        end
+
+        def artifact(subcommand, *args)
+          new(:artifact, subcommand, *args).run
+        end
+
+        def annotate(body, *args)
+          new(:annotate, body, *args).run
+        end
+
+        def meta_data(subcommand, *args)
+          new(:'meta-data', subcommand, *args)
+        end
       end
 
-      def self.pipeline(subcommand, *args)
-        new(:pipeline, subcommand, *args).run
-      end
-
-      def self.artifact!(*args)
-        abort unless artifact(*args)
-      end
-
-      def self.artifact(subcommand, *args)
-        new(:artifact, subcommand, *args).run
-      end
-
-      def self.annotate(body, *args)
-        new(:annotate, body, *args).run
-      end
-
-      def self.annotate!(*args)
-        abort unless annotate(*args)
+      COMMANDS.each do |command|
+        define_singleton_method("#{command}!") do |*args|
+          abort unless public_send(command, *args)
+        end
       end
 
       def initialize(command, subcommand, *args)
