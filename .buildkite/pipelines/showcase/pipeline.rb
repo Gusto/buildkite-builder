@@ -13,7 +13,6 @@ Buildkite::Builder.pipeline do
 
   # Register a plugin for steps to use.
   plugin :skip_checkout, 'thedyrt/skip-checkout#v0.1.1'
-  plugin :docker, "docker#v3.7.0"
 
   command do
     label "Step w/ Plugin"
@@ -69,11 +68,5 @@ Buildkite::Builder.pipeline do
     if true == true
       skip "This step is skipped because of x, y, and z"
     end
-  end
-
-  command do
-    command "bin/buildkite-builder run ${BUILDKITE_PIPELINE_SLUG}"
-    plugin :docker,
-      image: "ruby:latest"
   end
 end
