@@ -3,7 +3,7 @@
 require 'pathname'
 
 RSpec.describe Buildkite::Pipelines::Command do
-  shared_examples 'command helper' do |command|
+  shared_examples 'command helper' do |method_name, command|
     it 'runs the command' do
       instance = double
       subcommand = double
@@ -12,7 +12,7 @@ RSpec.describe Buildkite::Pipelines::Command do
       expect(described_class).to receive(:new).with(command, subcommand, args).and_return(instance)
       expect(instance).to receive(:run)
 
-      described_class.public_send(command, subcommand, args)
+      described_class.public_send(method_name, subcommand, args)
     end
   end
 
@@ -50,15 +50,19 @@ RSpec.describe Buildkite::Pipelines::Command do
   end
 
   describe '.pipeline' do
-    include_examples 'command helper', :pipeline
+    include_examples 'command helper', :pipeline, :pipeline
   end
 
   describe '.artifact' do
-    include_examples 'command helper', :artifact
+    include_examples 'command helper', :artifact, :artifact
   end
 
   describe '.annotate' do
-    include_examples 'command helper', :annotate
+    include_examples 'command helper', :annotate, :annotate
+  end
+
+  describe '.meta_data' do
+    include_examples 'command helper', :meta_data, :"meta-data"
   end
 
   describe '#run' do
@@ -67,6 +71,11 @@ RSpec.describe Buildkite::Pipelines::Command do
     let(:options) { { foo_key: :foo_value, bar_key: :bar_value } }
     let(:args) { [Pathname.new('/path/to/foo'), Pathname.new('/path/to/bar')] }
     let(:instance) { described_class.new(command, subcommand, options, *args) }
+
+    # Unstub to test system call
+    before { described_class.reset! }
+
+    after { described_class.stub! }
 
     it 'runs the command' do
       expect(instance).to receive(:system).with(
