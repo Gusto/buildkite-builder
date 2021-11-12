@@ -72,11 +72,6 @@ RSpec.describe Buildkite::Pipelines::Command do
     let(:args) { [Pathname.new('/path/to/foo'), Pathname.new('/path/to/bar')] }
     let(:instance) { described_class.new(command, subcommand, options, *args) }
 
-    # Unstub to test system call
-    before { Spec::Support::Command.unstub! }
-
-    after { Spec::Support::Command.stub! }
-
     it 'runs the command' do
       expect(instance).to receive(:system).with(
         Buildkite::Pipelines::Command::BIN_PATH,
