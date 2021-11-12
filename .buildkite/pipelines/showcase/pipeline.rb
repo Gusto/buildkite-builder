@@ -69,4 +69,8 @@ Buildkite::Builder.pipeline do
       skip "This step is skipped because of x, y, and z"
     end
   end
+
+  command do
+    command "bin/buildkite-builder run ${BUILDKITE_PIPELINE_SLUG}"
+  end
 end
