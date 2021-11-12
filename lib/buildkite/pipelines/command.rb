@@ -12,8 +12,6 @@ module Buildkite
       )
 
       class << self
-        attr_reader :stubbed
-
         def pipeline(subcommand, *args)
           new(:pipeline, subcommand, *args).run
         end
@@ -28,14 +26,6 @@ module Buildkite
 
         def meta_data(subcommand, *args)
           new(:'meta-data', subcommand, *args).run
-        end
-
-        def stub!
-          @stubbed = true
-        end
-
-        def reset!
-          @stubbed = false
         end
       end
 
@@ -53,8 +43,6 @@ module Buildkite
       end
 
       def run
-        return true if self.class.stubbed
-
         system(*to_a)
       end
 

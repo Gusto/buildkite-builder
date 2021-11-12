@@ -73,9 +73,9 @@ RSpec.describe Buildkite::Pipelines::Command do
     let(:instance) { described_class.new(command, subcommand, options, *args) }
 
     # Unstub to test system call
-    before { described_class.reset! }
+    before { Spec::Support::Command.unstub! }
 
-    after { described_class.stub! }
+    after { Spec::Support::Command.stub! }
 
     it 'runs the command' do
       expect(instance).to receive(:system).with(
