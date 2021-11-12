@@ -1,4 +1,7 @@
-## 2.1.0
+## 2.3.0
+* Improve BKB step idempotency.
+
+## 2.2.0
 * Add `.buildkite/lib` directory to $LOAD_PATH if it exists.
 
 ## 2.1.0
