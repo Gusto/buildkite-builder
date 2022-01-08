@@ -52,10 +52,11 @@ RSpec.describe Buildkite::Builder::Pipeline do
       pipeline_contents = nil
 
       expect(Buildkite::Pipelines::Command).to_not receive(:artifact!)
-      expect(Buildkite::Pipelines::Command).to receive(:pipeline!).once do |subcommand, path|
+      expect(Buildkite::Pipelines::Command).to receive(:pipeline).once do |subcommand, path|
         expect(subcommand).to eq(:upload)
         pipeline_path = path
         pipeline_contents = File.read(path)
+        true
       end
 
       pipeline.upload
@@ -71,7 +72,7 @@ RSpec.describe Buildkite::Builder::Pipeline do
     end
 
     it 'uploads the pipeline as an artifact on failure' do
-      expect(Buildkite::Pipelines::Command).to receive(:pipeline!).once.ordered.and_return(false)
+      expect(Buildkite::Pipelines::Command).to receive(:pipeline).once.ordered.and_return(false)
       expect(Buildkite::Pipelines::Command).to receive(:artifact!).ordered.once do |subcommand, path|
         expect(subcommand).to eq(:upload)
         expect(File.read(path)).to eq(<<~YAML)
@@ -115,10 +116,11 @@ RSpec.describe Buildkite::Builder::Pipeline do
           end
         end
 
-        expect(Buildkite::Pipelines::Command).to receive(:pipeline!).once do |subcommand, path|
+        expect(Buildkite::Pipelines::Command).to receive(:pipeline).once do |subcommand, path|
           expect(subcommand).to eq(:upload)
           pipeline_path = path
           pipeline_contents = File.read(path)
+          true
         end
 
         pipeline.upload

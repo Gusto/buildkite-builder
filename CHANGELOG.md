@@ -1,3 +1,6 @@
+## 2.4.1
+* Fix pipeline upload as artifact logic.
+
 ## 2.4.0
 * Upload custom pipeline artifacts in a single command.
 * Only upload the pipeline as an artifact when the pipeline upload fails.
