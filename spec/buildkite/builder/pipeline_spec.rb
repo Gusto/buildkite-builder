@@ -48,18 +48,11 @@ RSpec.describe Buildkite::Builder::Pipeline do
     let(:pipeline) { described_class.new(fixture_path) }
 
     it 'sets pipeline and uploads to Buildkite' do
-      artifact_path = nil
       pipeline_path = nil
-      artifact_contents = nil
       pipeline_contents = nil
 
-      expect(Buildkite::Pipelines::Command).to receive(:artifact!).ordered do |subcommand, path|
-        expect(subcommand).to eq(:upload)
-        artifact_path = path
-        artifact_contents = File.read(path)
-      end
-
-      expect(Buildkite::Pipelines::Command).to receive(:pipeline!).ordered do |subcommand, path|
+      expect(Buildkite::Pipelines::Command).to_not receive(:artifact!)
+      expect(Buildkite::Pipelines::Command).to receive(:pipeline!).once do |subcommand, path|
         expect(subcommand).to eq(:upload)
         pipeline_path = path
         pipeline_contents = File.read(path)
@@ -67,9 +60,7 @@ RSpec.describe Buildkite::Builder::Pipeline do
 
       pipeline.upload
 
-      expect(File.exist?(artifact_path)).to eq(false)
       expect(File.exist?(pipeline_path)).to eq(false)
-      expect(artifact_contents).to eq(pipeline_contents)
       expect(pipeline_contents).to eq(<<~YAML)
         ---
         steps:
@@ -79,7 +70,23 @@ RSpec.describe Buildkite::Builder::Pipeline do
       YAML
     end
 
-    context 'when has custom artifacts to upload' do
+    it 'uploads the pipeline as an artifact on failure' do
+      expect(Buildkite::Pipelines::Command).to receive(:pipeline!).once.ordered.and_return(false)
+      expect(Buildkite::Pipelines::Command).to receive(:artifact!).ordered.once do |subcommand, path|
+        expect(subcommand).to eq(:upload)
+        expect(File.read(path)).to eq(<<~YAML)
+          ---
+          steps:
+          - label: Basic step
+            command:
+            - 'true'
+        YAML
+      end
+
+      pipeline.upload
+    end
+
+    context 'when there are custom artifacts to upload' do
       let(:bar) do
         { bar: :baz }.to_json
       end
@@ -101,13 +108,14 @@ RSpec.describe Buildkite::Builder::Pipeline do
         artifact_paths = []
         artifact_contents = {}
 
-        # 2 custom files, 1 pipeline.yml
-        expect(Buildkite::Pipelines::Command).to receive(:artifact!).exactly(3).times do |subcommand, path|
+        expect(Buildkite::Pipelines::Command).to receive(:artifact!).once do |subcommand, path|
           expect(subcommand).to eq(:upload)
-          artifact_contents[path] = File.read(path)
+          path.split(";").each do |artifact_path|
+            artifact_contents[artifact_path] = File.read(artifact_path)
+          end
         end
 
-        expect(Buildkite::Pipelines::Command).to receive(:pipeline!).ordered do |subcommand, path|
+        expect(Buildkite::Pipelines::Command).to receive(:pipeline!).once do |subcommand, path|
           expect(subcommand).to eq(:upload)
           pipeline_path = path
           pipeline_contents = File.read(path)

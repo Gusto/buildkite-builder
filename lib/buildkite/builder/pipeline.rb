@@ -51,10 +51,11 @@ module Buildkite
           file.sync = true
           file.write(contents)
 
-          logger.info '+++ :paperclip: Uploading pipeline.yml as artifact'
-          Buildkite::Pipelines::Command.artifact!(:upload, file.path)
-          logger.info '+++ :pipeline: Uploading pipeline'
-          Buildkite::Pipelines::Command.pipeline!(:upload, file.path)
+          logger.info "+++ :pipeline: Uploading pipeline"
+          unless Buildkite::Pipelines::Command.pipeline!(:upload, file.path)
+            logger.info "Pipeline upload failed, saving as artifact…"
+            Buildkite::Pipelines::Command.artifact!(:upload, file.path)
+          end
           logger.info "+++ :toolbox: Setting job meta-data to #{Buildkite.env.job_id.color(:yellow)}"
           Buildkite::Pipelines::Command.meta_data!(:set, Builder::META_DATA.fetch(:job), Buildkite.env.job_id)
         end
@@ -89,13 +90,8 @@ module Buildkite
       def upload_artifacts
         return if artifacts.empty?
 
-        logger.info "+++ :paperclip: Uploading #{artifacts.size.to_s.color(:yellow)} artifact#{'s' if artifacts.size != 1}"
-
-        artifacts.each do |path|
-          if File.exist?(path)
-            Buildkite::Pipelines::Command.artifact!(:upload, path)
-          end
-        end
+        logger.info "+++ :paperclip: Uploading artifacts"
+        Buildkite::Pipelines::Command.artifact!(:upload, artifacts.join(";"))
       end
 
       def pipeline_definition
