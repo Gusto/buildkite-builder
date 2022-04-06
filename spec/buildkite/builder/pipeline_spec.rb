@@ -84,7 +84,9 @@ RSpec.describe Buildkite::Builder::Pipeline do
         YAML
       end
 
-      pipeline.upload
+      expect {
+        pipeline.upload
+      }.to raise_error(an_instance_of(SystemExit).and(having_attributes(status: 1)))
     end
 
     context 'when there are custom artifacts to upload' do
