@@ -30,7 +30,7 @@ RSpec.describe Buildkite::Pipelines::Helpers::Plugins do
       expect(step.plugins.to_definition).to eq([
         { 'docker-compose#v3.7.0' => nil },
         { 'artifacts#v1.3.0' => nil },
-        { 'ssh://git@github.com/example/artifacts-buildkite-plugin.git#0.2' => nil },
+        { 'ssh://git@github.com/example/foobar-buildkite-plugin.git#0.2' => nil },
         { 'chronotc/monorepo-diff#v1.1.1' => nil },
         { 'ecr#v2.0.0' => nil },
       ])
