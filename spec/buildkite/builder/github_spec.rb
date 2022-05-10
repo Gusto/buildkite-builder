@@ -1,34 +1,35 @@
 # frozen_string_literal: true
 
 RSpec.describe Buildkite::Builder::Github do
-  let(:response_1) do
-    instance_double(Net::HTTPOK, body: JSON.dump(files_page_1))
-  end
-  let(:response_2) do
-    instance_double(Net::HTTPOK, body: JSON.dump(files_page_2))
-  end
-  let(:response_3) do
-    instance_double(Net::HTTPOK, body: JSON.dump(files_page_3))
-  end
-  let(:files_page_1) { ['file_1', 'file_2'] }
-  let(:files_page_2) { ['file_3', 'file_4'] }
-  let(:files_page_3) { ['file_5', 'file_6'] }
   let(:env) do
     {
       'GITHUB_API_TOKEN' => 'some_api_token',
     }
   end
   let(:github) { described_class.new(env) }
-  let(:init_uri) { URI.join(described_class::BASE_URI, "repos/Gusto/buildkite-builder/pulls/12345/files?per_page=#{described_class::PER_PAGE}") }
   let(:repo_url) { 'github.com/Gusto/buildkite-builder.git' }
-
-  subject { github.pull_request_files }
 
   before do
     stub_buildkite_env(repo: repo_url, pull_request: '12345')
   end
 
   describe '#pull_request_files' do
+    subject { github.pull_request_files }
+    let(:init_uri) { URI.join(described_class::BASE_URI, "repos/Gusto/buildkite-builder/pulls/12345/files?per_page=#{described_class::PER_PAGE}") }
+    let(:response_1) do
+      instance_double(Net::HTTPOK, body: JSON.dump(files_page_1))
+    end
+    let(:response_2) do
+      instance_double(Net::HTTPOK, body: JSON.dump(files_page_2))
+    end
+    let(:response_3) do
+      instance_double(Net::HTTPOK, body: JSON.dump(files_page_3))
+    end
+    
+    let(:files_page_1) { ['file_1', 'file_2'] }
+    let(:files_page_2) { ['file_3', 'file_4'] }
+    let(:files_page_3) { ['file_5', 'file_6'] }
+
     context 'when has no next uri' do
       before do
         allow(Net::HTTP).to receive(:start).with(init_uri.hostname, init_uri.port, use_ssl: true).and_return(response_1)
@@ -76,6 +77,45 @@ RSpec.describe Buildkite::Builder::Github do
         expect(URI).to receive(:join).with(described_class::BASE_URI, "repos/Gusto/buildkite-builder/pulls/12345/files?per_page=100")
         subject
       end
+    end
+  end
+
+  describe '#pull_request' do
+    subject { github.pull_request }
+    let(:init_uri) { URI.join(described_class::BASE_URI, "repos/Gusto/buildkite-builder/pulls/12345") }
+    let(:response_1) do
+      instance_double(Net::HTTPOK, body: JSON.dump(pull_request_response))
+    end
+    let(:pull_request_response) do 
+      # subset of expected response fields from https://docs.github.com/en/rest/pulls/pulls#get-a-pull-request
+      {
+        'url' => 'https://api.github.com/repos/Gusto/buildkite-builder/pulls/12345',
+        'id' => 1,
+        'node_id' => 'MDExOlB1bGxSZXF1ZXN0MQ==',
+        'html_url' => 'https://github.com/Gusto/buildkite-builder/pull/1347',
+        'diff_url' => 'https://github.com/Gusto/buildkite-builder/pull/1347.diff',
+        'patch_url' => 'https://github.com/Gusto/buildkite-builder/pull/1347.patch',
+        'draft' => false,
+        'merged' => false,
+        'mergeable' => true,
+        'rebaseable' => true,
+        'mergeable_state' => 'clean',
+        'comments' => 10,
+        'review_comments' => 0,
+        'maintainer_can_modify' => true,
+        'commits' => 3,
+        'additions' => 100,
+        'deletions' => 3,
+        'changed_files' => 5
+      } 
+    end
+
+    before do
+      allow(Net::HTTP).to receive(:start).with(init_uri.hostname, init_uri.port, use_ssl: true).and_return(response_1)
+    end
+
+    it 'returns a pull request response' do
+      expect(subject).to eq(pull_request_response)
     end
   end
 end

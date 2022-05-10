@@ -18,6 +18,10 @@ module Buildkite
         new.pull_request_files
       end
 
+      def self.pull_request
+        new.pull_request
+      end
+
       def initialize(env = ENV)
         @env = env
       end
@@ -33,6 +37,12 @@ module Buildkite
         end
 
         files
+      end
+
+      def pull_request
+        uri = URI.join(BASE_URI, "repos/#{repo}/pulls/#{pull_request_number}")
+        response = request(uri)
+        JSON.parse(response.body)
       end
 
       private
