@@ -1,3 +1,6 @@
+## 2.5.0
+* Add `Buildkite::Builder::Github.pull_request` to retrieve metadata about a pull request.
+
 ## 2.4.1
 * Fix pipeline upload as artifact logic.
 
