@@ -11,15 +11,21 @@ RSpec.describe Buildkite::Builder::FileResolver do
       end
 
       before do
-        stub_buildkite_env(pull_request: '12345')
-        allow(Buildkite::Builder::Github).to receive(:pull_request_files).and_return(files)
+        stub_buildkite_env(pull_request: '12345', pull_request_base_branch: 'main', commit: 'a1b2c3')
       end
 
       it 'returns the resolver' do
+        # Update origin/main
+        expect(Open3).to receive(:capture2).with('git', 'fetch', 'origin', 'main').and_return([spy, spy(success?: true)]).ordered # rubocop:disable RSpec/VerifiedDoubles
+        # Get the merge base
+        expect(Open3).to receive(:capture2).with('git', 'merge-base', 'FETCH_HEAD', 'a1b2c3').and_return(['base-merge-commit', spy(success?: true)]).ordered # rubocop:disable RSpec/VerifiedDoubles
+        # Reset to base and unstash changes
+        expect(Open3).to receive(:capture2).with('git', 'reset', 'base-merge-commit').and_return([spy, spy(success?: true)]).ordered # rubocop:disable RSpec/VerifiedDoubles
+        # Get diff files
+        expect(Open3).to receive(:capture2).with('git', 'diff', '--name-only').and_return([spy, spy(success?: true)]).ordered # rubocop:disable RSpec/VerifiedDoubles
         resolver = described_class.resolve
 
         expect(resolver).to be_a(described_class)
-        expect(resolver.modified_files).to eq(Set.new(['file_1', 'file_2']))
       end
     end
 

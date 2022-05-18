@@ -14,7 +14,6 @@ module Buildkite
     autoload :ExtensionManager, File.expand_path('builder/extension_manager', __dir__)
     autoload :Extensions, File.expand_path('builder/extensions', __dir__)
     autoload :FileResolver, File.expand_path('builder/file_resolver', __dir__)
-    autoload :Github, File.expand_path('builder/github', __dir__)
     autoload :Loaders, File.expand_path('builder/loaders', __dir__)
     autoload :LoggingUtils, File.expand_path('builder/logging_utils', __dir__)
     autoload :Manifest, File.expand_path('builder/manifest', __dir__)
