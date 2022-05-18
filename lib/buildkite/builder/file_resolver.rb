@@ -26,7 +26,11 @@ module Buildkite
       private
 
       def files_from_pull_request
-        Github.pull_request_files.map { |f| f.fetch('filename') }
+        command("git fetch origin #{Buildkite.env.pull_request_base_branch}")
+        base_merge = command("git merge-base FETCH_HEAD #{Buildkite.env.commit}")
+        command("git reset #{base_merge}")
+
+        command('git diff --name-only').split.uniq
       end
 
       def files_from_git
