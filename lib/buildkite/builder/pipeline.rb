@@ -37,7 +37,6 @@ module Buildkite
         use(Extensions::Env)
         use(Extensions::Notify)
         use(Extensions::Steps)
-        load_manifests
       end
 
       def upload
@@ -81,12 +80,6 @@ module Buildkite
       private
 
       attr_reader :extensions
-
-      def load_manifests
-        Loaders::Manifests.load(root).each do |name, asset|
-          Manifest[name] = asset
-        end
-      end
 
       def upload_artifacts
         return if artifacts.empty?

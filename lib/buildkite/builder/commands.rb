@@ -5,7 +5,6 @@ module Buildkite
     module Commands
       using Rainbow
       COMMANDS = {
-        'files' => :Files,
         'preview' => :Preview,
         'run' => :Run
       }.freeze
