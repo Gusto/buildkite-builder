@@ -18,15 +18,6 @@ RSpec.describe Buildkite::Builder::Pipeline do
       expect(pipeline.logger).to eq(logger)
     end
 
-    it 'loads manifests' do
-      expect(pipeline).to be_a(Buildkite::Builder::Pipeline)
-      manifests = Buildkite::Builder::Manifest.manifests
-
-      expect(manifests.size).to eq(1)
-      expect(manifests).to have_key('basic')
-      expect(manifests['basic']).to be_a(Buildkite::Builder::Manifest)
-    end
-
     it 'loads the pipeline' do
       pipeline_data = YAML.load(pipeline.to_yaml)
 

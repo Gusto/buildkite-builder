@@ -1,3 +1,6 @@
+## 3.0.0
+* Remove manifest features to prevent Github API dependency and simplify the gem to focus on Buildkite features.
+
 ## 2.4.1
 * Fix pipeline upload as artifact logic.
 
