@@ -1,0 +1,33 @@
+module Buildkite
+  module Builder
+    class PipelineCollection
+      attr_reader :pipelines
+
+      def initialize(artifacts)
+        @artifacts = artifacts
+        @pipelines = []
+      end
+
+      def add(pipeline)
+        unless pipeline.is_a?(Buildkite::Builder::Extensions::SubPipelines::Pipeline)
+          raise "#{pipeline} must be a Buildkite::Builder::Extensions::SubPipelines::Pipeline"
+        end
+
+        pipelines << pipeline
+      end
+
+      def to_definition
+        # Instead of generates pipeline.yml, subpipelines save generated file to artifacts
+        pipelines.each do |pipeline|
+          file = Pathname.new("tmp/buildkite-builder/#{pipeline.name}.yml")
+          file.dirname.mkpath
+          file.write(YAML.dump(pipeline.to_h))
+
+          @artifacts << file
+        end
+
+        nil
+      end
+    end
+  end
+end

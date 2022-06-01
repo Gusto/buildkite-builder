@@ -55,6 +55,14 @@ Buildkite::Builder.pipeline do
     end
   end
 
+  pipeline(:sub_pipeline) do
+    command(:generic, bar: "Bar1")
+    command do
+      label "This won't run"
+      command "true"
+    end
+  end
+
   # Add a wait step.
   wait
 

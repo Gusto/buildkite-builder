@@ -6,6 +6,7 @@ module Buildkite
       autoload :Env, File.expand_path('extensions/env', __dir__)
       autoload :Lib, File.expand_path('extensions/lib', __dir__)
       autoload :Notify, File.expand_path('extensions/notify', __dir__)
+      autoload :SubPipelines, File.expand_path('extensions/sub_pipelines', __dir__)
       autoload :Steps, File.expand_path('extensions/steps', __dir__)
       autoload :Use, File.expand_path('extensions/use', __dir__)
     end

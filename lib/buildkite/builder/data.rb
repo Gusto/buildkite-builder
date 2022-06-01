@@ -9,7 +9,7 @@ module Buildkite
         @data.each_with_object({}) do |(key, value), hash|
           value = value.respond_to?(:to_definition) ? value.to_definition : value
 
-          next if value.empty?
+          next if value.nil? || value.empty?
 
           hash[key] = value
         end
