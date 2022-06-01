@@ -58,7 +58,7 @@ module Buildkite
 
             if triggered_pipeline
               template = begin
-                context.data.steps.add(Pipelines::Steps::Trigger, triggered_pipeline)
+                context.data.steps.templates.find(triggered_pipeline)
               rescue ArgumentError
                 nil
               end
