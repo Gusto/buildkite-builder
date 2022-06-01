@@ -21,7 +21,7 @@ module Buildkite
         pipelines.each do |pipeline|
           file = Pathname.new("tmp/buildkite-builder/#{pipeline.name}.yml")
           file.dirname.mkpath
-          file.write(YAML.dump(pipeline.to_h))
+          file.write(YAML.dump(Pipelines::Helpers.sanitize(pipeline.to_h)))
 
           @artifacts << file
         end
