@@ -22,10 +22,12 @@ module Buildkite
               steps.plugins
             )
             @data.notify = []
+            @data.env = {}
 
             @dsl = Dsl.new(self)
             @dsl.extend(Extensions::Steps)
             @dsl.extend(Extensions::Notify)
+            @dsl.extend(Extensions::Env)
             instance_eval(&block) if block_given?
             self
           end
