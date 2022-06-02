@@ -45,7 +45,7 @@ module Buildkite
         end
 
         dsl do
-          def pipeline(name, trigger: true, &block)
+          def pipeline(name, template = nil, trigger: true, &block)
             raise "Subpipeline must have a name" if name.empty?
             raise "Subpipeline does not allow nested in another Subpipeline" if context.is_a?(Buildkite::Builder::Extensions::SubPipelines::Pipeline)
 
@@ -56,33 +56,25 @@ module Buildkite
 
             context.data.pipelines.add(Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(name, context.data.steps, &block))
 
-            if triggered_pipeline
-              template = begin
-                context.data.steps.templates.find(triggered_pipeline)
-              rescue ArgumentError
-                nil
-              end
-
-              if template
-                # Use predefined template
-                context.data.steps.add(Pipelines::Steps::Trigger, template)
-              else
-                # Generic trigger step
-                context.data.steps.add(Pipelines::Steps::Trigger) do
-                  key :"trigger_#{triggered_pipeline}"
-                  label triggered_pipeline.capitalize
-                  trigger triggered_pipeline
-                  build(
-                    message: '${BUILDKITE_MESSAGE}',
-                    commit: '${BUILDKITE_COMMIT}',
-                    branch: '${BUILDKITE_BRANCH}',
-                    env: {
-                      BUILDKITE_PULL_REQUEST: '${BUILDKITE_PULL_REQUEST}',
-                      BUILDKITE_PULL_REQUEST_BASE_BRANCH: '${BUILDKITE_PULL_REQUEST_BASE_BRANCH}',
-                      BUILDKITE_PULL_REQUEST_REPO: '${BUILDKITE_PULL_REQUEST_REPO}'
-                    }
-                  )
-                end
+            if template
+              # Use predefined template
+              context.data.steps.add(Pipelines::Steps::Trigger, template)
+            else
+              # Generic trigger step
+              context.data.steps.add(Pipelines::Steps::Trigger) do
+                key :"trigger_#{triggered_pipeline}"
+                label triggered_pipeline.capitalize
+                trigger triggered_pipeline
+                build(
+                  message: '${BUILDKITE_MESSAGE}',
+                  commit: '${BUILDKITE_COMMIT}',
+                  branch: '${BUILDKITE_BRANCH}',
+                  env: {
+                    BUILDKITE_PULL_REQUEST: '${BUILDKITE_PULL_REQUEST}',
+                    BUILDKITE_PULL_REQUEST_BASE_BRANCH: '${BUILDKITE_PULL_REQUEST_BASE_BRANCH}',
+                    BUILDKITE_PULL_REQUEST_REPO: '${BUILDKITE_PULL_REQUEST_REPO}'
+                  }
+                )
               end
             end
           end
