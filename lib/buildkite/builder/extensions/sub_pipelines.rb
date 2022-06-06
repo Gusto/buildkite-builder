@@ -61,7 +61,7 @@ module Buildkite
             if template
               # Use predefined template
               step = context.data.steps.add(Pipelines::Steps::Trigger, template)
-              step.build[:env].merge!(BUILDER_SUBPIPELINE_YML: sub_pipeline.pipeline_yml)
+              step.build[:env].merge!(BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml)
             else
               # Generic trigger step
               context.data.steps.add(Pipelines::Steps::Trigger) do
@@ -76,7 +76,7 @@ module Buildkite
                     BUILDKITE_PULL_REQUEST: '${BUILDKITE_PULL_REQUEST}',
                     BUILDKITE_PULL_REQUEST_BASE_BRANCH: '${BUILDKITE_PULL_REQUEST_BASE_BRANCH}',
                     BUILDKITE_PULL_REQUEST_REPO: '${BUILDKITE_PULL_REQUEST_REPO}',
-                    BUILDER_SUBPIPELINE_YML: sub_pipeline.pipeline_yml
+                    BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml
                   }
                 )
               end
