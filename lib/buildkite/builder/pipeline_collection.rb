@@ -19,7 +19,7 @@ module Buildkite
       def to_definition
         # Instead of generates pipeline.yml, subpipelines save generated file to artifacts
         pipelines.each do |pipeline|
-          file = Pathname.new("tmp/buildkite-builder/#{pipeline.name}.yml")
+          file = Pathname.new(pipeline.pipeline_yml)
           file.dirname.mkpath
           file.write(YAML.dump(Pipelines::Helpers.sanitize(pipeline.to_h)))
 
