@@ -1,3 +1,5 @@
+require 'securerandom'
+
 module Buildkite
   module Builder
     module Extensions
@@ -64,8 +66,8 @@ module Buildkite
               step.build[:env].merge!(BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml)
             else
               # Generic trigger step
-              context.data.steps.add(Pipelines::Steps::Trigger) do
-                key :"subpipeline_#{name}_#{context.data.pipelines.count}"
+              context.data.steps.add(Pipelines::Steps::Trigger, key: "subpipeline_#{name}_#{context.data.pipelines.count}") do |context|
+                key context[:key]
                 label name.capitalize
                 trigger name
                 build(

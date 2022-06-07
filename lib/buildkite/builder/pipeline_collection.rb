@@ -1,7 +1,13 @@
+require "forwardable"
+
 module Buildkite
   module Builder
     class PipelineCollection
+      extend Forwardable
+
       attr_reader :pipelines
+
+      def_delegator :@pipelines, :count
 
       def initialize(artifacts)
         @artifacts = artifacts
