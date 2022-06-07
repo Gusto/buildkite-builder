@@ -55,10 +55,10 @@ Buildkite::Builder.pipeline do
     end
   end
 
-  pipeline(:sub_pipeline) do
-    command(:generic, bar: "Bar1")
+  pipeline('bkb-subpipeline') do
+    command(:subpipeline_template)
     command do
-      label "This won't run"
+      label "Inline"
       command "true"
     end
   end
