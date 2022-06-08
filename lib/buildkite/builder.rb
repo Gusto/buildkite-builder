@@ -20,6 +20,7 @@ module Buildkite
     autoload :Plugin, File.expand_path('builder/plugin', __dir__)
     autoload :PluginCollection, File.expand_path('builder/plugin_collection', __dir__)
     autoload :StepCollection, File.expand_path('builder/step_collection', __dir__)
+    autoload :PipelineCollection, File.expand_path('builder/pipeline_collection', __dir__)
     autoload :TemplateManager, File.expand_path('builder/template_manager', __dir__)
     autoload :PluginManager, File.expand_path('builder/plugin_manager', __dir__)
 

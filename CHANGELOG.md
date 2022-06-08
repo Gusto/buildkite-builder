@@ -1,3 +1,6 @@
+## 3.1.0
+* Add subpipeline support to save triggered pipeline's YML definition beforehand to artifacts and pass down the file to an ENV for pipeline setup.
+
 ## 3.0.0
 * Remove manifest features to prevent Github API dependency and simplify the gem to focus on Buildkite features.
 

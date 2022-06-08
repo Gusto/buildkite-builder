@@ -48,7 +48,7 @@ At its core, BKB is really just a YAML builder. This tool allows you to scale yo
 - Perform pre-build code/diff analysis to determine whether or not to to add a step to the pipeline.
 - Reorder pipeline steps dynamically.
 - Augment your pipeline steps with BKB processors.
-  
+
 ### Pipeline Files
 
 Your repo can contain as many pipeline definitions as you'd like. By convention, pipeline file structure are as such:
@@ -74,9 +74,9 @@ Buildkite::Builder.pipeline do
     label "Rspec", emoji: :rspec
     command "bundle exec rspec"
   end
-  
+
   wait
-  
+
   trigger do
     trigger "deploy-pipeline"
   end
@@ -127,13 +127,43 @@ You can then include the template into the the pipeline once or as many time as 
 ```ruby
 Buildkite::Builder.pipeline do
   command(:rspec)
-  
+
   # Reuse and agument templates on the fly.
   command(:rspec) do
     label "Run RSpec again!"
   end
 end
 ```
+
+### Subpipeline
+
+While triggering another pipeline, you can predefine subpipeline's steps using `pipeline(NAME_OF_SUBPIPELINE)` in the main pipeline's `pipeline.rb` file and share with main pipeline's plugins and templates definition.
+
+`.buildkite/pipelines/pipeline-triggerer/pipeline.rb`
+
+```ruby
+Buildkite::Builder.pipeline do
+  pipeline('rspec-pipeline') do
+    command do
+      label "Run RSpec in separate pipeline"
+    end
+  end
+end
+```
+
+Inside your Buildkite pipeline setup, you can do the following:
+
+In `https://buildkite.com/your-org/rspec-pipeline/steps`
+
+```yaml
+steps:
+  - label: ":pipeline:"
+    commands:
+      - buildkite-agent artifact download $BKB_SUBPIPELINE_FILE . --build $BUILDKITE_TRIGGERED_FROM_BUILD_ID
+      - buildkite-agent pipeline upload $BKB_SUBPIPELINE_FILE
+```
+
+This will upload the pregenerated `pipeline.yml` to `rspec-pipeline`.
 
 ## Development
 

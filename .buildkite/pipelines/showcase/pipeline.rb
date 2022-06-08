@@ -55,6 +55,17 @@ Buildkite::Builder.pipeline do
     end
   end
 
+  # Subpipeline
+  pipeline('bkb-subpipeline') do
+    command(:subpipeline_template)
+    command do
+      label "Inline"
+      command "true"
+      # Use plugin defined in main pipeline
+      plugin :skip_checkout
+    end
+  end
+
   # Add a wait step.
   wait
 
