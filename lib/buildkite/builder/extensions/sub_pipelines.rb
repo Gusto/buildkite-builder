@@ -63,7 +63,12 @@ module Buildkite
             if template
               # Use predefined template
               step = context.data.steps.add(Pipelines::Steps::Trigger, template)
-              step.build[:env].merge!(BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml)
+
+              if step.build.nil?
+                step.build(env: { BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml })
+              else
+                step.build[:env].merge!(BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml)
+              end
             else
               # Generic trigger step
               context.data.steps.add(Pipelines::Steps::Trigger, key: "subpipeline_#{name}_#{context.data.pipelines.count}") do |context|

@@ -16,7 +16,7 @@ module Buildkite
 
       def add(pipeline)
         unless pipeline.is_a?(Buildkite::Builder::Extensions::SubPipelines::Pipeline)
-          raise "#{pipeline} must be a Buildkite::Builder::Extensions::SubPipelines::Pipeline"
+          raise "`#{pipeline}` must be a Buildkite::Builder::Extensions::SubPipelines::Pipeline"
         end
 
         pipelines << pipeline
