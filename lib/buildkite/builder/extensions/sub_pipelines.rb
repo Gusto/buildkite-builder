@@ -7,7 +7,7 @@ module Buildkite
         class Pipeline
           include Buildkite::Pipelines::Attributes
 
-          attr_reader :data, :name
+          attr_reader :data, :name, :dsl
 
           attribute :depends_on, append: true
           attribute :key
@@ -16,20 +16,17 @@ module Buildkite
             name.split('::').last.downcase.to_sym
           end
 
-          def initialize(name, steps, &block)
+          def initialize(name, context, &block)
             @name = name
             @data = Data.new
             @data.steps = StepCollection.new(
-              steps.templates,
-              steps.plugins
+              context.data.steps.templates,
+              context.data.steps.plugins
             )
             @data.notify = []
-            @data.env = {}
+            @data.env = context.data.env.dup
 
-            @dsl = Dsl.new(self)
-            @dsl.extend(Extensions::Steps)
-            @dsl.extend(Extensions::Notify)
-            @dsl.extend(Extensions::Env)
+            @dsl = context.dsl
             instance_eval(&block) if block_given?
             self
           end
@@ -53,40 +50,43 @@ module Buildkite
         end
 
         dsl do
-          def pipeline(name, template = nil, &block)
+          def pipeline(name, **options, &block)
             raise "Subpipeline must have a name" if name.empty?
             raise "Subpipeline does not allow nested in another Subpipeline" if context.is_a?(Buildkite::Builder::Extensions::SubPipelines::Pipeline)
-            sub_pipeline = Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(name, context.data.steps, &block)
 
+            sub_pipeline = Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(name, context, &block)
             context.data.pipelines.add(sub_pipeline)
 
-            if template
-              # Use predefined template
-              step = context.data.steps.add(Pipelines::Steps::Trigger, template)
+            options = options.slice(:key, :label, :async, :branches, :condition, :depends_on, :allow_dependency_failure, :skip, :emoji)
+            options[:key] ||= "subpipeline_#{name}_#{context.data.pipelines.count}"
+            options[:label] ||= name.capitalize
 
-              if step.build.nil?
-                step.build(env: { BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml })
-              else
-                step.build[:env].merge!(BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml)
-              end
-            else
-              # Generic trigger step
-              context.data.steps.add(Pipelines::Steps::Trigger, key: "subpipeline_#{name}_#{context.data.pipelines.count}") do |context|
-                key context[:key]
-                label name.capitalize
-                trigger name
-                build(
-                  message: '${BUILDKITE_MESSAGE}',
-                  commit: '${BUILDKITE_COMMIT}',
-                  branch: '${BUILDKITE_BRANCH}',
-                  env: {
-                    BUILDKITE_PULL_REQUEST: '${BUILDKITE_PULL_REQUEST}',
-                    BUILDKITE_PULL_REQUEST_BASE_BRANCH: '${BUILDKITE_PULL_REQUEST_BASE_BRANCH}',
-                    BUILDKITE_PULL_REQUEST_REPO: '${BUILDKITE_PULL_REQUEST_REPO}',
-                    BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml
-                  }
-                )
-              end
+            if options[:emoji]
+              emoji = Array(options.delete(:emoji)).map { |name| ":#{name}:" }.join
+              options[:label] = [emoji, options[:label]].compact.join(' ')
+            end
+
+            context.data.steps.add(Pipelines::Steps::Trigger, **options) do |context|
+              key context[:key]
+              label context[:label]
+              trigger name
+              build(
+                message: '${BUILDKITE_MESSAGE}',
+                commit: '${BUILDKITE_COMMIT}',
+                branch: '${BUILDKITE_BRANCH}',
+                env: {
+                  BUILDKITE_PULL_REQUEST: '${BUILDKITE_PULL_REQUEST}',
+                  BUILDKITE_PULL_REQUEST_BASE_BRANCH: '${BUILDKITE_PULL_REQUEST_BASE_BRANCH}',
+                  BUILDKITE_PULL_REQUEST_REPO: '${BUILDKITE_PULL_REQUEST_REPO}',
+                  BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml
+                }
+              )
+              async context[:async] || false
+              branches context[:branches] if context[:branches]
+              condition context[:condition] if context[:condition]
+              depends_on *context[:depends_on] if context[:depends_on]
+              allow_dependency_failure context[:allow_dependency_failure] || false
+              skip context[:skip] || false
             end
           end
         end
