@@ -4,11 +4,23 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
   let(:artifacts) { [] }
   let(:collection) { described_class.new(artifacts) }
   let(:root) { Buildkite::Builder.root }
+  let(:context) { OpenStruct.new(data: Buildkite::Builder::Data.new, root: root) }
   let(:steps) { Buildkite::Builder::StepCollection.new(Buildkite::Builder::TemplateManager.new(root), Buildkite::Builder::PluginManager.new) }
+  let(:dsl) do
+    new_dsl = Buildkite::Builder::Dsl.new(context)
+    new_dsl.extend(Buildkite::Builder::Extensions::Steps)
+    new_dsl.extend(Buildkite::Builder::Extensions::Env)
+    context.data.steps = steps
+    context.data.env = {}
+
+    new_dsl
+  end
+
+  before { context.dsl = dsl }
 
   describe '#add' do
     let(:pipeline) do
-      Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, steps)
+      Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context)
     end
 
     it 'adds pipeline to collection' do
@@ -36,7 +48,7 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
     end
 
     let(:pipeline_1) do
-      Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, steps) do
+      Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context) do
         command do
           label 'Step 1'
           command 'true'
@@ -47,7 +59,7 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
     end
 
     let(:pipeline_2) do
-      Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, steps) do
+      Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context) do
         command do
           label 'Pipeline 2'
           command 'true'

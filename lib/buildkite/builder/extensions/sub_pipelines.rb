@@ -26,7 +26,10 @@ module Buildkite
             @data.notify = []
             @data.env = context.data.env.dup
 
-            @dsl = context.dsl
+            # Use `clone` to copy over dsl's extended extensions
+            @dsl = context.dsl.clone
+            @dsl.context.data = @data
+
             instance_eval(&block) if block_given?
             self
           end
