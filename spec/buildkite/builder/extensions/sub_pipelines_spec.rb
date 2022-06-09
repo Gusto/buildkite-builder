@@ -5,13 +5,11 @@ RSpec.describe Buildkite::Builder::Extensions::SubPipelines do
   let(:steps) { Buildkite::Builder::StepCollection.new(Buildkite::Builder::TemplateManager.new(root), Buildkite::Builder::PluginManager.new) }
   let(:context) { OpenStruct.new(data: Buildkite::Builder::Data.new, root: root) }
   let(:dsl) do
-    Buildkite::Builder::Dsl.new(context).extend(described_class)
-  end
-
-  before do
+    new_dsl = Buildkite::Builder::Dsl.new(context).extend(described_class)
     context.data.steps = steps
-    context.data.env = { FOO: 'bar' }
-    context.dsl = dsl
+    context.data.env = {}
+
+    new_dsl
   end
 
   describe '#new' do
@@ -24,6 +22,7 @@ RSpec.describe Buildkite::Builder::Extensions::SubPipelines do
   context 'dsl methods' do
     # sets up step collection
     before do
+      context.dsl = dsl
       described_class.new(context)
     end
 
@@ -45,14 +44,12 @@ RSpec.describe Buildkite::Builder::Extensions::SubPipelines do
       end
 
       context 'when nested pipeline' do
-        let(:dsl) do
-          pipeline_context = Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context)
-          Buildkite::Builder::Dsl.new(Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, pipeline_context)).extend(described_class)
-        end
-
         it 'raises error' do
+          pipeline_context = Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context)
+          new_dsl = Buildkite::Builder::Dsl.new(Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, pipeline_context)).extend(described_class)
+
           expect {
-            dsl.pipeline(:bar)
+            new_dsl.pipeline(:bar)
           }.to raise_error(RuntimeError, 'Subpipeline does not allow nested in another Subpipeline')
         end
       end

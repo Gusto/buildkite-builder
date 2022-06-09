@@ -24,11 +24,13 @@ module Buildkite
               context.data.steps.plugins
             )
             @data.notify = []
+            # Use `dup` to not interfere with main pipaline's env
             @data.env = context.data.env.dup
 
             # Use `clone` to copy over dsl's extended extensions
             @dsl = context.dsl.clone
-            @dsl.context.data = @data
+            # Override dsl context to current pipeline
+            @dsl.instance_variable_set(:@context, self)
 
             instance_eval(&block) if block_given?
             self
