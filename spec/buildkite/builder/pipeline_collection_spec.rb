@@ -11,7 +11,7 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
     new_dsl.extend(Buildkite::Builder::Extensions::Steps)
     new_dsl.extend(Buildkite::Builder::Extensions::Env)
     context.data.steps = steps
-    context.data.env = { FOO: 'bar' }
+    context.data.env = { 'FOO' => 'bar', 'BAZ' => 'baz' }
     context.data.pipelines =  Buildkite::Builder::PipelineCollection.new([])
 
     new_dsl
@@ -50,6 +50,7 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
 
     let(:pipeline_1) do
       Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context) do
+        env(BAZ: 'foo')
         command do
           label 'Step 1'
           command 'true'
@@ -86,7 +87,8 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
       pipeline_2_yaml = YAML.load_file(artifacts[1])
       expect(pipeline_1_yaml).to eq(
         'env' => {
-          'FOO' => 'bar'
+          'FOO' => 'bar',
+          'BAZ' => 'foo'
         },
         'steps' => [
           { 'label' => 'Step 1', 'command' => ['true'] },
@@ -95,7 +97,8 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
       )
       expect(pipeline_2_yaml).to eq(
         'env' => {
-          'FOO' => 'bar'
+          'FOO' => 'bar',
+          'BAZ' => 'baz'
         },
         'steps' => [
           { 'label' => 'Pipeline 2', 'command' => ['true'] }

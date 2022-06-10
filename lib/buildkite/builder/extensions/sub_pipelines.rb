@@ -38,8 +38,11 @@ module Buildkite
 
           def to_h
             attributes = super
-            # Merge envs from main pipeline
-            data.env.merge!(@context.data.env)
+            # Merge envs from main pipeline, since ruby does not have `reverse_merge` and
+            # `data` does not allow keys override, we have to reset the data hash per key.
+            @context.data.env.merge(data.env).each do |key, value|
+              data.env[key] = value
+            end
             attributes.merge(data.to_definition)
           end
 
