@@ -17,6 +17,7 @@ module Buildkite
           end
 
           def initialize(name, context, &block)
+            @context = context
             @name = name
             @data = Data.new
             @data.steps = StepCollection.new(
@@ -24,8 +25,7 @@ module Buildkite
               context.data.steps.plugins
             )
             @data.notify = []
-            # Use `dup` to not interfere with main pipaline's env
-            @data.env = context.data.env.dup
+            @data.env = {}
 
             # Use `clone` to copy over dsl's extended extensions
             @dsl = context.dsl.clone
@@ -38,6 +38,8 @@ module Buildkite
 
           def to_h
             attributes = super
+            # Merge envs from main pipeline
+            data.env.merge!(@context.data.env)
             attributes.merge(data.to_definition)
           end
 
