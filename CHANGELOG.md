@@ -1,3 +1,6 @@
+## 3.2.0
+* Remove `template` from sub-pipeline trigger step setup and use arguments instead.
+
 ## 3.1.0
 * Add subpipeline support to save triggered pipeline's YML definition beforehand to artifacts and pass down the file to an ENV for pipeline setup.
 
