@@ -5,7 +5,11 @@ RSpec.describe Buildkite::Builder::Extensions::SubPipelines do
   let(:steps) { Buildkite::Builder::StepCollection.new(Buildkite::Builder::TemplateManager.new(root), Buildkite::Builder::PluginManager.new) }
   let(:context) { OpenStruct.new(data: Buildkite::Builder::Data.new, root: root) }
   let(:dsl) do
-    Buildkite::Builder::Dsl.new(context).extend(described_class)
+    new_dsl = Buildkite::Builder::Dsl.new(context).extend(described_class)
+    context.data.steps = steps
+    context.data.env = {}
+
+    new_dsl
   end
 
   describe '#new' do
@@ -18,8 +22,8 @@ RSpec.describe Buildkite::Builder::Extensions::SubPipelines do
   context 'dsl methods' do
     # sets up step collection
     before do
+      context.dsl = dsl
       described_class.new(context)
-      context.data.steps = steps
     end
 
     describe 'pipeline' do
@@ -40,65 +44,50 @@ RSpec.describe Buildkite::Builder::Extensions::SubPipelines do
       end
 
       context 'when nested pipeline' do
-        let(:dsl) do
-          context = Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, steps)
-          Buildkite::Builder::Dsl.new(Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, steps)).extend(described_class)
-        end
-
         it 'raises error' do
+          pipeline_context = Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context)
+          new_dsl = Buildkite::Builder::Dsl.new(Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, pipeline_context)).extend(described_class)
+
           expect {
-            dsl.pipeline(:bar)
+            new_dsl.pipeline(:bar)
           }.to raise_error(RuntimeError, 'Subpipeline does not allow nested in another Subpipeline')
         end
       end
 
-      context 'without template' do
-        it 'uses pre-generated trigger step' do
-          dsl.pipeline(:foo)
-          pipeline = context.data.pipelines.pipelines.first
-          step = context.data.steps.steps.last
+      it 'uses pre-generated trigger step' do
+        dsl.pipeline(:foo)
+        pipeline = context.data.pipelines.pipelines.first
+        step = context.data.steps.steps.last
 
-          expect(step).to be_a(Buildkite::Pipelines::Steps::Trigger)
-          expect(step.key).to eq('subpipeline_foo_1')
-          expect(step.trigger).to eq(pipeline.name)
-          expect(step.build).to eq(
-            message: '${BUILDKITE_MESSAGE}',
-            commit: '${BUILDKITE_COMMIT}',
-            branch: '${BUILDKITE_BRANCH}',
-            env: {
-              BUILDKITE_PULL_REQUEST: '${BUILDKITE_PULL_REQUEST}',
-              BUILDKITE_PULL_REQUEST_BASE_BRANCH: '${BUILDKITE_PULL_REQUEST_BASE_BRANCH}',
-              BUILDKITE_PULL_REQUEST_REPO: '${BUILDKITE_PULL_REQUEST_REPO}',
-              BKB_SUBPIPELINE_FILE: pipeline.pipeline_yml
-            }
-          )
-        end
+        expect(step).to be_a(Buildkite::Pipelines::Steps::Trigger)
+        expect(step.key).to eq('subpipeline_foo_1')
+        expect(step.trigger).to eq(pipeline.name)
+        expect(step.build).to eq(
+          message: '${BUILDKITE_MESSAGE}',
+          commit: '${BUILDKITE_COMMIT}',
+          branch: '${BUILDKITE_BRANCH}',
+          env: {
+            BUILDKITE_PULL_REQUEST: '${BUILDKITE_PULL_REQUEST}',
+            BUILDKITE_PULL_REQUEST_BASE_BRANCH: '${BUILDKITE_PULL_REQUEST_BASE_BRANCH}',
+            BUILDKITE_PULL_REQUEST_REPO: '${BUILDKITE_PULL_REQUEST_REPO}',
+            BKB_SUBPIPELINE_FILE: pipeline.pipeline_yml
+          }
+        )
       end
 
-      context 'with template' do
-        let(:template) { 'dummy' }
-        let(:definition) do
-          Buildkite::Builder.template do
-            key 'dummy'
-            trigger 'foo'
-          end
-        end
-
-        before do
-          allow(context.data.steps.templates).to receive(:find).and_call_original
-          allow(context.data.steps.templates).to receive(:find).with(template).and_return(definition)
-        end
-
-        it 'builds trigger step by template' do
-          dsl.pipeline(:foo, 'dummy')
-
+      context 'with options' do
+        it 'uses pre-generated trigger step with options' do
+          dsl.pipeline(:foo, key: 'bar', emoji: 'rocket', depends_on: %i(bundle assets), async: true, condition: 'a = b')
           pipeline = context.data.pipelines.pipelines.first
           step = context.data.steps.steps.last
 
           expect(step).to be_a(Buildkite::Pipelines::Steps::Trigger)
-          expect(step.key).to eq('dummy')
-          expect(step.trigger).to eq('foo')
-          expect(step.build[:env]).to eq(BKB_SUBPIPELINE_FILE: pipeline.pipeline_yml)
+          expect(step.key).to eq('bar')
+          expect(step.label).to eq(':rocket: Foo')
+          expect(step.trigger).to eq(pipeline.name)
+          expect(step.get('depends_on')).to eq(%i(bundle assets))
+          expect(step.async).to eq(true)
+          expect(step.condition).to eq('a = b')
         end
       end
     end
