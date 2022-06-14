@@ -77,7 +77,13 @@ RSpec.describe Buildkite::Builder::Extensions::SubPipelines do
 
       context 'with options' do
         it 'uses pre-generated trigger step with options' do
-          dsl.pipeline(:foo, key: 'bar', emoji: 'rocket', depends_on: %i(bundle assets), async: true, condition: 'a = b')
+          dsl.pipeline(:foo) do
+            key 'bar'
+            label 'Foo', emoji: 'rocket'
+            depends_on :bundle, :assets
+            async true
+            condition 'a = b'
+          end
           pipeline = context.data.pipelines.pipelines.first
           step = context.data.steps.steps.last
 

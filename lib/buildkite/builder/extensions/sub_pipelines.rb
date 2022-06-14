@@ -9,8 +9,15 @@ module Buildkite
 
           attr_reader :data, :name, :dsl
 
-          attribute :depends_on, append: true
+          # These attributes are for triggered step
+          attribute :label
           attribute :key
+          attribute :skip
+          attribute :if, as: :condition
+          attribute :depends_on, append: true
+          attribute :allow_dependency_failure
+          attribute :branches
+          attribute :async
 
           def self.to_sym
             name.split('::').last.downcase.to_sym
@@ -60,25 +67,14 @@ module Buildkite
         end
 
         dsl do
-          def pipeline(name, **options, &block)
+          def pipeline(name, &block)
             raise "Subpipeline must have a name" if name.empty?
             raise "Subpipeline does not allow nested in another Subpipeline" if context.is_a?(Buildkite::Builder::Extensions::SubPipelines::Pipeline)
 
             sub_pipeline = Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(name, context, &block)
             context.data.pipelines.add(sub_pipeline)
 
-            options = options.slice(:key, :label, :async, :branches, :condition, :depends_on, :allow_dependency_failure, :skip, :emoji)
-            options[:key] ||= "subpipeline_#{name}_#{context.data.pipelines.count}"
-            options[:label] ||= name.capitalize
-
-            if options[:emoji]
-              emoji = Array(options.delete(:emoji)).map { |name| ":#{name}:" }.join
-              options[:label] = [emoji, options[:label]].compact.join(' ')
-            end
-
-            context.data.steps.add(Pipelines::Steps::Trigger, **options) do |context|
-              key context[:key]
-              label context[:label]
+            trigger_step = context.data.steps.add(Pipelines::Steps::Trigger) do
               trigger name
               build(
                 message: '${BUILDKITE_MESSAGE}',
@@ -91,13 +87,16 @@ module Buildkite
                   BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml
                 }
               )
-              async context[:async] || false
-              branches context[:branches] if context[:branches]
-              condition context[:condition] if context[:condition]
-              depends_on *context[:depends_on] if context[:depends_on]
-              allow_dependency_failure context[:allow_dependency_failure] || false
-              skip context[:skip] || false
             end
+
+            trigger_step.key(sub_pipeline.key || "subpipeline_#{name}_#{context.data.pipelines.count}")
+            trigger_step.label(sub_pipeline.label || name.capitalize)
+            trigger_step.async(sub_pipeline.async || false)
+            trigger_step.branches(sub_pipeline.branches) if sub_pipeline.branches
+            trigger_step.condition(sub_pipeline.condition) if sub_pipeline.condition
+            trigger_step.depends_on(*sub_pipeline.get('depends_on')) if sub_pipeline.get('depends_on')
+            trigger_step.allow_dependency_failure(sub_pipeline.allow_dependency_failure || false)
+            trigger_step.skip(sub_pipeline.skip || false)
           end
         end
       end
