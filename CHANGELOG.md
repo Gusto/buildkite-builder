@@ -1,3 +1,6 @@
+## 3.3.0
+* Remove arguments in sub-pipeline's trigger step setup and use dsl delegation instead.
+
 ## 3.2.0
 * Remove `template` from sub-pipeline trigger step setup and use arguments instead.
 
