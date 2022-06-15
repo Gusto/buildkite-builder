@@ -74,20 +74,19 @@ module Buildkite
             sub_pipeline = Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(name, context, &block)
             context.data.pipelines.add(sub_pipeline)
 
-            trigger_step = context.data.steps.add(Pipelines::Steps::Trigger) do
-              trigger name
-              build(
-                message: '${BUILDKITE_MESSAGE}',
-                commit: '${BUILDKITE_COMMIT}',
-                branch: '${BUILDKITE_BRANCH}',
-                env: {
-                  BUILDKITE_PULL_REQUEST: '${BUILDKITE_PULL_REQUEST}',
-                  BUILDKITE_PULL_REQUEST_BASE_BRANCH: '${BUILDKITE_PULL_REQUEST_BASE_BRANCH}',
-                  BUILDKITE_PULL_REQUEST_REPO: '${BUILDKITE_PULL_REQUEST_REPO}',
-                  BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml
-                }
-              )
-            end
+            trigger_step = context.data.steps.add(Pipelines::Steps::Trigger)
+            trigger_step.trigger(name)
+            trigger_step.build(
+              message: '${BUILDKITE_MESSAGE}',
+              commit: '${BUILDKITE_COMMIT}',
+              branch: '${BUILDKITE_BRANCH}',
+              env: {
+                BUILDKITE_PULL_REQUEST: '${BUILDKITE_PULL_REQUEST}',
+                BUILDKITE_PULL_REQUEST_BASE_BRANCH: '${BUILDKITE_PULL_REQUEST_BASE_BRANCH}',
+                BUILDKITE_PULL_REQUEST_REPO: '${BUILDKITE_PULL_REQUEST_REPO}',
+                BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml
+              }
+            )
 
             trigger_step.key(sub_pipeline.key || "subpipeline_#{name}_#{context.data.pipelines.count}")
             trigger_step.label(sub_pipeline.label || name.capitalize)
