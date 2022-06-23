@@ -89,7 +89,7 @@ module Buildkite
                 BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml
               }
             }
-            build_options = build_default_options.merge(sub_pipeline.build)
+            build_options = build_default_options.merge(sub_pipeline.build || {})
 
             trigger_step.build(**build_options)
             trigger_step.key(sub_pipeline.key || "subpipeline_#{name}_#{context.data.pipelines.count}")
