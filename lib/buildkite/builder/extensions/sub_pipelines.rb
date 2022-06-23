@@ -78,7 +78,7 @@ module Buildkite
             trigger_step = context.data.steps.add(Pipelines::Steps::Trigger)
             trigger_step.trigger(name)
 
-            build_default_options = {
+            build_options = {
               message: '${BUILDKITE_MESSAGE}',
               commit: '${BUILDKITE_COMMIT}',
               branch: '${BUILDKITE_BRANCH}',
@@ -89,9 +89,9 @@ module Buildkite
                 BKB_SUBPIPELINE_FILE: sub_pipeline.pipeline_yml
               }
             }
-            build_options = build_default_options.merge(sub_pipeline.build || {})
+            build_options.merge!(sub_pipeline.build) if sub_pipeline.build
 
-            trigger_step.build(**build_options)
+            trigger_step.build(build_options)
             trigger_step.key(sub_pipeline.key || "subpipeline_#{name}_#{context.data.pipelines.count}")
             trigger_step.label(sub_pipeline.label || name.capitalize)
             trigger_step.async(sub_pipeline.async || false)
