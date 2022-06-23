@@ -8,6 +8,7 @@ module Buildkite
       attr_reader :pipelines
 
       def_delegator :@pipelines, :count
+      def_delegator :@pipelines, :each
 
       def initialize(artifacts)
         @artifacts = artifacts
@@ -20,12 +21,6 @@ module Buildkite
         end
 
         pipelines << pipeline
-      end
-
-      def each
-        @pipelines.each do |pipeline|
-          yield pipeline
-        end
       end
 
       def to_definition
