@@ -1,3 +1,6 @@
+## 3.3.1
+* Add support to iterate over subpipelines
+
 ## 3.3.0
 * Remove arguments in sub-pipeline's trigger step setup and use dsl delegation instead.
 
