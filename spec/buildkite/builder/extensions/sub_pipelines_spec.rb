@@ -83,6 +83,11 @@ RSpec.describe Buildkite::Builder::Extensions::SubPipelines do
             depends_on :bundle, :assets
             async true
             condition 'a = b'
+            build(
+              meta_data: {
+                some_meta_data: "true"
+              }
+            )
           end
           pipeline = context.data.pipelines.pipelines.first
           step = context.data.steps.steps.last
@@ -94,6 +99,20 @@ RSpec.describe Buildkite::Builder::Extensions::SubPipelines do
           expect(step.get('depends_on')).to eq(%i(bundle assets))
           expect(step.async).to eq(true)
           expect(step.condition).to eq('a = b')
+          expect(step.build).to eq(
+            message: '${BUILDKITE_MESSAGE}',
+            commit: '${BUILDKITE_COMMIT}',
+            branch: '${BUILDKITE_BRANCH}',
+            env: {
+              BUILDKITE_PULL_REQUEST: '${BUILDKITE_PULL_REQUEST}',
+              BUILDKITE_PULL_REQUEST_BASE_BRANCH: '${BUILDKITE_PULL_REQUEST_BASE_BRANCH}',
+              BUILDKITE_PULL_REQUEST_REPO: '${BUILDKITE_PULL_REQUEST_REPO}',
+              BKB_SUBPIPELINE_FILE: pipeline.pipeline_yml
+            },
+            meta_data: {
+              some_meta_data: "true"
+            }
+          )
         end
       end
     end

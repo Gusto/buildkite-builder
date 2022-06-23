@@ -39,6 +39,22 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
     end
   end
 
+  describe '#each' do
+    before do
+      collection.add(Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context))
+      collection.add(Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:bar, context))
+    end
+
+    it 'iterates through pipelines' do
+      pipelines = []
+      collection.each do |pipeline|
+        pipelines << pipeline.name
+      end
+
+      expect(pipelines).to match_array([:foo, :bar])
+    end
+  end
+
   describe '#to_definition' do
     let(:definition) do
       Buildkite::Builder.template do
