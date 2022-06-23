@@ -22,6 +22,12 @@ module Buildkite
         pipelines << pipeline
       end
 
+      def each
+        @pipelines.each do |pipeline|
+          yield pipeline
+        end
+      end
+
       def to_definition
         # Instead of generates pipeline.yml, subpipelines save generated file to artifacts
         pipelines.each do |pipeline|
