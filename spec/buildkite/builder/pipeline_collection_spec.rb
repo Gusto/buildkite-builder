@@ -66,6 +66,7 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
 
     let(:pipeline_1) do
       Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context) do
+        key 'p1'
         env(BAZ: 'foo')
         command do
           label 'Step 1'

@@ -1,3 +1,6 @@
+## 3.3.2
+* Fix subpipeline trigger step attributes leak to subpipeline.
+
 ## 3.3.1
 * Add support to iterate over subpipelines.
 * Allow build options to be passed to subpipelines.
