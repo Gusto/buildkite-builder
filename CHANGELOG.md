@@ -1,3 +1,8 @@
+## 3.4.0
+* `automatically_retry(status:, limit:)` has been renamed to `automatic_retry_on(exit_status:, limit:)`
+* Added `automatic_retry` for setting boolean for `retry.automatic`
+* Added `manual_retry` for setting `retry.manual`
+
 ## 3.3.2
 * Fix subpipeline trigger step attributes leak to subpipeline.
 
