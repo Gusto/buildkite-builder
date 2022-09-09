@@ -1,3 +1,6 @@
+## 3.4.1
+* `automatic_retry_on` now overwrites rules with the same exit status.
+
 ## 3.4.0
 * `automatically_retry(status:, limit:)` has been renamed to `automatic_retry_on(exit_status:, limit:)`
 * Added `automatic_retry` for setting boolean for `retry.automatic`

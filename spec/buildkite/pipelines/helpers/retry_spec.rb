@@ -95,6 +95,17 @@ RSpec.describe Buildkite::Pipelines::Helpers::Retry do
           ]
         )
       end
+
+      it 'replaces same exit status' do
+        step.automatic_retry_on(exit_status: 123, limit: 1)
+        step.automatic_retry_on(exit_status: 123, limit: 2)
+
+        expect(step.get(:retry)).to eq(
+          automatic: [
+            { exit_status: 123, limit: 2 },
+          ]
+        )
+      end
     end
 
     context 'when retry was set to something else' do

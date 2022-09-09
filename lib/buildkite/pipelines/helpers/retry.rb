@@ -11,6 +11,7 @@ module Buildkite
             retry_value[:automatic] = []
           end
 
+          retry_value[:automatic].delete_if { |rule| rule[:exit_status] == exit_status }
           retry_value[:automatic].push(exit_status: exit_status, limit: limit)
         end
 
