@@ -7,7 +7,10 @@ RSpec.describe Buildkite::Builder::PluginManager do
     it 'adds to plugins' do
       manager.add('foo', 'org/some_repo#v0.0.1')
 
-      expect(manager.fetch('foo')).to eq('org/some_repo#v0.0.1')
+      expect(manager.fetch('foo')).to eq({
+        uri: 'org/some_repo#v0.0.1',
+        default_attributes: {},
+      })
     end
 
     context 'when already added' do

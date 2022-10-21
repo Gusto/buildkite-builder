@@ -14,7 +14,7 @@ RSpec.describe Buildkite::Builder::PluginCollection do
         expect(plugin).to be_a(Buildkite::Builder::Plugin)
         expect(plugin.source).to eq('foo-bar/test1')
         expect(plugin.version).to eq('v0.0.1')
-        expect(plugin.options).to eq(foo: 'bar')
+        expect(plugin.attributes).to eq(foo: 'bar')
       end
 
       context 'when source does not exist' do
@@ -33,7 +33,7 @@ RSpec.describe Buildkite::Builder::PluginCollection do
         expect(plugin).to be_a(Buildkite::Builder::Plugin)
         expect(plugin.source).to eq('foo-bar/test2')
         expect(plugin.version).to eq('v0.0.1')
-        expect(plugin.options).to eq(option1: 'one')
+        expect(plugin.attributes).to eq(option1: 'one')
       end
     end
 
@@ -44,7 +44,7 @@ RSpec.describe Buildkite::Builder::PluginCollection do
         expect(plugin).to be_a(Buildkite::Builder::Plugin)
         expect(plugin.source).to eq('foo-bar/test2')
         expect(plugin.version).to eq('v0.0.1')
-        expect(plugin.options).to eq(option2: 'two')
+        expect(plugin.attributes).to eq(option2: 'two')
       end
     end
   end
@@ -60,16 +60,16 @@ RSpec.describe Buildkite::Builder::PluginCollection do
     context 'when source is a string' do
       it 'finds matched plugins from collection' do
         expect(collection.find('foo-bar/test1')).to contain_exactly(
-          an_object_having_attributes(source: 'foo-bar/test1', version: 'v0.0.1', options: { option: 'one' }),
-          an_object_having_attributes(source: 'foo-bar/test1', version: 'v0.0.2', options: { option: 'foo' }),
+          an_object_having_attributes(source: 'foo-bar/test1', version: 'v0.0.1', attributes: { option: 'one' }),
+          an_object_having_attributes(source: 'foo-bar/test1', version: 'v0.0.2', attributes: { option: 'foo' }),
         )
 
         expect(collection.find('foo-boo/test1')).to contain_exactly(
-          an_object_having_attributes(source: 'foo-boo/test1', version: 'v0.1.1', options: { option: 'two', some: 'thing' }),
+          an_object_having_attributes(source: 'foo-boo/test1', version: 'v0.1.1', attributes: { option: 'two', some: 'thing' }),
         )
 
         expect(collection.find('test-lib')).to contain_exactly(
-          an_object_having_attributes(source: 'test-lib', version: 'v1.0.1', options: { option: 'three' }),
+          an_object_having_attributes(source: 'test-lib', version: 'v1.0.1', attributes: { option: 'three' }),
         )
       end
 
@@ -83,16 +83,16 @@ RSpec.describe Buildkite::Builder::PluginCollection do
     context 'when source is a Plugin' do
       it 'finds matched plugins from collection' do
         expect(collection.find(Buildkite::Builder::Plugin.new('foo-bar/test1#v0.0.1'))).to contain_exactly(
-          an_object_having_attributes(source: 'foo-bar/test1', version: 'v0.0.1', options: { option: 'one' }),
-          an_object_having_attributes(source: 'foo-bar/test1', version: 'v0.0.2', options: { option: 'foo' }),
+          an_object_having_attributes(source: 'foo-bar/test1', version: 'v0.0.1', attributes: { option: 'one' }),
+          an_object_having_attributes(source: 'foo-bar/test1', version: 'v0.0.2', attributes: { option: 'foo' }),
         )
 
         expect(collection.find(Buildkite::Builder::Plugin.new('foo-boo/test1#0.2.3'))).to contain_exactly(
-          an_object_having_attributes(source: 'foo-boo/test1', version: 'v0.1.1', options: { option: 'two', some: 'thing' }),
+          an_object_having_attributes(source: 'foo-boo/test1', version: 'v0.1.1', attributes: { option: 'two', some: 'thing' }),
         )
 
         expect(collection.find(Buildkite::Builder::Plugin.new('test-lib#v1.2.3'))).to contain_exactly(
-          an_object_having_attributes(source: 'test-lib', version: 'v1.0.1', options: { option: 'three' }),
+          an_object_having_attributes(source: 'test-lib', version: 'v1.0.1', attributes: { option: 'three' }),
         )
       end
 

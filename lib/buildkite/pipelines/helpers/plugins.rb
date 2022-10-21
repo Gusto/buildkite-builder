@@ -4,9 +4,9 @@ module Buildkite
   module Pipelines
     module Helpers
       module Plugins
-        def plugin(name_or_source, options = nil)
+        def plugin(name_or_source, plugin_attributes = {})
           attributes['plugins'] ||= Buildkite::Builder::PluginCollection.new(step_collection.plugins)
-          attributes['plugins'].add(name_or_source, options)
+          attributes['plugins'].add(name_or_source, plugin_attributes)
         end
 
         def plugins

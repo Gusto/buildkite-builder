@@ -5,14 +5,17 @@ module Buildkite
         @plugins = {}
       end
 
-      def add(name, uri)
+      def add(name, uri, default_attributes = {})
         name = name.to_s
 
         if @plugins.key?(name)
           raise ArgumentError, "Plugin already defined: #{name}"
         end
 
-        @plugins[name] = uri
+        @plugins[name] = {
+          uri: uri,
+          default_attributes: default_attributes
+        }
       end
 
       def fetch(name)

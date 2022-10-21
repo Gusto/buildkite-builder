@@ -3,16 +3,16 @@
 module Buildkite
   module Builder
     class Plugin
-      attr_reader :uri, :source, :version, :options
+      attr_reader :uri, :source, :version, :attributes
 
-      def initialize(uri, options = nil)
+      def initialize(uri, attributes = {})
         @uri = uri
         @source, @version = uri.split('#')
-        @options = options
+        @attributes = attributes
       end
 
       def to_h
-        Buildkite::Pipelines::Helpers.sanitize(uri => options)
+        Buildkite::Pipelines::Helpers.sanitize(uri => (attributes&.empty? ? nil : attributes))
       end
     end
   end
