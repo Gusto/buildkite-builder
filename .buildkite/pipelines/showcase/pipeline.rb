@@ -1,4 +1,6 @@
 Buildkite::Builder.pipeline do
+  # You can require files from the `.buildkite/lib` directory because it's
+  # automatically added to the Ruby load path.
   require 'cool_lib'
 
   use(MyCoolExtension)

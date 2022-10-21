@@ -21,8 +21,8 @@ module Buildkite
             context.data.steps.push(Buildkite::Builder::Group.new(label, context.data.steps, &block))
           end
 
-          def plugin(name, uri)
-            context.data.steps.plugins.add(name, uri)
+          def plugin(name, uri, default_attributes = {})
+            context.data.steps.plugins.add(name, uri, default_attributes)
           end
 
           def block(template = nil, **args, &block)

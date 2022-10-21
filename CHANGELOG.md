@@ -1,3 +1,6 @@
+## 3.5.0
+* `plugin` registrations now takes an optional default attributes hash as the third argument.
+
 ## 3.4.1
 * `automatic_retry_on` now overwrites rules with the same exit status.
 

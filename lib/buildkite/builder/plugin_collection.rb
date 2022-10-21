@@ -8,17 +8,17 @@ module Buildkite
         @collection = []
       end
 
-      def add(resource, options = nil)
+      def add(resource, attributes = {})
         plugin =
           case resource
           when Symbol
-            uri = plugin_manager.fetch(resource.to_s)
+            registered_plugin = plugin_manager.fetch(resource.to_s)
 
-            raise ArgumentError, "Plugin `#{resource}` does not exist" unless uri
+            raise ArgumentError, "Plugin `#{resource}` does not exist" unless registered_plugin
 
-            Plugin.new(uri, options)
+            Plugin.new(registered_plugin[:uri], registered_plugin[:default_attributes].merge(attributes))
           when String
-            Plugin.new(resource, options)
+            Plugin.new(resource, attributes)
           when Plugin
             resource
           else
