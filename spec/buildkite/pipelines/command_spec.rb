@@ -96,11 +96,11 @@ RSpec.describe Buildkite::Pipelines::Command do
     end
 
     it 'returns the stdout of the command when capture kwarg is true' do
-      expect(instance.run).to eq('stdout')
+      expect(instance.run(capture: true)).to eq('stdout')
     end
 
     it 'returns the status success of the command when capture kwarg is false' do
-      expect(instance.run).to eq(mock_status)
+      expect(instance.run).to eq(mock_status.success?)
     end
   end
 end
