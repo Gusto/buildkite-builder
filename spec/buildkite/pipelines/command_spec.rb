@@ -74,7 +74,7 @@ RSpec.describe Buildkite::Pipelines::Command do
     let(:instance) { described_class.new(command, subcommand, options, *args) }
 
     before do
-      allow(Open3).to receive(:capture3).and_return(true)
+      allow(Open3).to receive(:capture3).and_return('stdout', 'stderr', 'status')
     end
 
     it 'runs the command' do
@@ -91,6 +91,10 @@ RSpec.describe Buildkite::Pipelines::Command do
       )
 
       instance.run
+    end
+
+    it 'returns the stdout of the command' do
+      expect(instance.run).to eq('stdout')
     end
   end
 end
