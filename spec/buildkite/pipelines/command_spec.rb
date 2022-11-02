@@ -72,19 +72,6 @@ RSpec.describe Buildkite::Pipelines::Command do
     let(:options) { { foo_key: :foo_value, bar_key: :bar_value } }
     let(:args) { [Pathname.new('/path/to/foo'), Pathname.new('/path/to/bar')] }
     let(:instance) { described_class.new(command, subcommand, options, *args) }
-    let(:expected_args) do
-      [
-        Buildkite::Pipelines::Command::BIN_PATH,
-        command.to_s,
-        subcommand.to_s,
-        '--foo-key',
-        'foo_value',
-        '--bar-key',
-        'bar_value',
-        '/path/to/foo',
-        '/path/to/bar',
-      ].join(' ')
-    end
 
     before do
       allow(Open3).to receive(:capture3).and_return(true)
@@ -103,7 +90,6 @@ RSpec.describe Buildkite::Pipelines::Command do
         '/path/to/bar'
       )
 
-      # expect(instance).to receive(:`).with(expected_args)
       instance.run
     end
   end
