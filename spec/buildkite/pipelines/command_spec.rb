@@ -2,6 +2,7 @@
 
 require 'pathname'
 require 'open3'
+require 'ostruct'
 
 RSpec.describe Buildkite::Pipelines::Command do
   shared_examples 'command helper' do |method_name, command|
@@ -72,9 +73,10 @@ RSpec.describe Buildkite::Pipelines::Command do
     let(:options) { { foo_key: :foo_value, bar_key: :bar_value } }
     let(:args) { [Pathname.new('/path/to/foo'), Pathname.new('/path/to/bar')] }
     let(:instance) { described_class.new(command, subcommand, options, *args) }
+    let(:mock_status) { OpenStruct.new(success?: true) }
 
     before do
-      allow(Open3).to receive(:capture3).and_return('stdout', 'stderr', 'status')
+      allow(Open3).to receive(:capture3).and_return(['stdout', 'stderr', mock_status])
     end
 
     it 'runs the command' do
@@ -93,8 +95,12 @@ RSpec.describe Buildkite::Pipelines::Command do
       instance.run
     end
 
-    it 'returns the stdout of the command' do
+    it 'returns the stdout of the command when capture kwarg is true' do
       expect(instance.run).to eq('stdout')
+    end
+
+    it 'returns the status success of the command when capture kwarg is false' do
+      expect(instance.run).to eq(mock_status)
     end
   end
 end

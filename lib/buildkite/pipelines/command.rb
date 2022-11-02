@@ -27,7 +27,7 @@ module Buildkite
         end
 
         def meta_data(subcommand, *args)
-          new(:'meta-data', subcommand, *args).run
+          new(:'meta-data', subcommand, *args).run(capture: true)
         end
       end
 
@@ -44,9 +44,9 @@ module Buildkite
         @args = transform_args(args)
       end
 
-      def run
-        stdout, _, _ = Open3.capture3(*to_a)
-        return stdout
+      def run(capture: false)
+        stdout, _, status = Open3.capture3(*to_a)
+        capture ? stdout : status.success?
       end
 
       private
