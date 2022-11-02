@@ -1,3 +1,6 @@
+## 3.5.1
+* `Buildkite::Pipelines::Command` now uses `Open3.capture3` to run system commands and returns the stdout of the command.
+
 ## 3.5.0
 * `plugin` registrations now takes an optional default attributes hash as the third argument.
 
