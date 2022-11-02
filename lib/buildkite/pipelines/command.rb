@@ -27,7 +27,12 @@ module Buildkite
         end
 
         def meta_data(subcommand, *args)
-          new(:'meta-data', subcommand, *args).run(capture: true)
+          case subcommand.to_s
+          when 'get', 'keys'
+            new(:'meta-data', subcommand, *args).run(capture: true)
+          else
+            new(:'meta-data', subcommand, *args).run
+          end
         end
       end
 
