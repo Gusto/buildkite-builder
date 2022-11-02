@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'open3'
+
 module Buildkite
   module Pipelines
     class Command
@@ -43,7 +45,8 @@ module Buildkite
       end
 
       def run
-        system(*to_a)
+        stdout, _, _ = Open3.capture3(*to_a)
+        return stdout
       end
 
       private
