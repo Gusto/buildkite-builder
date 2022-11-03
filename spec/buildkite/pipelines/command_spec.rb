@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pathname'
+require 'open3'
 
 RSpec.describe Buildkite::Pipelines::Command do
   shared_examples 'command helper' do |method_name, command|
@@ -71,9 +72,14 @@ RSpec.describe Buildkite::Pipelines::Command do
     let(:options) { { foo_key: :foo_value, bar_key: :bar_value } }
     let(:args) { [Pathname.new('/path/to/foo'), Pathname.new('/path/to/bar')] }
     let(:instance) { described_class.new(command, subcommand, options, *args) }
+    let(:mock_status) { instance_double(Process::Status, success?: true) }
+
+    before do
+      allow(Open3).to receive(:capture3).and_return(['stdout', 'stderr', mock_status])
+    end
 
     it 'runs the command' do
-      expect(instance).to receive(:system).with(
+      expect(Open3).to receive(:capture3).with(
         Buildkite::Pipelines::Command::BIN_PATH,
         command.to_s,
         subcommand.to_s,
@@ -86,6 +92,14 @@ RSpec.describe Buildkite::Pipelines::Command do
       )
 
       instance.run
+    end
+
+    it 'returns the stdout of the command when capture kwarg is true' do
+      expect(instance.run(capture: true)).to eq('stdout')
+    end
+
+    it 'returns the status success of the command when capture kwarg is false' do
+      expect(instance.run).to eq(mock_status.success?)
     end
   end
 end

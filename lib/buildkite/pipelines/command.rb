@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'open3'
+
 module Buildkite
   module Pipelines
     class Command
@@ -17,7 +19,12 @@ module Buildkite
         end
 
         def artifact(subcommand, *args)
-          new(:artifact, subcommand, *args).run
+          capture = case subcommand.to_s
+          when 'shasum', 'search' then true
+          else false
+          end
+
+          new(:artifact, subcommand, *args).run(capture: capture)
         end
 
         def annotate(body, *args)
@@ -25,7 +32,12 @@ module Buildkite
         end
 
         def meta_data(subcommand, *args)
-          new(:'meta-data', subcommand, *args).run
+          capture = case subcommand.to_s
+          when 'get', 'keys' then true
+          else false
+          end
+
+          new(:'meta-data', subcommand, *args).run(capture: capture)
         end
       end
 
@@ -42,8 +54,9 @@ module Buildkite
         @args = transform_args(args)
       end
 
-      def run
-        system(*to_a)
+      def run(capture: false)
+        stdout, _, status = Open3.capture3(*to_a)
+        capture ? stdout : status.success?
       end
 
       private
