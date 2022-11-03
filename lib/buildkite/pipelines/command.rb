@@ -19,7 +19,12 @@ module Buildkite
         end
 
         def artifact(subcommand, *args)
+          case subcommand.to_s
+          when 'shasum', 'search'
+            new(:'artifact', subcommand, *args).run(capture: true)
+          else
           new(:artifact, subcommand, *args).run
+          end
         end
 
         def annotate(body, *args)
