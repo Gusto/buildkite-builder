@@ -1,4 +1,4 @@
-## 3.5.1
+## 3.6.0
 * `Buildkite::Pipelines::Command#run` now uses `Open3.capture3` to run system commands, and accepts an optional arg `capture`. When `capture` is true, it returns the stdout of the command. `capture` is true for the meta_data subcommands `get` and `keys` and for the artifact subcommands `shasum` and `search`.
 
 ## 3.5.0
