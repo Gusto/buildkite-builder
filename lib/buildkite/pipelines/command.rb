@@ -19,12 +19,12 @@ module Buildkite
         end
 
         def artifact(subcommand, *args)
-          case subcommand.to_s
-          when 'shasum', 'search'
-            new(:'artifact', subcommand, *args).run(capture: true)
-          else
-          new(:artifact, subcommand, *args).run
+          capture = case subcommand.to_s
+          when 'shasum', 'search' then true
+          else false
           end
+
+          new(:artifact, subcommand, *args).run(capture: capture)
         end
 
         def annotate(body, *args)
@@ -32,12 +32,12 @@ module Buildkite
         end
 
         def meta_data(subcommand, *args)
-          case subcommand.to_s
-          when 'get', 'keys'
-            new(:'meta-data', subcommand, *args).run(capture: true)
-          else
-            new(:'meta-data', subcommand, *args).run
+          capture = case subcommand.to_s
+          when 'get', 'keys' then true
+          else false
           end
+
+          new(:'meta-data', subcommand, *args).run(capture: capture)
         end
       end
 
