@@ -32,16 +32,6 @@ module Buildkite
         context.logger
       end
 
-      def buildkite
-        @buildkite ||= begin
-          unless Buildkite.env
-            raise 'Must be in Buildkite environment to access the Buildkite API'
-          end
-
-          Buildkite::Pipelines::Api.new(Buildkite.env.api_token)
-        end
-      end
-
       def prepare
         # Override to provide extra functionality.
       end
