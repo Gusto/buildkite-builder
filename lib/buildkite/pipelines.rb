@@ -2,7 +2,6 @@
 
 module Buildkite
   module Pipelines
-    autoload :Api, File.expand_path('pipelines/api', __dir__)
     autoload :Attributes, File.expand_path('pipelines/attributes', __dir__)
     autoload :Command, File.expand_path('pipelines/command', __dir__)
     autoload :Helpers, File.expand_path('pipelines/helpers', __dir__)
