@@ -3,7 +3,14 @@ Buildkite::Builder.pipeline do
   # automatically added to the Ruby load path.
   require 'cool_lib'
 
-  use(MyCoolExtension)
+  use(MyCoolExtension) do
+    pipeline do
+      command do
+        label 'Appended Step'
+        command 'echo 1'
+      end
+    end
+  end
   use(ExtensionWithDsl)
 
   CoolLib.resolve(context.logger)

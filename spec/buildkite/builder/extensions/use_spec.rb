@@ -7,8 +7,9 @@ RSpec.describe Buildkite::Builder::Extensions::Use do
   end
 
   it 'delegate use on context' do
-    expect(context).to receive(:use).with('FOO', bar: :baz)
+    block = Proc.new {}
+    expect(context).to receive(:use).with('FOO', bar: :baz, &block)
 
-    dsl.use('FOO', bar: :baz)
+    dsl.use('FOO', bar: :baz, &block)
   end
 end
