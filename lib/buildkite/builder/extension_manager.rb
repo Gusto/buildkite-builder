@@ -6,24 +6,32 @@ module Buildkite
 
       def initialize(context)
         @context = context
-        @extensions = []
+        @extensions = {}
 
         @loader = Loaders::Extensions.load(@context.root)
       end
 
-      def use(extension, native: false, **args)
+      def use(extension, native: false, **args, &block)
         unless extension < Buildkite::Builder::Extension
-          raise "#{extension} must subclass Buildkite::Builder::Extension"
+          raise "#{extension.name} must subclass Buildkite::Builder::Extension"
         end
 
-        @extensions.push(extension.new(@context, **args))
+        if @extensions[extension]
+          raise "#{extension.name} already registered"
+        end
+
+        @extensions[extension] = extension.new(@context, **args, &block)
         @context.dsl.extend(extension)
       end
 
       def build
-        @extensions.each do |extension|
-          log_build(extension.class.name) { extension.build }
+        @extensions.each do |extension_class, extension|
+          log_build(extension_class.name) { extension.build }
         end
+      end
+
+      def find(klass)
+        @extensions.fetch(klass)
       end
 
       private

@@ -14,10 +14,12 @@ module Buildkite
 
       attr_reader :context
       attr_reader :options
+      attr_reader :option_block
 
-      def initialize(context, **options)
+      def initialize(context, **options, &block)
         @context = context
         @options = options
+        @option_block = block
 
         prepare
       end
