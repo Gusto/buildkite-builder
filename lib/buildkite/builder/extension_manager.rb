@@ -13,11 +13,11 @@ module Buildkite
 
       def use(extension, native: false, **args, &block)
         unless extension < Buildkite::Builder::Extension
-          raise "#{extension} must subclass Buildkite::Builder::Extension"
+          raise "#{extension.name} must subclass Buildkite::Builder::Extension"
         end
 
         if @extensions[extension]
-          raise "#{extension} already registered"
+          raise "#{extension.name} already registered"
         end
 
         @extensions[extension] = extension.new(@context, **args, &block)
