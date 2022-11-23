@@ -21,7 +21,8 @@ module Buildkite
                   :artifacts,
                   :plugins,
                   :dsl,
-                  :data
+                  :data,
+                  :extensions
 
       def initialize(root, logger: nil)
         @root = root
