@@ -81,8 +81,6 @@ module Buildkite
 
       private
 
-      attr_reader :extensions
-
       def upload_artifacts
         return if artifacts.empty?
 
