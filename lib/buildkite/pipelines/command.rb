@@ -55,8 +55,14 @@ module Buildkite
       end
 
       def run(capture: false)
-        stdout, _, status = Open3.capture3(*to_a)
-        capture ? stdout : status.success?
+        stdout, stderr, status = Open3.capture3(*to_a)
+        if capture
+          stdout
+        elsif status.success?
+          true
+        else
+          raise stderr
+        end
       end
 
       private
