@@ -5,6 +5,8 @@ require 'open3'
 module Buildkite
   module Pipelines
     class Command
+      class CommandFailedError < StandardError; end
+
       BIN_PATH = 'buildkite-agent'
       COMMANDS = %w(
         pipeline
@@ -61,7 +63,7 @@ module Buildkite
         elsif status.success?
           true
         else
-          raise stderr
+          raise CommandFailedError, "STDOUT: #{stdout}\n STDERR: #{stderr}"
         end
       end
 
