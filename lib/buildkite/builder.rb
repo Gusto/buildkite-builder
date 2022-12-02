@@ -35,6 +35,10 @@ module Buildkite
         @root ||= find_buildkite_directory(start_path)
       end
 
+      def version
+        @version ||= File.read(File.expand_path('../../VERSION', __dir__)).strip
+      end
+
       def template(&block)
         Definition::Template.new(&block) if block_given?
       end
