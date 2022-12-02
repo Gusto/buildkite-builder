@@ -16,36 +16,38 @@ module Buildkite
       )
 
       class << self
-        def pipeline(subcommand, *args)
-          new(:pipeline, subcommand, *args).run
+        def pipeline(subcommand, exception: false, *args)
+          new(:pipeline, subcommand, *args).run(exception: exception)
         end
 
-        def artifact(subcommand, *args)
+        def artifact(subcommand, exception: false, *args)
           capture = case subcommand.to_s
           when 'shasum', 'search' then true
           else false
           end
 
-          new(:artifact, subcommand, *args).run(capture: capture)
+          new(:artifact, subcommand, *args).run(capture: capture, exception: exception)
         end
 
-        def annotate(body, *args)
-          new(:annotate, body, *args).run
+        def annotate(body, exception: false, *args)
+          new(:annotate, body, *args).run(exception: exception)
         end
 
-        def meta_data(subcommand, *args)
+        def meta_data(subcommand, exception: false, *args)
           capture = case subcommand.to_s
           when 'get', 'keys' then true
           else false
           end
 
-          new(:'meta-data', subcommand, *args).run(capture: capture)
+          new(:'meta-data', subcommand, *args).run(capture: capture, exception: exception)
         end
       end
 
       COMMANDS.each do |command|
         define_singleton_method("#{command}!") do |*args|
-          abort unless public_send(command, *args)
+          public_send(command, exception: true, *args)
+        rescue CommandFailedError => e
+          abort e.message
         end
       end
 
@@ -56,14 +58,16 @@ module Buildkite
         @args = transform_args(args)
       end
 
-      def run(capture: false)
+      def run(capture: false, exception:)
         stdout, stderr, status = Open3.capture3(*to_a)
         if capture
           stdout
         elsif status.success?
           true
+        elsif exception
+          raise CommandFailedError, "#{stdout}\n#{stderr}"
         else
-          raise CommandFailedError, "STDOUT: #{stdout}\n STDERR: #{stderr}"
+          false
         end
       end
 
