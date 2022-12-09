@@ -43,6 +43,7 @@ RSpec.describe Buildkite::Builder::Pipeline do
       pipeline_contents = nil
 
       expect(Buildkite::Pipelines::Command).to_not receive(:artifact!)
+      expect(Buildkite::Pipelines::Command).to receive(:meta_data!).with(:set, anything, anything)
       expect(Buildkite::Pipelines::Command).to receive(:pipeline).once do |subcommand, path|
         expect(subcommand).to eq(:upload)
         pipeline_path = path
@@ -115,6 +116,8 @@ RSpec.describe Buildkite::Builder::Pipeline do
           pipeline_contents = File.read(path)
           true
         end
+
+        expect(Buildkite::Pipelines::Command).to receive(:meta_data!).with(:set, anything, anything)
 
         pipeline.upload
 

@@ -13,18 +13,20 @@ module Buildkite
         name.split('::').last.downcase.to_sym
       end
 
-      def initialize(label, steps, &block)
+      def initialize(label, context, &block)
         @label = label
         @data = Data.new
         @data.steps = StepCollection.new(
-          steps.templates,
-          steps.plugins
+          context.data.steps.templates,
+          context.data.steps.plugins
         )
         @data.notify = []
 
-        @dsl = Dsl.new(self)
-        @dsl.extend(Extensions::Steps)
-        @dsl.extend(Extensions::Notify)
+        # Use `clone` to copy over dsl's extended extensions
+        @dsl = context.dsl.clone
+        # Override dsl context to current group
+        @dsl.instance_variable_set(:@context, self)
+
         instance_eval(&block) if block_given?
         self
       end

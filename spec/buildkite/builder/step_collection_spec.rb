@@ -48,8 +48,16 @@ RSpec.describe Buildkite::Builder::StepCollection do
     end
 
     context 'with group' do
+      let(:context) { OpenStruct.new(data: Buildkite::Builder::Data.new, root: Buildkite::Builder.root) }
+
       before do
-        group = Buildkite::Builder::Group.new('group', collection) do
+        context.data.steps = collection
+        dsl = Buildkite::Builder::Dsl.new(context)
+        dsl.extend(Buildkite::Builder::Extensions::Notify)
+        dsl.extend(Buildkite::Builder::Extensions::Steps)
+
+        context.dsl = dsl
+        group = Buildkite::Builder::Group.new('group', context) do
           command { key 'command_in_group' }
           block { key 'block_in_group' }
           wait { key 'wait_in_group' }

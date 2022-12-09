@@ -6,6 +6,8 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
     Buildkite::Builder::Dsl.new(context).extend(described_class)
   end
 
+  before { context.dsl = dsl }
+
   describe '#new' do
     it 'sets steps' do
       described_class.new(context)

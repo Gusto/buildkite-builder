@@ -18,7 +18,7 @@ module Buildkite
               label = [emoji, label].compact.join(' ')
             end
 
-            context.data.steps.push(Buildkite::Builder::Group.new(label, context.data.steps, &block))
+            context.data.steps.push(Buildkite::Builder::Group.new(label, context, &block))
           end
 
           def plugin(name, uri, default_attributes = {})
