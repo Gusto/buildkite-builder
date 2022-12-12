@@ -3,10 +3,7 @@ module Buildkite
     module Extensions
       class Steps < Extension
         def prepare
-          context.data.steps = StepCollection.new(
-            TemplateManager.new(context.root),
-            PluginManager.new
-          )
+          context.data.steps = StepCollection.new(TemplateManager.new(context.root))
         end
 
         dsl do
@@ -19,10 +16,6 @@ module Buildkite
             end
 
             context.data.steps.push(Buildkite::Builder::Group.new(label, context, &block))
-          end
-
-          def plugin(name, uri, default_attributes = {})
-            context.data.steps.plugins.add(name, uri, default_attributes)
           end
 
           def block(template = nil, **args, &block)

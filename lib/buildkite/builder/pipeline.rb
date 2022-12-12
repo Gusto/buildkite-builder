@@ -38,6 +38,7 @@ module Buildkite
         use(Extensions::Env)
         use(Extensions::Notify)
         use(Extensions::Steps)
+        use(Extensions::Plugins)
         use(Extensions::SubPipelines)
       end
 

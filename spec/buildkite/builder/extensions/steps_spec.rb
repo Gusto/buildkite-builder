@@ -19,17 +19,6 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
     # sets up step collection
     before { described_class.new(context) }
 
-    describe 'plugin' do
-      it 'adds plugin to plugins in collection' do
-        dsl.plugin :skip_checkout, 'thedyrt/skip-checkout#v0.1.1'
-
-        expect(context.data.steps.plugins.fetch('skip_checkout')).to eq({
-          uri: 'thedyrt/skip-checkout#v0.1.1',
-          default_attributes: {}
-        })
-      end
-    end
-
     describe 'group' do
       it 'adds group to steps' do
         dsl.group do
