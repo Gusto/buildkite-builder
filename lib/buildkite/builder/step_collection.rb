@@ -2,12 +2,10 @@ module Buildkite
   module Builder
     class StepCollection
       attr_reader :templates
-      attr_reader :plugins
       attr_reader :steps
 
-      def initialize(templates, plugins)
+      def initialize(templates)
         @templates = templates
-        @plugins = plugins
         @steps = []
       end
 

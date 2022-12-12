@@ -28,10 +28,7 @@ module Buildkite
             @context = context
             @name = name
             @data = Data.new
-            @data.steps = StepCollection.new(
-              context.data.steps.templates,
-              context.data.steps.plugins
-            )
+            @data.steps = StepCollection.new(context.data.steps.templates)
             @data.notify = []
             @data.env = {}
 

@@ -16,10 +16,7 @@ module Buildkite
       def initialize(label, context, &block)
         @label = label
         @data = Data.new
-        @data.steps = StepCollection.new(
-          context.data.steps.templates,
-          context.data.steps.plugins
-        )
+        @data.steps = StepCollection.new(context.data.steps.templates)
         @data.notify = []
 
         # Use `clone` to copy over dsl's extended extensions

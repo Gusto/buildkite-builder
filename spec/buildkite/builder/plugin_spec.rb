@@ -1,35 +1,33 @@
 # frozen_string_literal: true
 
 RSpec.describe Buildkite::Builder::Plugin do
-  let(:plugin) { described_class.new("#{source}##{version}", options) }
+  let(:plugin) { described_class.new(uri, default_attributes) }
+  let(:uri) { "#{source}##{version}" }
   let(:source) { 'https://foo.com' }
   let(:version) { 'v1.2.3' }
-  let(:options) { nil }
+  let(:default_attributes) { nil }
 
-  it 'sets source and version' do
-    expect(plugin.source).to eq(source)
-    expect(plugin.version).to eq(version)
+  describe '#uri' do
+    it "returns the uri" do
+      expect(plugin.uri).to eq(uri)
+    end
   end
 
-  describe '#to_h' do
-    let(:options) do
-      {
-        'foo' => {
-          'bar' => 1,
-          'baz' => 2,
-        },
-      }
+  describe '#default_attributes' do
+    it "returns the default attributes" do
+      expect(plugin.default_attributes).to eq(default_attributes)
     end
+  end
 
-    it 'turns source, version, and options to hash' do
-      expect(described_class.new("#{source}##{version}", options).to_h).to eq(
-        "#{source}##{version}" => {
-          'foo' => {
-            'bar' => 1,
-            'baz' => 2,
-          },
-        }
-      )
+  describe '#source' do
+    it 'returns the source' do
+      expect(plugin.source).to eq(source)
+    end
+  end
+
+  describe '#version' do
+    it 'returns the version' do
+      expect(plugin.version).to eq(version)
     end
   end
 end
