@@ -69,6 +69,8 @@ module Buildkite
           results = benchmark("\nDone (%s)".color(:springgreen)) do
             dsl.instance_eval(&pipeline_definition)
             extensions.build
+            # Build plugins last to cover other extensions' plugin usage
+            extensions.find(Extensions::Plugins).build_plugins
           end
           logger.info(results)
           # Build the pipeline definition from pipeline data.

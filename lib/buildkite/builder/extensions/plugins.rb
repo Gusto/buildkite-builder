@@ -14,7 +14,7 @@ module Buildkite
           @manager = PluginManager.new
         end
 
-        def build
+        def build_plugins
           context.data.steps.each(:command) do |step|
             next unless step.has?(:plugins)
 

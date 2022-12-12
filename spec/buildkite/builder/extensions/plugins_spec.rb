@@ -26,7 +26,7 @@ RSpec.describe Buildkite::Builder::Extensions::Plugins do
     end
   end
 
-  describe '#build' do
+  describe '#build_plugins' do
     it 'coverts all plugins in the manager' do
       pipeline.dsl.plugin(:foo, 'foo#v1.2.3', default_key1: 'value1')
       pipeline.dsl.command do
