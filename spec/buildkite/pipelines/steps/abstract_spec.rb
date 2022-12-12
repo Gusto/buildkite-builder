@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Buildkite::Pipelines::Steps::Abstract do
+  before do
+    setup_project(:simple)
+  end
+
   let(:pipeline) { Buildkite::Builder::Pipeline.new(setup_project_fixture(:simple)) }
   let(:step) { step_class.new(pipeline) }
   let(:step_class) do
@@ -17,11 +21,6 @@ RSpec.describe Buildkite::Pipelines::Steps::Abstract do
     Buildkite::Builder.template do
       foo_attribute 'foo_value'
     end
-  end
-
-  before do
-    allow(pipeline.data.steps.templates).to receive(:find).and_call_original
-    allow(pipeline.data.steps.templates).to receive(:find).with(template_name).and_return(template)
   end
 
   describe '.new' do

@@ -6,7 +6,7 @@ RSpec.describe Buildkite::Builder::Group do
   let(:dsl) { Buildkite::Builder::Dsl.new(context) }
 
   before do
-    context.data.steps = Buildkite::Builder::StepCollection.new(Buildkite::Builder::TemplateManager.new(root))
+    context.data.steps = Buildkite::Builder::StepCollection.new
     context.dsl = dsl
   end
 

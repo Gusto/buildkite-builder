@@ -2,7 +2,7 @@
 
 RSpec.describe Buildkite::Builder::StepCollection do
   let(:root) { Buildkite::Builder.root }
-  let(:collection) { described_class.new(Buildkite::Builder::TemplateManager.new(root)) }
+  let(:collection) { described_class.new }
 
   describe '#each' do
     before do
@@ -133,15 +133,6 @@ RSpec.describe Buildkite::Builder::StepCollection do
       expect {
         collection.find!(:foo)
       }.to raise_error(ArgumentError, "Can't find step with key: foo")
-    end
-  end
-
-  describe '#add' do
-    it 'adds to steps' do
-      step = collection.add(Buildkite::Pipelines::Steps::Command)
-
-      expect(step).to be_a(Buildkite::Pipelines::Steps::Command)
-      expect(collection.steps).to be_include(step)
     end
   end
 

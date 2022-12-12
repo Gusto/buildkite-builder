@@ -1,11 +1,9 @@
 module Buildkite
   module Builder
     class StepCollection
-      attr_reader :templates
       attr_reader :steps
 
-      def initialize(templates)
-        @templates = templates
+      def initialize
         @steps = []
       end
 
@@ -31,10 +29,6 @@ module Buildkite
 
       def find!(key)
         find(key) || raise(ArgumentError, "Can't find step with key: #{key}")
-      end
-
-      def add(step_class, template = nil, **args, &block)
-        @steps.push(step_class.new(self, template, **args, &block)).last
       end
 
       def push(step)

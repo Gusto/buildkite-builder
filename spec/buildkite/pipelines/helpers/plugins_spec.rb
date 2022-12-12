@@ -7,7 +7,7 @@ RSpec.describe Buildkite::Pipelines::Helpers::Plugins do
     end
   end
   let(:pipeline) { Buildkite::Builder::Pipeline.new(setup_project_fixture(:simple)) }
-  let(:step) { step_klass.new(pipeline.data.steps, nil) }
+  let(:step) { step_klass.new }
 
   describe '#plugin' do
     it 'sets plugins' do

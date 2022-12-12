@@ -2,8 +2,21 @@ module Buildkite
   module Builder
     module Extensions
       class Steps < Extension
+        attr_reader :templates
+
         def prepare
-          context.data.steps = StepCollection.new(TemplateManager.new(context.root))
+          @templates = TemplateManager.new(context.root)
+          context.data.steps = StepCollection.new
+        end
+
+        def build_step(step_class, template_name, **args, &block)
+          template = @templates.find(template_name)
+
+          step_class.new(**args).tap do |step|
+            step.process(template) if template
+            step.process(block) if block_given?
+            context.data.steps.push(step)
+          end
         end
 
         dsl do
@@ -19,37 +32,37 @@ module Buildkite
           end
 
           def block(template = nil, **args, &block)
-            context.data.steps.add(Pipelines::Steps::Block, template, **args, &block)
+            context.extensions.find(Steps).build_step(Pipelines::Steps::Block, template, **args, &block)
           end
 
           def command(template = nil, **args, &block)
-            context.data.steps.add(Pipelines::Steps::Command, template, **args, &block)
+            context.extensions.find(Steps).build_step(Pipelines::Steps::Command, template, **args, &block)
           end
 
           def input(template = nil, **args, &block)
-            context.data.steps.add(Pipelines::Steps::Input, template, **args, &block)
+            context.extensions.find(Steps).build_step(Pipelines::Steps::Input, template, **args, &block)
           end
 
           def trigger(template = nil, **args, &block)
-            context.data.steps.add(Pipelines::Steps::Trigger, template, **args, &block)
+            context.extensions.find(Steps).build_step(Pipelines::Steps::Trigger, template, **args, &block)
           end
 
           def skip(template = nil, **args, &block)
-            step = context.data.steps.add(Pipelines::Steps::Skip, template, **args, &block)
-            # A skip step has a nil/noop command.
-            step.command(nil)
-            # Always set the skip attribute if it's in a falsey state.
-            step.skip(true) if !step.get(:skip) || step.skip.empty?
-            step
+            context.extensions.find(Steps).build_step(Pipelines::Steps::Skip, template, **args, &block).tap do |step|
+              # A skip step has a nil/noop command.
+              step.command(nil)
+              # Always set the skip attribute if it's in a falsey state.
+              step.skip(true) if !step.get(:skip) || step.skip.empty?
+            end
           end
 
           def wait(attributes = {}, &block)
-            step = context.data.steps.add(Pipelines::Steps::Wait, &block)
-            step.wait(nil)
-            attributes.each do |key, value|
-              step.set(key, value)
+            context.extensions.find(Steps).build_step(Pipelines::Steps::Wait, template, **args, &block).tap do |step|
+              step.wait(nil)
+              attributes.each do |key, value|
+                step.set(key, value)
+              end
             end
-            step
           end
         end
       end

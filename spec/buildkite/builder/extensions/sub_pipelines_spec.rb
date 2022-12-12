@@ -2,7 +2,7 @@
 
 RSpec.describe Buildkite::Builder::Extensions::SubPipelines do
   let(:root) { Buildkite::Builder.root }
-  let(:steps) { Buildkite::Builder::StepCollection.new(Buildkite::Builder::TemplateManager.new(root)) }
+  let(:steps) { Buildkite::Builder::StepCollection.new }
   let(:context) { OpenStruct.new(data: Buildkite::Builder::Data.new, root: root) }
   let(:dsl) do
     new_dsl = Buildkite::Builder::Dsl.new(context).extend(described_class)
