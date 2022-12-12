@@ -44,7 +44,6 @@ RSpec.describe Buildkite::Builder::Extensions::Plugins do
       expect(plugins[1]).to eq({
         "bar#v1.2" => {}
       })
-
     end
   end
 end
