@@ -20,7 +20,7 @@ module Buildkite
         end
 
         dsl do
-          def group(label = nil, emoji: nil, &block)
+          def group(detached: false, &block)
             raise "Group does not allow nested in another Group" if context.is_a?(Group)
 
             if emoji
@@ -57,7 +57,7 @@ module Buildkite
           end
 
           def wait(attributes = {}, &block)
-            context.extensions.find(Steps).build_step(Pipelines::Steps::Wait, template, **args, &block).tap do |step|
+            context.extensions.find(Steps).build_step(Pipelines::Steps::Wait, nil, &block).tap do |step|
               step.wait(nil)
               attributes.each do |key, value|
                 step.set(key, value)
