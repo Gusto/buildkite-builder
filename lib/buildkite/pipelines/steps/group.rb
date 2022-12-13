@@ -29,7 +29,7 @@ module Buildkite
         end
 
         def to_h
-          super.merge(steps: steps.to_definition)
+          super.merge(group: nil, steps: steps.to_definition)
         end
       end
     end
