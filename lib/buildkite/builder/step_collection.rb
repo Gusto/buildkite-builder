@@ -12,9 +12,11 @@ module Buildkite
 
         @steps.each do |step|
           if types.include?(step.class.to_sym)
-            yield step
-          elsif step.is_a?(Group)
-            step.data.steps.each(*types) do |step|
+            if step.class.to_sym == :group
+              step.steps.each(*types) do |step|
+                yield step
+              end
+            else
               yield step
             end
           elsif types.empty?

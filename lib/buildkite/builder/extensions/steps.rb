@@ -15,20 +15,29 @@ module Buildkite
           step_class.new(**args).tap do |step|
             step.process(template) if template
             step.process(block) if block_given?
-            context.data.steps.push(step)
+
+            if @current_group
+              @current_group.steps.push(step)
+            else
+              context.data.steps.push(step)
+            end
           end
         end
 
+        def with_group(group, &block)
+          raise "Group cannot be nested" if @current_group
+
+          @current_group = group
+
+          group.process(block)
+          context.data.steps.push(group).last
+        ensure
+          @current_group = nil
+        end
+
         dsl do
-          def group(label = nil, emoji: nil, &block)
-            raise "Group does not allow nested in another Group" if context.is_a?(Group)
-
-            if emoji
-              emoji = Array(emoji).map { |name| ":#{name}:" }.join
-              label = [emoji, label].compact.join(' ')
-            end
-
-            context.data.steps.push(Buildkite::Builder::Group.new(label, context, &block))
+          def group(&block)
+            context.extensions.find(Steps).with_group(Pipelines::Steps::Group.new(context), &block)
           end
 
           def block(template = nil, **args, &block)
