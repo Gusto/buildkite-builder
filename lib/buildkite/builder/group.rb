@@ -25,7 +25,6 @@ module Buildkite
         @dsl.instance_variable_set(:@context, self)
 
         instance_eval(&block) if block_given?
-        self
       end
 
       def to_h
