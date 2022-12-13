@@ -6,14 +6,14 @@ module Buildkite
       class Group < Abstract
         attribute :depends_on, append: true
         attribute :key
-        attribute :lebel
+        attribute :label
 
         attr_reader :steps
 
         def initialize(pipeline, **args)
           @pipeline = pipeline
           @context = StepContext.new(self, **args)
-          @steps = StepCollection.new
+          @steps = Buildkite::Builder::StepCollection.new
         end
 
         def method_missing(method_name, ...)

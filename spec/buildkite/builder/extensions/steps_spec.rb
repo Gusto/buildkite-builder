@@ -33,11 +33,12 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
           end
         end
 
-        expect(pipeline.data.steps.steps.last).to be_a(Buildkite::Builder::Group)
+        expect(pipeline.data.steps.steps.last).to be_a(Buildkite::Pipelines::Steps::Group)
       end
 
       it 'supports emoji' do
-        pipeline.dsl.group('Label', emoji: :foo) do
+        pipeline.dsl.group do
+          label 'Label', emoji: :foo
           command do
             command 'true'
           end

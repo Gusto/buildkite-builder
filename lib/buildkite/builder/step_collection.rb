@@ -11,14 +11,12 @@ module Buildkite
         types = types.flatten
 
         @steps.each do |step|
-          if types.include?(step.class.to_sym)
-            if step.class.to_sym == :group
-              step.steps.each(*types) do |step|
-                yield step
-              end
-            else
+          if step.class.to_sym == :group
+            step.steps.each(*types) do |step|
               yield step
             end
+          elsif types.include?(step.class.to_sym)
+            yield step
           elsif types.empty?
             yield step
           end
