@@ -20,7 +20,7 @@ module Buildkite
         end
 
         dsl do
-          def group(detached: false, &block)
+          def group(label = nil, emoji: nil, &block)
             raise "Group does not allow nested in another Group" if context.is_a?(Group)
 
             if emoji

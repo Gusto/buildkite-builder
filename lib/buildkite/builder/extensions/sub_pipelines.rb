@@ -7,7 +7,13 @@ module Buildkite
         class Pipeline
           include Buildkite::Pipelines::Attributes
 
-          attr_reader :data, :name, :dsl
+          attr_reader \
+            :data,
+            :name,
+            :extensions,
+            :root,
+            :dsl,
+            :context
 
           # These attributes are for triggered step
           attribute :label
@@ -27,31 +33,32 @@ module Buildkite
           def initialize(name, context, &block)
             @context = context
             @name = name
+            @root = context.root
+            @dsl = Dsl.new(self)
+            @extensions = ExtensionManager.new(self)
             @data = Data.new
-            @data.steps = StepCollection.new(context.data.steps.templates)
-            @data.notify = []
-            @data.env = {}
 
-            # Use `clone` to copy over dsl's extended extensions
-            @dsl = context.dsl.clone
-            # Override dsl context to current pipeline
-            @dsl.instance_variable_set(:@context, self)
+            extensions.use(Extensions::Use)
+            extensions.use(Extensions::Lib)
+            extensions.use(Extensions::Env)
+            extensions.use(Extensions::Notify)
+            extensions.use(Extensions::Steps)
+            extensions.use(Extensions::Plugins)
 
             instance_eval(&block) if block_given?
-            self
           end
 
           def to_h
             # Merge envs from main pipeline, since ruby does not have `reverse_merge` and
             # `data` does not allow keys override, we have to reset the data hash per key.
-            @context.data.env.merge(data.env).each do |key, value|
+            context.data.env.merge(data.env).each do |key, value|
               data.env[key] = value
             end
             data.to_definition
           end
 
           def method_missing(method_name, *args, **kwargs, &_block)
-            @dsl.public_send(method_name, *args, **kwargs, &_block)
+            dsl.public_send(method_name, *args, **kwargs, &_block)
           end
 
           def pipeline_yml
@@ -71,7 +78,7 @@ module Buildkite
             sub_pipeline = Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(name, context, &block)
             context.data.pipelines.add(sub_pipeline)
 
-            trigger_step = context.data.steps.add(Pipelines::Steps::Trigger)
+            trigger_step = context.data.steps.push(Pipelines::Steps::Trigger.new).last
             trigger_step.trigger(name)
 
             build_options = {

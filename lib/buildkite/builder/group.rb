@@ -3,8 +3,12 @@ module Buildkite
     class Group
       include Buildkite::Pipelines::Attributes
 
-      attr_reader :label
-      attr_reader :data
+      attr_reader \
+        :label,
+        :data,
+        :extensions,
+        :root,
+        :dsl
 
       attribute :depends_on, append: true
       attribute :key
@@ -15,17 +19,15 @@ module Buildkite
 
       def initialize(label, context, &block)
         @label = label
+        @root = context.root
         @data = Data.new
-        @data.steps = StepCollection.new
-        @data.notify = []
+        @extensions = ExtensionManager.new(self)
+        @dsl = Dsl.new(self)
 
-        # Use `clone` to copy over dsl's extended extensions
-        @dsl = context.dsl.clone
-        # Override dsl context to current group
-        @dsl.instance_variable_set(:@context, self)
+        extensions.use(Extensions::Notify)
+        extensions.use(Extensions::Steps)
 
         instance_eval(&block) if block_given?
-        self
       end
 
       def to_h

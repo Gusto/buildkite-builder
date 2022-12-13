@@ -6,15 +6,16 @@ RSpec.describe Buildkite::Builder::StepCollection do
 
   describe '#each' do
     before do
-      collection.add(Buildkite::Pipelines::Steps::Command) do
-        key 'command'
-      end
-      collection.add(Buildkite::Pipelines::Steps::Block) do
-        key 'block'
-      end
-      collection.add(Buildkite::Pipelines::Steps::Wait) do
-        key 'wait'
-      end
+      command_step = Buildkite::Pipelines::Steps::Command.new
+      command_step.process(proc { key 'command' })
+      block_step = Buildkite::Pipelines::Steps::Block.new
+      block_step.process(proc { key 'block' })
+      wait_step = Buildkite::Pipelines::Steps::Wait.new
+      wait_step.process(proc { key 'wait' })
+
+      collection.push(command_step)
+      collection.push(block_step)
+      collection.push(wait_step)
     end
 
     it 'iterates through steps' do
@@ -48,16 +49,16 @@ RSpec.describe Buildkite::Builder::StepCollection do
     end
 
     context 'with group' do
-      let(:context) { OpenStruct.new(data: Buildkite::Builder::Data.new, root: Buildkite::Builder.root) }
+      before do
+        setup_project(fixture_project)
+      end
+
+      let(:fixture_project) { :basic }
+      let(:fixture_path) { fixture_pipeline_path_for(fixture_project, :dummy) }
+      let(:pipeline) { Buildkite::Builder::Pipeline.new(fixture_path) }
 
       before do
-        context.data.steps = collection
-        dsl = Buildkite::Builder::Dsl.new(context)
-        dsl.extend(Buildkite::Builder::Extensions::Notify)
-        dsl.extend(Buildkite::Builder::Extensions::Steps)
-
-        context.dsl = dsl
-        group = Buildkite::Builder::Group.new('group', context) do
+        group = Buildkite::Builder::Group.new('group', pipeline) do
           command { key 'command_in_group' }
           block { key 'block_in_group' }
           wait { key 'wait_in_group' }
@@ -89,17 +90,19 @@ RSpec.describe Buildkite::Builder::StepCollection do
 
   describe '#find' do
     let!(:command_step) do
-      collection.add(Buildkite::Pipelines::Steps::Command) do
-        key 'command'
+      Buildkite::Pipelines::Steps::Command.new.tap do |step|
+        step.process(proc { key 'command' })
+        collection.push step
       end
     end
     let!(:block_step) do
-      collection.add(Buildkite::Pipelines::Steps::Block) do
-        key 'block'
+      Buildkite::Pipelines::Steps::Block.new.tap do |step|
+        step.process(proc { key 'block' })
+        collection.push step
       end
     end
     let!(:command_step_without_key) do
-      collection.add(Buildkite::Pipelines::Steps::Command)
+      collection.push(Buildkite::Pipelines::Steps::Command.new)
     end
 
     it 'finds the step by key' do
@@ -114,13 +117,15 @@ RSpec.describe Buildkite::Builder::StepCollection do
 
   describe '#find!' do
     let!(:command_step) do
-      collection.add(Buildkite::Pipelines::Steps::Command) do
-        key 'command'
+      Buildkite::Pipelines::Steps::Command.new.tap do |step|
+        step.process(proc { key 'command' })
+        collection.push step
       end
     end
     let!(:block_step) do
-      collection.add(Buildkite::Pipelines::Steps::Block) do
-        key 'block'
+      Buildkite::Pipelines::Steps::Block.new.tap do |step|
+        step.process(proc { key 'block' })
+        collection.push step
       end
     end
 
@@ -146,12 +151,14 @@ RSpec.describe Buildkite::Builder::StepCollection do
 
   describe '#to_definition' do
     it 'returns an array of hashes' do
-      collection.add(Buildkite::Pipelines::Steps::Command) do
-        command 'true'
+      Buildkite::Pipelines::Steps::Command.new.tap do |step|
+        step.process(proc { command 'true' })
+        collection.push step
       end
 
-      collection.add(Buildkite::Pipelines::Steps::Command) do
-        condition 'false'
+      Buildkite::Pipelines::Steps::Command.new.tap do |step|
+        step.process(proc { condition 'false' })
+        collection.push step
       end
 
       expect(collection.to_definition).to eq(

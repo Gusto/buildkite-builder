@@ -19,7 +19,6 @@ module Buildkite
       attr_reader :logger,
                   :root,
                   :artifacts,
-                  :plugins,
                   :dsl,
                   :data,
                   :extensions
@@ -28,7 +27,6 @@ module Buildkite
         @root = root
         @logger = logger || Logger.new(File::NULL)
         @artifacts = []
-        @plugins = {}
         @dsl = Dsl.new(self)
         @extensions = ExtensionManager.new(self)
         @data = Data.new
