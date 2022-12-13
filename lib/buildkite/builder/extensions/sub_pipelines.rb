@@ -38,12 +38,12 @@ module Buildkite
             @extensions = ExtensionManager.new(self)
             @data = Data.new
 
-            extensions.use(Extensions::Use)
-            extensions.use(Extensions::Lib)
-            extensions.use(Extensions::Env)
-            extensions.use(Extensions::Notify)
-            extensions.use(Extensions::Steps)
-            extensions.use(Extensions::Plugins)
+            all_extensions = context.extensions.all
+            all_extensions.delete(Buildkite::Builder::Extensions::SubPipelines)
+            # Let sub pipeline uses the same extensions as parent pipeline
+            all_extensions.each do |ext|
+              extensions.use(ext)
+            end
 
             instance_eval(&block) if block_given?
           end

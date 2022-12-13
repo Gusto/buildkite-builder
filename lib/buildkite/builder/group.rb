@@ -24,8 +24,12 @@ module Buildkite
         @extensions = ExtensionManager.new(self)
         @dsl = Dsl.new(self)
 
-        extensions.use(Extensions::Notify)
-        extensions.use(Extensions::Steps)
+        all_extensions = context.extensions.all
+        all_extensions.delete(Buildkite::Builder::Extensions::SubPipelines)
+        # Let group uses the same extensions as parent pipeline
+        all_extensions.each do |ext|
+          extensions.use(ext)
+        end
 
         instance_eval(&block) if block_given?
       end

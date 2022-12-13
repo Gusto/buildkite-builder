@@ -8,7 +8,7 @@ module Buildkite
         @context = context
         @extensions = {}
 
-        @loader = Loaders::Extensions.load(@context.root)
+        Loaders::Extensions.load(@context.root)
       end
 
       def use(extension, native: false, **args, &block)
@@ -32,6 +32,10 @@ module Buildkite
 
       def find(klass)
         @extensions.fetch(klass)
+      end
+
+      def all
+        @extensions.keys
       end
 
       private
