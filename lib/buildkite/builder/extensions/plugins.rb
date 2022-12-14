@@ -23,17 +23,6 @@ module Buildkite
               resource.is_a?(Symbol) ? manager.build(resource, attributes) : plugin
             end
           end
-
-          context.data.pipelines.each do |pipeline|
-            pipeline.data.steps.each(:command) do |step|
-              next unless step.has?(:plugins)
-
-              step.get(:plugins).map! do |plugin|
-                resource, attributes = extract_resource_and_attributes(plugin)
-                resource.is_a?(Symbol) ? manager.build(resource, attributes) : plugin
-              end
-            end
-          end
         end
 
         private
