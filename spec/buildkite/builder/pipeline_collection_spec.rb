@@ -1,33 +1,29 @@
 # frozen_string_literal: true
 
 RSpec.describe Buildkite::Builder::PipelineCollection do
-  let(:artifacts) { [] }
-  let(:collection) { described_class.new(artifacts) }
-  let(:root) { Buildkite::Builder.root }
-  let(:context) { OpenStruct.new(data: Buildkite::Builder::Data.new, root: root) }
-  let(:steps) { Buildkite::Builder::StepCollection.new(Buildkite::Builder::TemplateManager.new(root)) }
-  let(:dsl) do
-    new_dsl = Buildkite::Builder::Dsl.new(context)
-    new_dsl.extend(Buildkite::Builder::Extensions::Steps)
-    new_dsl.extend(Buildkite::Builder::Extensions::Env)
-    context.data.steps = steps
-    context.data.env = { 'FOO' => 'bar', 'BAZ' => 'baz' }
-    context.data.pipelines =  Buildkite::Builder::PipelineCollection.new([])
-
-    new_dsl
+  before do
+    setup_project(fixture_project)
   end
 
-  before { context.dsl = dsl }
+  let(:artifacts) { [] }
+  let(:collection) { described_class.new(artifacts) }
+  let(:fixture_project) { :basic }
+  let(:fixture_path) { fixture_pipeline_path_for(fixture_project, :dummy) }
+  let(:pipeline) { Buildkite::Builder::Pipeline.new(fixture_path) }
+
+  before do
+    pipeline.dsl.env('FOO' => 'bar')
+  end
 
   describe '#add' do
-    let(:pipeline) do
-      Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context)
+    let(:sub_pipeline) do
+      Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, pipeline)
     end
 
     it 'adds pipeline to collection' do
-      collection.add(pipeline)
+      collection.add(sub_pipeline)
 
-      expect(collection.pipelines).to eq([pipeline])
+      expect(collection.pipelines).to eq([sub_pipeline])
     end
 
     context 'when not a pipeline' do
@@ -41,14 +37,14 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
 
   describe '#each' do
     before do
-      collection.add(Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context))
-      collection.add(Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:bar, context))
+      collection.add(Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, pipeline))
+      collection.add(Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:bar, pipeline))
     end
 
     it 'iterates through pipelines' do
       pipelines = []
-      collection.each do |pipeline|
-        pipelines << pipeline.name
+      collection.each do |sub_pipeline|
+        pipelines << sub_pipeline.name
       end
 
       expect(pipelines).to match_array([:foo, :bar])
@@ -56,16 +52,8 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
   end
 
   describe '#to_definition' do
-    let(:definition) do
-      Buildkite::Builder.template do
-        label 'Template Step'
-        key 'dummy'
-        command 'false'
-      end
-    end
-
     let(:pipeline_1) do
-      Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context) do
+      Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, pipeline) do
         key 'p1'
         env(BAZ: 'foo')
         command do
@@ -73,22 +61,18 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
           command 'true'
         end
         # With template
-        command(:template_foo)
+        command(:basic)
       end
     end
 
     let(:pipeline_2) do
-      Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, context) do
+      Buildkite::Builder::Extensions::SubPipelines::Pipeline.new(:foo, pipeline) do
+        env(BAZ: 'baz')
         command do
           label 'Pipeline 2'
           command 'true'
         end
       end
-    end
-
-    before do
-      allow(steps.templates).to receive(:find).and_call_original
-      allow(steps.templates).to receive(:find).with(:template_foo).and_return(definition)
     end
 
     it 'creates a file for each pipeline and adds to artifacts' do
@@ -109,7 +93,7 @@ RSpec.describe Buildkite::Builder::PipelineCollection do
         },
         'steps' => [
           { 'label' => 'Step 1', 'command' => ['true'] },
-          { 'label' => 'Template Step', 'key' => 'dummy', 'command' => ['false'] }
+          { 'label' => 'Basic step', 'command' => ['true'] }
         ]
       )
       expect(pipeline_2_yaml).to eq(

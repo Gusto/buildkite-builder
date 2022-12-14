@@ -5,7 +5,6 @@ require 'pathname'
 module Buildkite
   module Builder
     autoload :Commands, File.expand_path('builder/commands', __dir__)
-    autoload :Group, File.expand_path('builder/group', __dir__)
     autoload :Pipeline, File.expand_path('builder/pipeline', __dir__)
     autoload :Definition, File.expand_path('builder/definition', __dir__)
     autoload :Data, File.expand_path('builder/data', __dir__)

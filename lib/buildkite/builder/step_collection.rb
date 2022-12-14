@@ -1,11 +1,9 @@
 module Buildkite
   module Builder
     class StepCollection
-      attr_reader :templates
       attr_reader :steps
 
-      def initialize(templates)
-        @templates = templates
+      def initialize
         @steps = []
       end
 
@@ -13,12 +11,12 @@ module Buildkite
         types = types.flatten
 
         @steps.each do |step|
-          if types.include?(step.class.to_sym)
-            yield step
-          elsif step.is_a?(Group)
-            step.data.steps.each(*types) do |step|
+          if step.class.to_sym == :group
+            step.steps.each(*types) do |step|
               yield step
             end
+          elsif types.include?(step.class.to_sym)
+            yield step
           elsif types.empty?
             yield step
           end
@@ -31,10 +29,6 @@ module Buildkite
 
       def find!(key)
         find(key) || raise(ArgumentError, "Can't find step with key: #{key}")
-      end
-
-      def add(step_class, template = nil, **args, &block)
-        @steps.push(step_class.new(self, template, **args, &block)).last
       end
 
       def push(step)

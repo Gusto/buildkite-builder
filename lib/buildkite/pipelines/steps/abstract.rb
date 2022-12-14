@@ -11,20 +11,16 @@ module Buildkite
 
         def_delegator :@context, :data
 
-        attr_reader :template
-        attr_reader :step_collection
-
         def self.to_sym
           name.split('::').last.downcase.to_sym
         end
 
-        def initialize(step_collection, template_name, **args, &block)
-          @step_collection = step_collection
-          @template = step_collection.templates.find(template_name)
+        def initialize(**args)
           @context = StepContext.new(self, **args)
+        end
 
-          instance_exec(@context, &template) if template
-          instance_exec(@context, &block) if block_given?
+        def process(block)
+          instance_exec(@context, &block)
         end
       end
     end
