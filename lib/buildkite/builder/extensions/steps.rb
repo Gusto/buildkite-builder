@@ -36,8 +36,8 @@ module Buildkite
         end
 
         dsl do
-          def group(&block)
-            context.extensions.find(Steps).with_group(Pipelines::Steps::Group.new(context), &block)
+          def group(detached: false, &block)
+            context.extensions.find(Steps).with_group(Pipelines::Steps::Group.new(context, detached: detached), &block)
           end
 
           def block(template = nil, **args, &block)

@@ -65,8 +65,9 @@ Buildkite::Builder.pipeline do
     end
   end
 
-  # Subpipeline
-  pipeline('bkb-subpipeline') do
+  group(detached: true) do
+    label "Detached Group"
+
     command(:subpipeline_template)
     command do
       label "Inline"
