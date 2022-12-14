@@ -21,12 +21,6 @@ module Buildkite
           @steps = Buildkite::Builder::StepCollection.new
         end
 
-        def process(block)
-          super
-
-          upload_detached_pipeline if detached
-        end
-
         def method_missing(method_name, ...)
           if @pipeline.dsl.respond_to?(method_name)
             @pipeline.dsl.public_send(method_name, ...)
@@ -40,28 +34,24 @@ module Buildkite
         end
 
         def to_h
-          super.merge(group: nil, steps: steps.to_definition)
+          result = super.merge(group: nil, steps: steps.to_definition)
+
+          if detached
+            append_detached_pipeline(result)
+            super.merge(group: nil, steps: [{ command: 'true', skip: 'true', label: ':toolbox' }])
+          else
+            result
+          end
         end
 
-        def upload_detached_pipeline
-          contents = YAML.dump(to_h)
+        def append_detached_pipeline(result)
+          contents = YAML.dump(result)
 
-          # Clear steps and put a placeholder
-          @steps = Buildkite::Builder::StepCollection.new
-          skip_step = Buildkite::Pipelines::Steps::Skip.new.tap { |step| step.skip(true) }
-          steps.push(skip_step)
+          file = Pathname.new("tmp/#{SecureRandom.urlsafe_base64}.yml")
+          file.dirname.mkpath
+          file.write(YAML.dump(Buildkite::Pipelines::Helpers.sanitize(pipeline.to_h)))
 
-          Tempfile.create([SecureRandom.urlsafe_base64, '.yml']) do |file|
-            file.sync = true
-            file.write(contents)
-
-            @pipeline.logger.info "+++ :pipeline: Uploading detached group"
-            unless Buildkite::Pipelines::Command.pipeline(:upload, file.path)
-              logger.info "Pipeline upload failed, saving as artifact…"
-              Buildkite::Pipelines::Command.artifact!(:upload, file.path)
-              abort
-            end
-          end
+          pipeline.detached_groups << file
         end
       end
     end

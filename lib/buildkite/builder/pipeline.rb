@@ -21,12 +21,14 @@ module Buildkite
                   :artifacts,
                   :dsl,
                   :data,
-                  :extensions
+                  :extensions,
+                  :detached_groups
 
       def initialize(root, logger: nil)
         @root = root
         @logger = logger || Logger.new(File::NULL)
         @artifacts = []
+        @detached_groups = []
         @dsl = Dsl.new(self)
         @extensions = ExtensionManager.new(self)
         @data = Data.new
@@ -56,9 +58,19 @@ module Buildkite
             Buildkite::Pipelines::Command.artifact!(:upload, file.path)
             abort
           end
-          logger.info "+++ :toolbox: Setting job meta-data to #{Buildkite.env.job_id.color(:yellow)}"
-          Buildkite::Pipelines::Command.meta_data!(:set, Builder::META_DATA.fetch(:job), Buildkite.env.job_id)
         end
+
+        detached_groups.each do |file|
+          logger.info "+++ :pipeline: Uploading detached group"
+          unless Buildkite::Pipelines::Command.pipeline(:upload, file)
+            logger.info "Detached group upload failed, saving as artifact…"
+            Buildkite::Pipelines::Command.artifact!(:upload, file)
+            abort
+          end
+        end
+
+        logger.info "+++ :toolbox: Setting job meta-data to #{Buildkite.env.job_id.color(:yellow)}"
+        Buildkite::Pipelines::Command.meta_data!(:set, Builder::META_DATA.fetch(:job), Buildkite.env.job_id)
       end
 
       def to_h

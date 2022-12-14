@@ -67,8 +67,9 @@ Buildkite::Builder.pipeline do
 
   group(detached: true) do
     label "Detached Group"
+    depends_on :cool_group
 
-    command(:subpipeline_template)
+    command(:foo)
     command do
       label "Inline"
       command "true"
