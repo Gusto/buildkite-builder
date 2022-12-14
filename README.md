@@ -135,36 +135,6 @@ Buildkite::Builder.pipeline do
 end
 ```
 
-### Subpipeline
-
-While triggering another pipeline, you can predefine subpipeline's steps using `pipeline(NAME_OF_SUBPIPELINE)` in the main pipeline's `pipeline.rb` file and share with main pipeline's plugins and templates definition.
-
-`.buildkite/pipelines/pipeline-triggerer/pipeline.rb`
-
-```ruby
-Buildkite::Builder.pipeline do
-  pipeline('rspec-pipeline') do
-    command do
-      label "Run RSpec in separate pipeline"
-    end
-  end
-end
-```
-
-Inside your Buildkite pipeline setup, you can do the following:
-
-In `https://buildkite.com/your-org/rspec-pipeline/steps`
-
-```yaml
-steps:
-  - label: ":pipeline:"
-    commands:
-      - buildkite-agent artifact download $BKB_SUBPIPELINE_FILE . --build $BUILDKITE_TRIGGERED_FROM_BUILD_ID
-      - buildkite-agent pipeline upload $BKB_SUBPIPELINE_FILE
-```
-
-This will upload the pregenerated `pipeline.yml` to `rspec-pipeline`.
-
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
