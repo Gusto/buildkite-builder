@@ -81,6 +81,17 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
         end
       end
 
+      describe '#group' do
+        it 'adds and returns the step' do
+          steps = pipeline.data.steps.steps.size
+          step = pipeline.dsl.group do
+            label 'Group'
+          end
+          expect(pipeline.data.steps.steps.last).to eq(step)
+          expect(pipeline.data.steps.steps.size).to eq(steps + 1)
+        end
+      end
+
       describe '#block' do
         include_examples 'a step type', Buildkite::Pipelines::Steps::Block
         include_examples 'a step type that uses named steps', Buildkite::Pipelines::Steps::Block
