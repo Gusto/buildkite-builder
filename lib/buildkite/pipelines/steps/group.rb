@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 module Buildkite
   module Pipelines
     module Steps
@@ -12,7 +14,7 @@ module Buildkite
           :steps,
           :detached
 
-        def initialize(pipeline, detached:, **args)
+        def initialize(pipeline, detached: false, **args)
           @pipeline = pipeline
           @detached = detached
           @context = StepContext.new(self, **args)
@@ -53,7 +55,7 @@ module Buildkite
             file.sync = true
             file.write(contents)
 
-            pipeline.logger.info "+++ :pipeline: Uploading detached group"
+            @pipeline.logger.info "+++ :pipeline: Uploading detached group"
             unless Buildkite::Pipelines::Command.pipeline(:upload, file.path)
               logger.info "Pipeline upload failed, saving as artifact…"
               Buildkite::Pipelines::Command.artifact!(:upload, file.path)
