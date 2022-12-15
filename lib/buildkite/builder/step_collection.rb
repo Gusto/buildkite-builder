@@ -1,6 +1,15 @@
 module Buildkite
   module Builder
     class StepCollection
+      STEP_TYPES = {
+        block: Pipelines::Steps::Block,
+        command: Pipelines::Steps::Command,
+        group: Pipelines::Steps::Group,
+        input: Pipelines::Steps::Input,
+        trigger: Pipelines::Steps::Trigger,
+        wait: Pipelines::Steps::Wait
+      }.freeze
+
       attr_reader :steps
 
       def initialize
@@ -9,49 +18,30 @@ module Buildkite
 
       def each(*types, &block)
         types = types.flatten
+        types.map! { |type| STEP_TYPES.values.include?(type) ? type : STEP_TYPES.fetch(type) }
+        types = STEP_TYPES.values if types.empty?
 
-        yield_steps = []
-
-        if types.empty?
-          # Returns all
-          yield_steps = @steps
-          @steps.each do |step|
-            if step.class.to_sym == :group
-              step.steps.each { |step_in_group| yield_steps << step_in_group }
-            end
+        matched_steps = steps.each_with_object([]) do |step, matches|
+          if types.any? { |step_type| step.is_a?(step_type) }
+            matches << step
           end
-        else
-          if types.include?(:group)
-            yield_steps.concat(@steps.select { |step| step.class.to_sym == :group })
-            types.delete(:group)
-          end
-
-          if types.any?
-            @steps.each do |step|
-              if types.include?(step.class.to_sym)
-                yield_steps << step
-              elsif step.class.to_sym == :group
-                step.steps.each(*types) do |step|
-                  yield_steps << step
-                end
-              end
-            end
+          if step.is_a?(Pipelines::Steps::Group)
+            step.steps.each(types) { |step| matches << step }
           end
         end
-
-        yield_steps.each(&block)
+        matched_steps.each(&block)
       end
 
       def find(key)
-        @steps.find { |step| step.has?(:key) && step.key == key.to_s }
+        steps.find { |step| step.has?(:key) && step.key.to_s == key.to_s }
       end
 
       def remove(step)
-        @steps.delete(step)
+        steps.delete(step)
       end
 
-      def replace(step_to_replace, step)
-        @steps[@steps.index(step_to_replace)] = step
+      def replace(old_step, new_step)
+        steps[steps.index(old_step)] = new_step
       end
 
       def find!(key)

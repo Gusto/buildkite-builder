@@ -135,7 +135,7 @@ RSpec.describe Buildkite::Builder::StepCollection do
     end
     let!(:block_step) do
       Buildkite::Pipelines::Steps::Block.new.tap do |step|
-        step.process(proc { key 'block' })
+        step.process(proc { key :block })
         collection.push step
       end
     end
