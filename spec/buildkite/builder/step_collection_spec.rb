@@ -180,6 +180,17 @@ RSpec.describe Buildkite::Builder::StepCollection do
     end
   end
 
+  describe '#remove' do
+    let(:collection) { described_class.new }
+
+    it 'pushes to steps' do
+      command = Buildkite::Pipelines::Steps::Command.new
+      collection.push(command)
+
+      expect(collection.remove(command)).to eq(command)
+    end
+  end
+
   describe '#push' do
     let(:collection) { described_class.new }
 
