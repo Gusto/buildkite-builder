@@ -8,7 +8,6 @@ module Buildkite
       autoload :Command, File.expand_path('steps/command', __dir__)
       autoload :Group, File.expand_path('steps/group', __dir__)
       autoload :Input, File.expand_path('steps/input', __dir__)
-      autoload :Skip, File.expand_path('steps/skip', __dir__)
       autoload :Trigger, File.expand_path('steps/trigger', __dir__)
       autoload :Wait, File.expand_path('steps/wait', __dir__)
     end
