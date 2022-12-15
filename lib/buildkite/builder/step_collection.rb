@@ -7,7 +7,7 @@ module Buildkite
         @steps = []
       end
 
-      def each(*types)
+      def each(*types, &block)
         types = types.flatten
 
         yield_steps = []
@@ -39,7 +39,7 @@ module Buildkite
           end
         end
 
-        yield_steps.each { |step| yield step }
+        yield_steps.each(&block)
       end
 
       def find(key)
