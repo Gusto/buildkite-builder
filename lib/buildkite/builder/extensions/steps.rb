@@ -56,15 +56,6 @@ module Buildkite
             context.extensions.find(Steps).build_step(Pipelines::Steps::Trigger, template, **args, &block)
           end
 
-          def skip(template = nil, **args, &block)
-            context.extensions.find(Steps).build_step(Pipelines::Steps::Skip, template, **args, &block).tap do |step|
-              # A skip step has a nil/noop command.
-              step.command(nil)
-              # Always set the skip attribute if it's in a falsey state.
-              step.skip(true) if !step.get(:skip) || step.skip.empty?
-            end
-          end
-
           def wait(attributes = {}, &block)
             context.extensions.find(Steps).build_step(Pipelines::Steps::Wait, nil, &block).tap do |step|
               step.wait(nil)

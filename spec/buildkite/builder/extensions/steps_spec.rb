@@ -137,40 +137,6 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
           expect(step.continue_on_failure).to eq(true)
         end
       end
-
-      describe '#skip' do
-        include_examples 'a step type', Buildkite::Pipelines::Steps::Skip
-
-        it 'sets the command attribute' do
-          step = pipeline.dsl.skip(template) do
-            skip 'foo-skip'
-            command 'invalid'
-          end
-
-          expect(step.skip).to eq('foo-skip')
-          expect(step.has?(:command)).to eq(true)
-          expect(step.command).to be_nil
-        end
-
-        it 'sets the skip attribute' do
-          step = pipeline.dsl.skip(template) do
-            label 'Foo'
-          end
-          expect(step.skip).to eq(true)
-
-          step = pipeline.dsl.skip(template) do
-            label 'Foo'
-            skip ''
-          end
-          expect(step.skip).to eq(true)
-
-          step = pipeline.dsl.skip(template) do
-            label 'Foo'
-            skip false
-          end
-          expect(step.skip).to eq(true)
-        end
-      end
     end
   end
 end
