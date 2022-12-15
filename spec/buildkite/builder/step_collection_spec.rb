@@ -58,6 +58,7 @@ RSpec.describe Buildkite::Builder::StepCollection do
       before do
         pipeline.dsl.group do
           label 'group'
+          key 'group'
           command { key 'command_in_group' }
           block { key 'block_in_group' }
           wait { key 'wait_in_group' }
@@ -81,6 +82,27 @@ RSpec.describe Buildkite::Builder::StepCollection do
           wait_keys << step.key
         end
         expect(wait_keys).to match_array(['wait', 'wait_in_group'])
+      end
+
+      context 'filter for groups' do
+        it "returns group and iterates over group's steps" do
+          command_keys, block_keys, wait_keys = [], [], []
+
+          pipeline.data.steps.each(:group, :command) do |step|
+            command_keys << step.key
+          end
+          expect(command_keys).to match_array(['group', 'command', 'command_in_group'])
+
+          pipeline.data.steps.each(:group, :block) do |step|
+            block_keys << step.key
+          end
+          expect(block_keys).to match_array(['group', 'block', 'block_in_group'])
+
+          pipeline.data.steps.each(:group, :wait) do |step|
+            wait_keys << step.key
+          end
+          expect(wait_keys).to match_array(['group', 'wait', 'wait_in_group'])
+        end
       end
     end
   end

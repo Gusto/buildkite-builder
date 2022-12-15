@@ -10,17 +10,26 @@ module Buildkite
       def each(*types)
         types = types.flatten
 
+        yield_steps = []
+
+        if types.include?(:group)
+          yield_steps.concat(@steps.select { |step| step.class.to_sym == :group })
+          types.delete(:group)
+        end
+
         @steps.each do |step|
-          if step.class.to_sym == :group
-            step.steps.each(*types) do |step|
-              yield step
-            end
-          elsif types.include?(step.class.to_sym)
-            yield step
+          if types.include?(step.class.to_sym)
+            yield_steps << step
           elsif types.empty?
-            yield step
+            yield_steps << step
+          elsif step.class.to_sym == :group
+            step.steps.each(*types) do |step|
+              yield_steps << step
+            end
           end
         end
+
+        yield_steps.each { |step| yield step }
       end
 
       def find(key)
