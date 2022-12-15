@@ -46,6 +46,14 @@ module Buildkite
         @steps.find { |step| step.has?(:key) && step.key == key.to_s }
       end
 
+      def remove(step)
+        @steps.delete(step)
+      end
+
+      def replace(step_to_replace, step)
+        @steps[@steps.index(step_to_replace)] = step
+      end
+
       def find!(key)
         find(key) || raise(ArgumentError, "Can't find step with key: #{key}")
       end
