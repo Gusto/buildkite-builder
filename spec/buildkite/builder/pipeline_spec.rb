@@ -152,7 +152,6 @@ RSpec.describe Buildkite::Builder::Pipeline do
               { 'wait' => nil, 'continue_on_failure' => true },
               { 'block' => 'foo-block' },
               { 'input' => 'foo-block' },
-              { 'skip' => 'foo-block', 'command' => nil },
               { 'command' => ['true'], 'label' => 'Basic step' },
             ]
           }
@@ -165,7 +164,6 @@ RSpec.describe Buildkite::Builder::Pipeline do
             wait(continue_on_failure: true)
             block { block('foo-block') }
             input { input('foo-block') }
-            skip { skip('foo-block') }
           end
         end
 
