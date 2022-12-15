@@ -86,7 +86,7 @@ RSpec.describe Buildkite::Builder::StepCollection do
 
       context 'filter for groups' do
         it "returns group and iterates over group's steps" do
-          command_keys, block_keys, wait_keys = [], [], []
+          all, command_keys, block_keys, wait_keys = [], [], [], []
 
           pipeline.data.steps.each(:group, :command) do |step|
             command_keys << step.key
@@ -102,6 +102,24 @@ RSpec.describe Buildkite::Builder::StepCollection do
             wait_keys << step.key
           end
           expect(wait_keys).to match_array(['group', 'wait', 'wait_in_group'])
+
+          pipeline.data.steps.each do |step|
+            all << step.key
+          end
+
+          expect(all).to match_array(['block', 'block_in_group', 'command', 'command_in_group', 'group', 'wait', 'wait_in_group'])
+        end
+      end
+
+      context 'look for group only' do
+        it 'only returns group' do
+          group_keys = []
+
+          pipeline.data.steps.each(:group) do |step|
+            group_keys << step.key
+          end
+
+          expect(group_keys).to match_array(['group'])
         end
       end
     end

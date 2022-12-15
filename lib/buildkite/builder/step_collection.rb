@@ -12,19 +12,29 @@ module Buildkite
 
         yield_steps = []
 
-        if types.include?(:group)
-          yield_steps.concat(@steps.select { |step| step.class.to_sym == :group })
-          types.delete(:group)
-        end
+        if types.empty?
+          # Returns all
+          yield_steps = @steps
+          @steps.each do |step|
+            if step.class.to_sym == :group
+              step.steps.each { |step_in_group| yield_steps << step_in_group }
+            end
+          end
+        else
+          if types.include?(:group)
+            yield_steps.concat(@steps.select { |step| step.class.to_sym == :group })
+            types.delete(:group)
+          end
 
-        @steps.each do |step|
-          if types.include?(step.class.to_sym)
-            yield_steps << step
-          elsif types.empty?
-            yield_steps << step
-          elsif step.class.to_sym == :group
-            step.steps.each(*types) do |step|
-              yield_steps << step
+          if types.any?
+            @steps.each do |step|
+              if types.include?(step.class.to_sym)
+                yield_steps << step
+              elsif step.class.to_sym == :group
+                step.steps.each(*types) do |step|
+                  yield_steps << step
+                end
+              end
             end
           end
         end
