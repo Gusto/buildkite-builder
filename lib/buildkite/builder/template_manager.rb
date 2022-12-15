@@ -18,10 +18,6 @@ module Buildkite
 
         definition
       end
-
-      def to_definition
-        # No-op
-      end
     end
   end
 end
