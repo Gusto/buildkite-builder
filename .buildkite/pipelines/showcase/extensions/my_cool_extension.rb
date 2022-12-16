@@ -1,6 +1,6 @@
 class MyCoolExtension < Buildkite::Builder::Extension
   def build
-    instance_eval(&option_block)
+    instance_eval(&options_block)
   end
 end
 
