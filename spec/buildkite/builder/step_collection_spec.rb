@@ -129,13 +129,13 @@ RSpec.describe Buildkite::Builder::StepCollection do
     let(:collection) { described_class.new }
     let!(:command_step) do
       Buildkite::Pipelines::Steps::Command.new.tap do |step|
-        step.process(proc { key 'command' })
+        step.key(:command)
         collection.push step
       end
     end
     let!(:block_step) do
       Buildkite::Pipelines::Steps::Block.new.tap do |step|
-        step.process(proc { key :block })
+        step.key(:block)
         collection.push step
       end
     end
@@ -157,13 +157,13 @@ RSpec.describe Buildkite::Builder::StepCollection do
     let(:collection) { described_class.new }
     let!(:command_step) do
       Buildkite::Pipelines::Steps::Command.new.tap do |step|
-        step.process(proc { key 'command' })
+        step.key(:command)
         collection.push step
       end
     end
     let!(:block_step) do
       Buildkite::Pipelines::Steps::Block.new.tap do |step|
-        step.process(proc { key 'block' })
+        step.key(:block)
         collection.push step
       end
     end
@@ -191,6 +191,21 @@ RSpec.describe Buildkite::Builder::StepCollection do
     end
   end
 
+  describe '#replace' do
+    let(:collection) { described_class.new }
+
+    it 'swaps out the step' do
+      command = Buildkite::Pipelines::Steps::Command.new
+      collection.push(command)
+      block = Buildkite::Pipelines::Steps::Block.new
+      collection.push(block)
+      trigger = Buildkite::Pipelines::Steps::Trigger.new
+      collection.replace(command, trigger)
+
+      expect(collection.steps).to eq([trigger, block])
+    end
+  end
+
   describe '#push' do
     let(:collection) { described_class.new }
 
@@ -206,12 +221,12 @@ RSpec.describe Buildkite::Builder::StepCollection do
 
     it 'returns an array of hashes' do
       Buildkite::Pipelines::Steps::Command.new.tap do |step|
-        step.process(proc { command 'true' })
+        step.command('true')
         collection.push step
       end
 
       Buildkite::Pipelines::Steps::Command.new.tap do |step|
-        step.process(proc { condition 'false' })
+        step.condition('false')
         collection.push step
       end
 
