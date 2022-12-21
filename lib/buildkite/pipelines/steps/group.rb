@@ -4,9 +4,9 @@ module Buildkite
   module Pipelines
     module Steps
       class Group < Abstract
-        attribute :depends_on, append: true
-        attribute :key
         attribute :label
+        attribute :key
+        attribute :depends_on, append: true
 
         attr_reader :steps
 
