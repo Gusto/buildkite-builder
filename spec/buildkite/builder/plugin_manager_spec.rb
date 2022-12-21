@@ -34,5 +34,13 @@ RSpec.describe Buildkite::Builder::PluginManager do
         }
       })
     end
+
+    context 'when does not exist' do
+      it 'raises' do
+        expect {
+          manager.build('foo')
+        }.to raise_error(ArgumentError, "Plugin is not registered: foo")
+      end
+    end
   end
 end

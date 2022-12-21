@@ -14,7 +14,7 @@ module Buildkite
 
       def build(name, attributes = {})
         plugin = @plugins[name.to_s]
-        raise(ArgumentError, "Plugin is not registered: #{resource}") unless plugin
+        raise(ArgumentError, "Plugin is not registered: #{name}") unless plugin
 
         { plugin.uri => plugin.default_attributes.merge(attributes) }
       end
