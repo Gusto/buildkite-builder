@@ -16,11 +16,11 @@ module Buildkite
       )
 
       class << self
-        def pipeline(subcommand, exception: false, *args)
+        def pipeline(subcommand, *args, exception: false)
           new(:pipeline, subcommand, *args).run(exception: exception)
         end
 
-        def artifact(subcommand, exception: false, *args)
+        def artifact(subcommand, *args, exception: false)
           capture = case subcommand.to_s
           when 'shasum', 'search' then true
           else false
@@ -29,11 +29,11 @@ module Buildkite
           new(:artifact, subcommand, *args).run(capture: capture, exception: exception)
         end
 
-        def annotate(body, exception: false, *args)
+        def annotate(body, *args, exception: false)
           new(:annotate, body, *args).run(exception: exception)
         end
 
-        def meta_data(subcommand, exception: false, *args)
+        def meta_data(subcommand, *args, exception: false)
           capture = case subcommand.to_s
           when 'get', 'keys' then true
           else false
@@ -45,7 +45,7 @@ module Buildkite
 
       COMMANDS.each do |command|
         define_singleton_method("#{command}!") do |*args|
-          public_send(command, exception: true, *args)
+          public_send(command, *args, exception: true)
         rescue CommandFailedError => e
           abort e.message
         end
@@ -58,7 +58,7 @@ module Buildkite
         @args = transform_args(args)
       end
 
-      def run(capture: false, exception:)
+      def run(capture: false, exception: false)
         stdout, stderr, status = Open3.capture3(*to_a)
         if capture
           stdout
