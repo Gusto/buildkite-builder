@@ -4,10 +4,10 @@ module Buildkite
   module Pipelines
     module Helpers
       module Retry
-        def automatic_retry_on(options = {})
-          raise 'limit must set for `automatic_retry_on`.' unless options[:limit]
+        def automatic_retry_on(exit_status: nil, limit: nil, signal_reason: nil)
+          raise 'limit must set for `automatic_retry_on`.' unless limit
 
-          if !options[:signal_reason] && !options[:exit_status]
+          if exit_status.nil? && signal_reason.nil?
             raise 'signal_reason or exit_status must set for `automatic_retry_on`.'
           end
 
@@ -17,20 +17,20 @@ module Buildkite
             retry_value[:automatic] = []
           end
 
-          automatic_options = { limit: options[:limit] }
+          automatic_options = { limit: limit }
 
-          if options[:exit_status] && options[:signal_reason]
+          if exit_status && signal_reason
             retry_value[:automatic].delete_if do |rule|
-              rule[:exit_status] == options[:exit_status] && rule[:signal_reason] == options[:signal_reason]
+              rule[:exit_status] == exit_status && rule[:signal_reason] == signal_reason
             end
-            automatic_options[:exit_status] = options[:exit_status]
-            automatic_options[:signal_reason] = options[:signal_reason]
-          elsif options[:exit_status]
-            retry_value[:automatic].delete_if { |rule| rule[:exit_status] == options[:exit_status] }
-            automatic_options[:exit_status] = options[:exit_status]
-          elsif options[:signal_reason]
-            retry_value[:automatic].delete_if { |rule| rule[:signal_reason] == options[:signal_reason] }
-            automatic_options[:signal_reason] = options[:signal_reason]
+            automatic_options[:exit_status] = exit_status
+            automatic_options[:signal_reason] = signal_reason
+          elsif exit_status
+            retry_value[:automatic].delete_if { |rule| rule[:exit_status] == exit_status }
+            automatic_options[:exit_status] = exit_status
+          elsif signal_reason
+            retry_value[:automatic].delete_if { |rule| rule[:signal_reason] == signal_reason }
+            automatic_options[:signal_reason] = signal_reason
           end
 
           retry_value[:automatic].push(automatic_options)
