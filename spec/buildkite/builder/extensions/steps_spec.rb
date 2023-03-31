@@ -1,12 +1,23 @@
 # frozen_string_literal: true
 
 RSpec.describe Buildkite::Builder::Extensions::Steps do
-  let(:context) { OpenStruct.new(data: Buildkite::Builder::Data.new, root: Buildkite::Builder.root) }
-  let(:dsl) do
-    Buildkite::Builder::Dsl.new(context).extend(described_class)
+  before do
+    setup_project(fixture_project)
   end
 
+  let(:fixture_project) { :basic }
+  let(:fixture_path) { fixture_pipeline_path_for(fixture_project, :dummy) }
+  let(:pipeline) { Buildkite::Builder::Pipeline.new(fixture_path) }
+  let(:extension) { pipeline.extensions.find(described_class) }
+
   describe '#new' do
+    let(:context) { OpenStruct.new(data: Buildkite::Builder::Data.new, root: Buildkite::Builder.root) }
+    let(:dsl) do
+      Buildkite::Builder::Dsl.new(context).extend(described_class)
+    end
+
+    before { context.dsl = dsl }
+
     it 'sets steps' do
       described_class.new(context)
       expect(context.data.steps).to be_a(Buildkite::Builder::StepCollection)
@@ -14,77 +25,70 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
   end
 
   context 'dsl methods' do
-    # sets up step collection
-    before { described_class.new(context) }
-
-    describe 'plugin' do
-      it 'adds plugin to plugins in collection' do
-        dsl.plugin :skip_checkout, 'thedyrt/skip-checkout#v0.1.1'
-
-        expect(context.data.steps.plugins.fetch('skip_checkout')).to eq({
-          uri: 'thedyrt/skip-checkout#v0.1.1',
-          default_attributes: {}
-        })
-      end
-    end
-
     describe 'group' do
       it 'adds group to steps' do
-        dsl.group do
+        pipeline.dsl.group do
           command do
             command 'true'
           end
         end
 
-        expect(context.data.steps.steps.first).to be_a(Buildkite::Builder::Group)
+        expect(pipeline.data.steps.steps.last).to be_a(Buildkite::Pipelines::Steps::Group)
       end
 
       it 'supports emoji' do
-        dsl.group('Label', emoji: :foo) do
+        pipeline.dsl.group do
+          label 'Label', emoji: :foo
           command do
             command 'true'
           end
         end
 
-        group = context.data.steps.steps.first
+        group = pipeline.data.steps.steps.last
         expect(group.label).to eq(':foo: Label')
       end
     end
 
     context 'steps' do
       let(:template) { 'dummy' }
-      before do
-        allow(context.data.steps.templates).to receive(:find).and_call_original
-        allow(context.data.steps.templates).to receive(:find).with(template).and_return(Buildkite::Builder.template {})
-      end
-
       shared_examples 'a step type' do |type|
         it 'adds and returns the step' do
-          steps = context.data.steps.steps.size
-          step = dsl.public_send(type.to_sym)
-          expect(context.data.steps.steps.last).to eq(step)
-          expect(context.data.steps.steps.size).to eq(steps + 1)
+          steps = pipeline.data.steps.steps.size
+          step = pipeline.dsl.public_send(type.to_sym)
+          expect(pipeline.data.steps.steps.last).to eq(step)
+          expect(pipeline.data.steps.steps.size).to eq(steps + 1)
 
-          step = dsl.public_send(type.to_sym)
-          expect(context.data.steps.steps.last).to eq(step)
-          expect(context.data.steps.steps.size).to eq(steps + 2)
+          step = pipeline.dsl.public_send(type.to_sym)
+          expect(pipeline.data.steps.steps.last).to eq(step)
+          expect(pipeline.data.steps.steps.size).to eq(steps + 2)
         end
       end
 
       shared_examples 'a step type that uses named steps' do |type|
         it 'loads the step from the given name' do
-          step = dsl.public_send(type.to_sym, template) { condition('foobar') }
+          step = pipeline.dsl.public_send(type.to_sym, template) { condition('foobar') }
 
           expect(step).to be_a(type)
           expect(step.condition).to eq('foobar')
         end
 
         it 'allows adhoc declaration' do
-          step = dsl.public_send(type.to_sym, template)
+          step = pipeline.dsl.public_send(type.to_sym, template)
           step.condition('foobar')
 
           expect(step).to be_a(type)
           expect(step.condition).to eq('foobar')
+        end
+      end
+
+      describe '#group' do
+        it 'adds and returns the step' do
+          steps = pipeline.data.steps.steps.size
+          step = pipeline.dsl.group do
+            label 'Group'
+          end
+          expect(pipeline.data.steps.steps.last).to eq(step)
+          expect(pipeline.data.steps.steps.size).to eq(steps + 1)
         end
       end
 
@@ -112,14 +116,14 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
         include_examples 'a step type', Buildkite::Pipelines::Steps::Wait
 
         it 'sets the wait attribute' do
-          step = dsl.wait
+          step = pipeline.dsl.wait
 
           expect(step.has?(:wait)).to eq(true)
           expect(step.wait).to be_nil
         end
 
         it 'allows adhoc declaration' do
-          step = dsl.wait { condition('foobar') }
+          step = pipeline.dsl.wait { condition('foobar') }
 
           expect(step).to be_a(Buildkite::Pipelines::Steps::Wait)
           expect(step.condition).to eq('foobar')
@@ -128,43 +132,9 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
         end
 
         it 'allows passed in options' do
-          step = dsl.wait(continue_on_failure: true)
+          step = pipeline.dsl.wait(continue_on_failure: true)
 
           expect(step.continue_on_failure).to eq(true)
-        end
-      end
-
-      describe '#skip' do
-        include_examples 'a step type', Buildkite::Pipelines::Steps::Skip
-
-        it 'sets the command attribute' do
-          step = dsl.skip(template) do
-            skip 'foo-skip'
-            command 'invalid'
-          end
-
-          expect(step.skip).to eq('foo-skip')
-          expect(step.has?(:command)).to eq(true)
-          expect(step.command).to be_nil
-        end
-
-        it 'sets the skip attribute' do
-          step = dsl.skip(template) do
-            label 'Foo'
-          end
-          expect(step.skip).to eq(true)
-
-          step = dsl.skip(template) do
-            label 'Foo'
-            skip ''
-          end
-          expect(step.skip).to eq(true)
-
-          step = dsl.skip(template) do
-            label 'Foo'
-            skip false
-          end
-          expect(step.skip).to eq(true)
         end
       end
     end

@@ -5,7 +5,6 @@ require 'pathname'
 module Buildkite
   module Builder
     autoload :Commands, File.expand_path('builder/commands', __dir__)
-    autoload :Group, File.expand_path('builder/group', __dir__)
     autoload :Pipeline, File.expand_path('builder/pipeline', __dir__)
     autoload :Definition, File.expand_path('builder/definition', __dir__)
     autoload :Data, File.expand_path('builder/data', __dir__)
@@ -18,7 +17,6 @@ module Buildkite
     autoload :Processors, File.expand_path('builder/processors', __dir__)
     autoload :Rainbow, File.expand_path('builder/rainbow', __dir__)
     autoload :Plugin, File.expand_path('builder/plugin', __dir__)
-    autoload :PluginCollection, File.expand_path('builder/plugin_collection', __dir__)
     autoload :StepCollection, File.expand_path('builder/step_collection', __dir__)
     autoload :PipelineCollection, File.expand_path('builder/pipeline_collection', __dir__)
     autoload :TemplateManager, File.expand_path('builder/template_manager', __dir__)
@@ -33,6 +31,10 @@ module Buildkite
       def root(start_path: Dir.pwd, reset: false)
         @root = nil if reset
         @root ||= find_buildkite_directory(start_path)
+      end
+
+      def version
+        @version ||= File.read(File.expand_path('../../VERSION', __dir__)).strip
       end
 
       def template(&block)

@@ -1,42 +1,51 @@
 module Buildkite
   module Builder
     class StepCollection
-      attr_reader :templates
-      attr_reader :plugins
+      STEP_TYPES = {
+        block: Pipelines::Steps::Block,
+        command: Pipelines::Steps::Command,
+        group: Pipelines::Steps::Group,
+        input: Pipelines::Steps::Input,
+        trigger: Pipelines::Steps::Trigger,
+        wait: Pipelines::Steps::Wait
+      }.freeze
+
       attr_reader :steps
 
-      def initialize(templates, plugins)
-        @templates = templates
-        @plugins = plugins
+      def initialize
         @steps = []
       end
 
-      def each(*types)
+      def each(*types, &block)
         types = types.flatten
+        types.map! { |type| STEP_TYPES.values.include?(type) ? type : STEP_TYPES.fetch(type) }
+        types = STEP_TYPES.values if types.empty?
 
-        @steps.each do |step|
-          if types.include?(step.class.to_sym)
-            yield step
-          elsif step.is_a?(Group)
-            step.data.steps.each(*types) do |step|
-              yield step
-            end
-          elsif types.empty?
-            yield step
+        matched_steps = steps.each_with_object([]) do |step, matches|
+          if types.any? { |step_type| step.is_a?(step_type) }
+            matches << step
+          end
+          if step.is_a?(Pipelines::Steps::Group)
+            step.steps.each(types) { |step| matches << step }
           end
         end
+        matched_steps.each(&block)
       end
 
       def find(key)
-        @steps.find { |step| step.has?(:key) && step.key == key.to_s }
+        steps.find { |step| step.has?(:key) && step.key.to_s == key.to_s }
+      end
+
+      def remove(step)
+        steps.delete(step)
+      end
+
+      def replace(old_step, new_step)
+        steps[steps.index(old_step)] = new_step
       end
 
       def find!(key)
         find(key) || raise(ArgumentError, "Can't find step with key: #{key}")
-      end
-
-      def add(step_class, template = nil, **args, &block)
-        @steps.push(step_class.new(self, template, **args, &block)).last
       end
 
       def push(step)

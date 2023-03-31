@@ -4,6 +4,7 @@ RSpec.describe Buildkite::Builder::Loaders::Templates do
   describe '.load' do
     context 'when templates path exists' do
       let(:root) { fixture_pipeline_path_for(:basic, :dummy) }
+      let(:pipeline) { Buildkite::Builder::Pipeline.new(root) }
 
       before do
         setup_project(:basic)
@@ -13,13 +14,9 @@ RSpec.describe Buildkite::Builder::Loaders::Templates do
         assets = described_class.load(root)
         template = assets['basic']
 
-        expect(assets.size).to eq(1)
+        expect(assets.size).to eq(2)
         expect(template).to be_a(Buildkite::Builder::Definition::Template)
-        step_collection = Buildkite::Builder::StepCollection.new(
-          Buildkite::Builder::TemplateManager.new(root),
-          Buildkite::Builder::PluginManager.new
-        )
-        step = Buildkite::Pipelines::Steps::Command.new(step_collection, 'basic')
+        step = pipeline.dsl.command(:basic)
         expect(step.label).to eq('Basic step')
         expect(step.command).to eq(['true'])
       end

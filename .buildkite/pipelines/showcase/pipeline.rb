@@ -31,7 +31,8 @@ Buildkite::Builder.pipeline do
     plugin :skip_checkout
   end
 
-  group("Cool Group", emoji: :partyparrot) do
+  group do
+    label "Cool Group", emoji: :partyparrot
     # Load the "rspec" template as a command.
     # .buildkite/pipelines/showcase/templates/rspec.rb
     command(:rspec)
@@ -61,17 +62,6 @@ Buildkite::Builder.pipeline do
     command do
       label "This won't run"
       command "true"
-    end
-  end
-
-  # Subpipeline
-  pipeline('bkb-subpipeline') do
-    command(:subpipeline_template)
-    command do
-      label "Inline"
-      command "true"
-      # Use plugin defined in main pipeline
-      plugin :skip_checkout
     end
   end
 

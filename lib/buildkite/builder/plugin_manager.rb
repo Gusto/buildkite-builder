@@ -7,23 +7,16 @@ module Buildkite
 
       def add(name, uri, default_attributes = {})
         name = name.to_s
+        raise(ArgumentError, "Plugin already defined: #{name}") if @plugins.key?(name)
 
-        if @plugins.key?(name)
-          raise ArgumentError, "Plugin already defined: #{name}"
-        end
-
-        @plugins[name] = {
-          uri: uri,
-          default_attributes: default_attributes
-        }
+        @plugins[name] = Plugin.new(uri, default_attributes)
       end
 
-      def fetch(name)
-        @plugins[name]
-      end
+      def build(name, attributes = {})
+        plugin = @plugins[name.to_s]
+        raise(ArgumentError, "Plugin is not registered: #{name}") unless plugin
 
-      def to_definition
-        # No-op
+        { plugin.uri => plugin.default_attributes.merge(attributes) }
       end
     end
   end

@@ -7,9 +7,8 @@ RSpec.describe Buildkite::Builder::PluginManager do
     it 'adds to plugins' do
       manager.add('foo', 'org/some_repo#v0.0.1')
 
-      expect(manager.fetch('foo')).to eq({
-        uri: 'org/some_repo#v0.0.1',
-        default_attributes: {},
+      expect(manager.build('foo')).to eq({
+        'org/some_repo#v0.0.1' => {}
       })
     end
 
@@ -20,6 +19,27 @@ RSpec.describe Buildkite::Builder::PluginManager do
         expect {
           manager.add('foo', 'org/some_repo#v0.0.2')
       }.to raise_error(ArgumentError, "Plugin already defined: foo")
+      end
+    end
+  end
+
+  describe '#build' do
+    it 'builds on top of default attributes' do
+      manager.add('foo', 'org/some_repo#v0.0.1', { default_key1: "value1" })
+
+      expect(manager.build('foo', { default_key2: "value2" })).to eq({
+        'org/some_repo#v0.0.1' => {
+          default_key1: "value1",
+          default_key2:"value2"
+        }
+      })
+    end
+
+    context 'when does not exist' do
+      it 'raises' do
+        expect {
+          manager.build('foo')
+        }.to raise_error(ArgumentError, "Plugin is not registered: foo")
       end
     end
   end

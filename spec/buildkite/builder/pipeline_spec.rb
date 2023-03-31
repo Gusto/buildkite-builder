@@ -43,6 +43,7 @@ RSpec.describe Buildkite::Builder::Pipeline do
       pipeline_contents = nil
 
       expect(Buildkite::Pipelines::Command).to_not receive(:artifact!)
+      expect(Buildkite::Pipelines::Command).to receive(:meta_data!).with(:set, anything, anything)
       expect(Buildkite::Pipelines::Command).to receive(:pipeline).once do |subcommand, path|
         expect(subcommand).to eq(:upload)
         pipeline_path = path
@@ -116,6 +117,8 @@ RSpec.describe Buildkite::Builder::Pipeline do
           true
         end
 
+        expect(Buildkite::Pipelines::Command).to receive(:meta_data!).with(:set, anything, anything)
+
         pipeline.upload
 
         artifact_contents.each do |filename, content|
@@ -149,7 +152,6 @@ RSpec.describe Buildkite::Builder::Pipeline do
               { 'wait' => nil, 'continue_on_failure' => true },
               { 'block' => 'foo-block' },
               { 'input' => 'foo-block' },
-              { 'skip' => 'foo-block', 'command' => nil },
               { 'command' => ['true'], 'label' => 'Basic step' },
             ]
           }
@@ -162,7 +164,6 @@ RSpec.describe Buildkite::Builder::Pipeline do
             wait(continue_on_failure: true)
             block { block('foo-block') }
             input { input('foo-block') }
-            skip { skip('foo-block') }
           end
         end
 
