@@ -5,6 +5,8 @@ require 'open3'
 module Buildkite
   module Pipelines
     class Command
+      class CommandFailedError < StandardError; end
+
       BIN_PATH = 'buildkite-agent'
       COMMANDS = %w(
         pipeline
@@ -14,36 +16,38 @@ module Buildkite
       )
 
       class << self
-        def pipeline(subcommand, *args)
-          new(:pipeline, subcommand, *args).run
+        def pipeline(subcommand, *args, exception: false)
+          new(:pipeline, subcommand, *args).run(exception: exception)
         end
 
-        def artifact(subcommand, *args)
+        def artifact(subcommand, *args, exception: false)
           capture = case subcommand.to_s
           when 'shasum', 'search' then true
           else false
           end
 
-          new(:artifact, subcommand, *args).run(capture: capture)
+          new(:artifact, subcommand, *args).run(capture: capture, exception: exception)
         end
 
-        def annotate(body, *args)
-          new(:annotate, body, *args).run
+        def annotate(body, *args, exception: false)
+          new(:annotate, body, *args).run(exception: exception)
         end
 
-        def meta_data(subcommand, *args)
+        def meta_data(subcommand, *args, exception: false)
           capture = case subcommand.to_s
           when 'get', 'keys' then true
           else false
           end
 
-          new(:'meta-data', subcommand, *args).run(capture: capture)
+          new(:'meta-data', subcommand, *args).run(capture: capture, exception: exception)
         end
       end
 
       COMMANDS.each do |command|
         define_singleton_method("#{command}!") do |*args|
-          abort unless public_send(command, *args)
+          public_send(command, *args, exception: true)
+        rescue CommandFailedError => e
+          abort e.message
         end
       end
 
@@ -54,9 +58,17 @@ module Buildkite
         @args = transform_args(args)
       end
 
-      def run(capture: false)
-        stdout, _, status = Open3.capture3(*to_a)
-        capture ? stdout : status.success?
+      def run(capture: false, exception: false)
+        stdout, stderr, status = Open3.capture3(*to_a)
+        if capture
+          stdout
+        elsif status.success?
+          true
+        elsif exception
+          raise CommandFailedError, "#{stdout}\n#{stderr}"
+        else
+          false
+        end
       end
 
       private
