@@ -1,3 +1,30 @@
+### 4.1.2
+* Raise error with stderr/stdout message when `buildkite-agent` command failed while using bang commands (`artifact!`, `annotate!`, `pipeline!`, and `meta_data!`)
+* Add `signal_reason` as an automatic retry option
+
+### 4.1.1
+* Fix `PluginManager`'s error message when plugin was not registered
+
+### 4.1.0
+* Remove `skip` step since it's only mimicing `command` step with a skip.
+
+### 4.0.0
+* Remove `subpipeline` since it's not a Buildkite standard.
+* Refactor template handling
+* Simplify `group` step implementation
+
+### 3.9.0
+* Create a `Plugins` extension to take care named plugins from the plugin manager.
+
+### 3.8.1...3.8.3
+* Expose extension manager to be accessible in dsl
+* Removes an extra definition of `attr_reader :extensions` in pipeline
+* Allow `group` steps to be able to use extension's dsl methods
+* Show buildkite builder version at the beginning of the command
+
+### 3.8.0
+* Extensions can now take block as argument [example](https://github.com/Gusto/buildkite-builder/blob/v3.8.0/.buildkite/pipelines/showcase/pipeline.rb#L6-L13)
+
 ## 3.6.0
 * `Buildkite::Pipelines::Command#run` now uses `Open3.capture3` to run system commands, and accepts an optional arg `capture`. When `capture` is true, it returns the stdout of the command. `capture` is true for the meta_data subcommands `get` and `keys` and for the artifact subcommands `shasum` and `search`.
 
