@@ -29,4 +29,5 @@ steps:
     plugins:
       - docker#v5.7.0:
           image: "ruby:latest"
+          privileged: true
           propagate-environment: true
