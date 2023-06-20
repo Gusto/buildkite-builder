@@ -28,6 +28,5 @@ steps:
           limit: 2
     plugins:
       - docker#v5.7.0:
-          image: "ruby:latest"
-          privileged: true
+          image: "ruby:3.0"
           propagate-environment: true
