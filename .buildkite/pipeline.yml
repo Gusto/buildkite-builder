@@ -19,9 +19,7 @@ steps:
       // This version is used for branch builds since
       // it uses the branch's code.
       build.branch != pipeline.default_branch
-    commands:
-      - "bundle"
-      - "bin/buildkite-builder run ${BUILDKITE_PIPELINE_SLUG}"
+    command: "bundle install; bin/buildkite-builder run ${BUILDKITE_PIPELINE_SLUG}"
     retry:
       automatic:
         - exit_status: -1  # Agent was lost
@@ -30,5 +28,5 @@ steps:
           limit: 2
     plugins:
       - docker#v5.7.0:
-          image: "ruby:3.2.2"
+          image: "ruby:latest"
           propagate-environment: true
