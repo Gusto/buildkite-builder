@@ -1,3 +1,6 @@
+### 4.2.0
+* Add shared global templates
+
 ### 4.1.2
 * Raise error with stderr/stdout message when `buildkite-agent` command failed while using bang commands (`artifact!`, `annotate!`, `pipeline!`, and `meta_data!`)
 * Add `signal_reason` as an automatic retry option
