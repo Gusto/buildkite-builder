@@ -30,3 +30,4 @@ steps:
       - docker#v5.7.0:
           image: "ruby:3.0"
           propagate-environment: true
+          mount-buildkite-agent: true
