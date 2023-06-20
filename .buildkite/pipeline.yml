@@ -12,7 +12,7 @@ steps:
           limit: 2
     plugins:
       - docker#v5.7.0:
-          image: "gusto/buildkite-builder:2.0.0"
+          image: "gusto/buildkite-builder:4.1.2"
           propagate-environment: true
   - label: ":toolbox:"
     if: |
