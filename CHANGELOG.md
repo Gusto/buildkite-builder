@@ -1,3 +1,6 @@
+### 4.2.1
+* Allow uploading pipeline to different jobs
+
 ### 4.2.0
 * Add shared global templates
 
