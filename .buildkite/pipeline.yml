@@ -11,17 +11,15 @@ steps:
         - exit_status: 255 # Forced agent shutdown
           limit: 2
     plugins:
-      - docker#v3.7.0:
-          image: "gusto/buildkite-builder:2.0.0"
+      - docker#v5.7.0:
+          image: "gusto/buildkite-builder:4.1.2"
           propagate-environment: true
   - label: ":toolbox:"
     if: |
       // This version is used for branch builds since
       // it uses the branch's code.
       build.branch != pipeline.default_branch
-    commands:
-      - "bundle"
-      - "bin/buildkite-builder run ${BUILDKITE_PIPELINE_SLUG}"
+    command: "bundle install; bin/buildkite-builder run ${BUILDKITE_PIPELINE_SLUG}"
     retry:
       automatic:
         - exit_status: -1  # Agent was lost
@@ -29,6 +27,7 @@ steps:
         - exit_status: 255 # Forced agent shutdown
           limit: 2
     plugins:
-      - docker#v3.7.0:
-          image: "ruby:latest"
+      - docker#v5.7.0:
+          image: "ruby:3.0"
           propagate-environment: true
+          mount-buildkite-agent: true

@@ -8,7 +8,7 @@ Buildkite::Builder.pipeline do
       "bundle",
       "rake"
     plugin :docker,
-      image: "ruby:latest"
+      image: "ruby:3.0"
   end
 
   trigger do
