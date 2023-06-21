@@ -17,7 +17,7 @@ module Buildkite
           # variables to be set. It also uploads the pipeline to Buildkite.
           log.info "+++ 🧰 #{'Buildkite Builder'.color(:springgreen)} v#{Buildkite::Builder.version} ─ #{relative_pipeline_path.to_s.yellow}"
 
-          if uploaded?
+          if Buildkite::Pipelines::Command.meta_data(:get, Builder::META_DATA.fetch(:job)) == Buildkite.env.job_id
             log.info "Pipeline already uploaded in #{Buildkite.env.job_id}".color(:dimgray)
           else
             Pipeline.new(pipeline_path, logger: log).upload
@@ -28,11 +28,6 @@ module Buildkite
 
         def pipeline_path
           pipeline_path_override || super
-        end
-
-        def uploaded?
-          Buildkite::Pipelines::Command.meta_data(:exists, Builder::META_DATA.fetch(:job)) &&
-            Buildkite::Pipelines::Command.meta_data(:get, Builder::META_DATA.fetch(:job)) == Buildkite.env.job_id
         end
 
         def pipeline_path_override
