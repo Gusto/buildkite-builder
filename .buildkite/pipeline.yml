@@ -12,8 +12,9 @@ steps:
           limit: 2
     plugins:
       - docker#v5.7.0:
-          image: "gusto/buildkite-builder:4.1.2"
+          image: "gusto/buildkite-builder:4.2.1"
           propagate-environment: true
+          mount-buildkite-agent: true
   - label: ":toolbox:"
     if: |
       // This version is used for branch builds since
