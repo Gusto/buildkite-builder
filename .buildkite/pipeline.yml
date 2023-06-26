@@ -1,6 +1,5 @@
 steps:
   - label: ":toolbox:"
-    key: 'buildkite-builder-default'
     if: |
       // This version is used for the default branch since
       // it uses the release version.
@@ -17,7 +16,6 @@ steps:
           propagate-environment: true
           mount-buildkite-agent: true
   - label: ":toolbox:"
-    key: 'buildkite-builder'
     if: |
       // This version is used for branch builds since
       // it uses the branch's code.

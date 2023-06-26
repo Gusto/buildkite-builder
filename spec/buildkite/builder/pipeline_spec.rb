@@ -33,7 +33,7 @@ RSpec.describe Buildkite::Builder::Pipeline do
 
   describe '#upload' do
     before do
-      stub_buildkite_env(job_id: '25cd9b9a-9ce3-4a92-99fb-6cab9f755dab')
+      stub_buildkite_env(job_id: '25cd9b9a-9ce3-4a92-99fb-6cab9f755dab', step_id: '0188f568-dc68-42d0-9bf7-40a48ee2c0c0')
     end
 
     let(:pipeline) { described_class.new(fixture_path) }

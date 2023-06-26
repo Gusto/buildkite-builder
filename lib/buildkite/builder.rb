@@ -27,7 +27,7 @@ module Buildkite
     class << self
       def meta_data
         @meta_data ||= {
-          job: "buildkite-builder:#{Buildkite.env.step_key}"
+          job: "buildkite-builder:#{Buildkite.env.step_id}"
         }
       end
 
