@@ -57,7 +57,7 @@ module Buildkite
             abort
           end
           logger.info "+++ :toolbox: Setting job meta-data to #{Buildkite.env.job_id.color(:yellow)}"
-          Buildkite::Pipelines::Command.meta_data!(:set, Builder::META_DATA.fetch(:job), Buildkite.env.job_id)
+          Buildkite::Pipelines::Command.meta_data!(:set, Builder.meta_data.fetch(:job), Buildkite.env.step_id)
         end
       end
 

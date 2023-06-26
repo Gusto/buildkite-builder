@@ -23,11 +23,14 @@ module Buildkite
     autoload :PluginManager, File.expand_path('builder/plugin_manager', __dir__)
 
     BUILDKITE_DIRECTORY_NAME = Pathname.new('.buildkite').freeze
-    META_DATA = {
-      job: 'buildkite-builder:job'
-    }.freeze
 
     class << self
+      def meta_data
+        @meta_data ||= {
+          job: "buildkite-builder:#{Buildkite.env.step_id}"
+        }
+      end
+
       def root(start_path: Dir.pwd, reset: false)
         @root = nil if reset
         @root ||= find_buildkite_directory(start_path)

@@ -11,10 +11,10 @@ RSpec.describe Buildkite::Builder::Commands::Run do
   end
 
   describe '.execute' do
-    context 'when job_id matches' do
+    context 'when step key matches' do
       before do
-        allow(Buildkite::Pipelines::Command).to receive(:meta_data).with(:get, Buildkite::Builder::META_DATA.fetch(:job)).and_return('job_id')
-        allow(Buildkite).to receive(:env).and_return(OpenStruct.new(job_id: 'job_id'))
+        stub_buildkite_env(step_id: 'step-id')
+        allow(Buildkite::Pipelines::Command).to receive(:meta_data).with(:get, Buildkite::Builder.meta_data.fetch(:job)).and_return('step-id')
       end
 
       it 'does not upload the pipeline' do
@@ -25,8 +25,8 @@ RSpec.describe Buildkite::Builder::Commands::Run do
 
       context 'when uploaded to different job' do
         before do
-          allow(Buildkite::Pipelines::Command).to receive(:meta_data).with(:get, Buildkite::Builder::META_DATA.fetch(:job)).and_return('job_id')
-          allow(Buildkite).to receive(:env).and_return(OpenStruct.new(job_id: 'another_job_id'))
+          stub_buildkite_env(step_id: 'another-step-id')
+          allow(Buildkite::Pipelines::Command).to receive(:meta_data).with(:get, Buildkite::Builder.meta_data.fetch(:job)).and_return('step-id')
         end
 
         it 'uploads the context' do
@@ -39,8 +39,8 @@ RSpec.describe Buildkite::Builder::Commands::Run do
 
       context 'when not uploaded' do
         before do
-          allow(Buildkite::Pipelines::Command).to receive(:meta_data).with(:get, Buildkite::Builder::META_DATA.fetch(:job)).and_return('')
-          allow(Buildkite).to receive(:env).and_return(OpenStruct.new(job_id: 'job_id'))
+          stub_buildkite_env(step_id: 'another-step-id')
+          allow(Buildkite::Pipelines::Command).to receive(:meta_data).with(:get, Buildkite::Builder.meta_data.fetch(:job)).and_return('')
         end
 
         it 'uploads the context' do

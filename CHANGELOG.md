@@ -1,3 +1,6 @@
+### 4.2.2
+* Use step id to distinguish different piplelines, fix re-uploading pipeline on same step issue.
+
 ### 4.2.1
 * Allow uploading pipeline to different jobs
 
