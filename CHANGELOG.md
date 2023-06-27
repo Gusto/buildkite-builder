@@ -1,3 +1,6 @@
+### 4.2.3
+* Simplify pipeline upload duplication check
+
 ### 4.2.2
 * Use step id to distinguish different piplelines, fix re-uploading pipeline on same step issue.
 
