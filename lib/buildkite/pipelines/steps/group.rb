@@ -6,7 +6,10 @@ module Buildkite
       class Group < Abstract
         attribute :label
         attribute :key
+        attribute :skip
+        attribute :if, as: :condition
         attribute :depends_on, append: true
+        attribute :allow_dependency_failure
 
         attr_reader :steps
 
