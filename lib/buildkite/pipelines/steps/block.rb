@@ -9,6 +9,7 @@ module Buildkite
         attribute :block
         attribute :key
         attribute :prompt
+        attribute :skip
         attribute :if, as: :condition
         attribute :depends_on, append: true
         attribute :allow_dependency_failure
