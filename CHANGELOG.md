@@ -1,3 +1,6 @@
+### 4.2.5
+* Add `skip` attributes to Block and Input steps.
+
 ### 4.2.4
 * Add more group step attributes as listed in https://buildkite.com/docs/pipelines/group-step#group-step-attributes
 
