@@ -6,7 +6,6 @@ module Buildkite
       ATTRIBUTE_HELPERS = {
         block: :Block,
         command: :Command,
-        depends_on: :DependsOn,
         key: :Key,
         label: :Label,
         plugins: :Plugins,

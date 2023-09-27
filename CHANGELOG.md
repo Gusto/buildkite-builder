@@ -1,3 +1,6 @@
+### 4.3.0
+* Remove the `DependsOn` helper module since it doesn't do anything additive.
+
 ### 4.2.5
 * Add `skip` attributes to Block and Input steps.
 
