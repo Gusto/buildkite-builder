@@ -1,3 +1,6 @@
+### 4.3.0
+* Fix wrong return value when fetching `depends_on` from a step.
+
 ### 4.2.5
 * Add `skip` attributes to Block and Input steps.
 
