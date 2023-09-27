@@ -5,6 +5,8 @@ module Buildkite
     module Helpers
       module DependsOn
         def depends_on(*values)
+          return super if values.empty?
+
           values.flatten.each { |value| super(value) }
         end
       end
