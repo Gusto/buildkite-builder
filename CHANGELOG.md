@@ -1,3 +1,6 @@
+### 4.4.0
+* Fix multiple arguments for `depends_on`.
+
 ### 4.3.0
 * Remove the `DependsOn` helper module since it doesn't do anything additive.
 
