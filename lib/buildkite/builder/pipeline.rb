@@ -94,10 +94,6 @@ module Buildkite
       def pipeline_definition
         @pipeline_definition ||= load_definition(root.join(PIPELINE_DEFINITION_FILE), Definition::Pipeline)
       end
-
-      def has_steps?
-        data.steps.steps.count > 1 || data.steps.steps.first.is_a?(Pipelines::Steps::Group)
-      end
     end
   end
 end
