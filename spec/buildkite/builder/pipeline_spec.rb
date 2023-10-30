@@ -38,6 +38,30 @@ RSpec.describe Buildkite::Builder::Pipeline do
 
     let(:pipeline) { described_class.new(fixture_path) }
 
+    context 'when there are no steps' do
+      let(:fixture_path) { fixture_pipeline_path_for(fixture_project, :empty) }
+
+      it 'does not upload the pipeline' do
+        expect(Buildkite::Pipelines::Command).to_not receive(:pipeline)
+        expect(Buildkite::Pipelines::Command).to_not receive(:artifact!)
+        expect(Buildkite::Pipelines::Command).to_not receive(:meta_data!).with(:set, anything, anything)
+
+        pipeline.upload
+      end
+
+      context 'when only has groups but with no steps' do
+        let(:fixture_path) { fixture_pipeline_path_for(fixture_project, :empty_with_groups) }
+
+      it 'does not upload the pipeline' do
+        expect(Buildkite::Pipelines::Command).to_not receive(:pipeline)
+        expect(Buildkite::Pipelines::Command).to_not receive(:artifact!)
+        expect(Buildkite::Pipelines::Command).to_not receive(:meta_data!).with(:set, anything, anything)
+
+        pipeline.upload
+      end
+      end
+    end
+
     it 'sets pipeline and uploads to Buildkite' do
       pipeline_path = nil
       pipeline_contents = nil

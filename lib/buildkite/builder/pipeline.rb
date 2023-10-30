@@ -45,19 +45,23 @@ module Buildkite
 
         upload_artifacts
 
-        # Upload the pipeline.
-        Tempfile.create(['pipeline', '.yml']) do |file|
-          file.sync = true
-          file.write(contents)
+        if data.steps.empty?
+          logger.info "+++ :pipeline: No steps defined, skipping pipeline upload"
+        else
+          # Upload the pipeline.
+          Tempfile.create(['pipeline', '.yml']) do |file|
+            file.sync = true
+            file.write(contents)
 
-          logger.info "+++ :pipeline: Uploading pipeline"
-          unless Buildkite::Pipelines::Command.pipeline(:upload, file.path)
-            logger.info "Pipeline upload failed, saving as artifact…"
-            Buildkite::Pipelines::Command.artifact!(:upload, file.path)
-            abort
+            logger.info "+++ :pipeline: Uploading pipeline"
+            unless Buildkite::Pipelines::Command.pipeline(:upload, file.path)
+              logger.info "Pipeline upload failed, saving as artifact…"
+              Buildkite::Pipelines::Command.artifact!(:upload, file.path)
+              abort
+            end
+            logger.info "+++ :toolbox: Setting job meta-data to #{Buildkite.env.job_id.color(:yellow)}"
+            Buildkite::Pipelines::Command.meta_data!(:set, Builder.meta_data.fetch(:job), Buildkite.env.step_id)
           end
-          logger.info "+++ :toolbox: Setting job meta-data to #{Buildkite.env.job_id.color(:yellow)}"
-          Buildkite::Pipelines::Command.meta_data!(:set, Builder.meta_data.fetch(:job), Buildkite.env.step_id)
         end
       end
 
@@ -88,6 +92,10 @@ module Buildkite
 
       def pipeline_definition
         @pipeline_definition ||= load_definition(root.join(PIPELINE_DEFINITION_FILE), Definition::Pipeline)
+      end
+
+      def has_steps?
+        data.steps.steps.count > 1 || data.steps.steps.first.is_a?(Pipelines::Steps::Group)
       end
     end
   end

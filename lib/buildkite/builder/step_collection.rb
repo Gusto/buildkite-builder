@@ -55,6 +55,10 @@ module Buildkite
       def to_definition
         @steps.map(&:to_h)
       end
+
+      def empty?
+        @steps.empty? || (@steps.all? { |step| step.is_a?(Pipelines::Steps::Group) && step.steps.empty? })
+      end
     end
   end
 end
