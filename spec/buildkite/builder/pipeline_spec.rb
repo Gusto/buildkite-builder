@@ -44,7 +44,7 @@ RSpec.describe Buildkite::Builder::Pipeline do
       it 'does not upload the pipeline' do
         expect(Buildkite::Pipelines::Command).to_not receive(:pipeline)
         expect(Buildkite::Pipelines::Command).to_not receive(:artifact!)
-        expect(Buildkite::Pipelines::Command).to_not receive(:meta_data!).with(:set, anything, anything)
+        expect(Buildkite::Pipelines::Command).to receive(:meta_data!).with(:set, anything, anything)
 
         pipeline.upload
       end
@@ -55,7 +55,7 @@ RSpec.describe Buildkite::Builder::Pipeline do
       it 'does not upload the pipeline' do
         expect(Buildkite::Pipelines::Command).to_not receive(:pipeline)
         expect(Buildkite::Pipelines::Command).to_not receive(:artifact!)
-        expect(Buildkite::Pipelines::Command).to_not receive(:meta_data!).with(:set, anything, anything)
+        expect(Buildkite::Pipelines::Command).to receive(:meta_data!).with(:set, anything, anything)
 
         pipeline.upload
       end
