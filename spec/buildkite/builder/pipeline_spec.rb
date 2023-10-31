@@ -39,6 +39,7 @@ RSpec.describe Buildkite::Builder::Pipeline do
     let(:pipeline) { described_class.new(fixture_path) }
 
     context 'when there are no steps' do
+      let(:fixture_project) { :multipipeline }
       let(:fixture_path) { fixture_pipeline_path_for(fixture_project, :empty) }
 
       it 'does not upload the pipeline' do
