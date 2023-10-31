@@ -1,3 +1,6 @@
+### 4.5.0
+* Do not upload `pipeline.yml` when steps is empty.
+
 ### 4.4.0
 * Fix multiple arguments for `depends_on`.
 
