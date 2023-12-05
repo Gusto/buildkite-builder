@@ -42,7 +42,7 @@ module Buildkite
 
           case subcommand.to_s
           when 'shasum', 'search' then result.output
-          else result.success?
+          else result
           end
         end
 
@@ -55,7 +55,7 @@ module Buildkite
 
           case subcommand.to_s
           when 'get', 'keys' then result.output
-          else result.success?
+          else result
           end
         end
       end
