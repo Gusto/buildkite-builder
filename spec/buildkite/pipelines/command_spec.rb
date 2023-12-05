@@ -9,9 +9,10 @@ RSpec.describe Buildkite::Pipelines::Command do
       instance = double
       subcommand = double
       args = double
+      result = instance_double(described_class::Result, success?: true)
 
       expect(described_class).to receive(:new).with(command, subcommand, args).and_return(instance)
-      expect(instance).to receive(:run)
+      expect(instance).to receive(:run).and_return(result)
 
       described_class.public_send(method_name, subcommand, args)
     end
@@ -94,12 +95,13 @@ RSpec.describe Buildkite::Pipelines::Command do
       instance.run
     end
 
-    it 'returns the stdout of the command when capture kwarg is true' do
-      expect(instance.run(capture: true)).to eq('stdout')
+    it 'returns result object' do
+      expect(instance.run).to be_an_instance_of(described_class::Result)
     end
 
     it 'returns the status success of the command when capture kwarg is false' do
-      expect(instance.run).to eq(mock_status.success?)
+      result = instance.run
+      expect(result.success?).to eq(mock_status.success?)
     end
   end
 end

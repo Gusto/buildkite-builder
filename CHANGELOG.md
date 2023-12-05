@@ -1,3 +1,6 @@
+### 4.6.0
+* Remove `capture` concept on `Buildkite::Pipelines::Command.run` and replaced with `Buildkite::Pipelines::Command::Result` object to represent `Open3.capture3` result.
+
 ### 4.5.0
 * Do not upload `pipeline.yml` when steps is empty.
 

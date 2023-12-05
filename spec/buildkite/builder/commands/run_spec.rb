@@ -4,6 +4,7 @@ RSpec.describe Buildkite::Builder::Commands::Run do
   let(:argv) { [] }
   let(:fixture_project) { :single_pipeline }
   let(:pipeline) { instance_double(Buildkite::Builder::Pipeline) }
+  let(:result) { instance_double(Buildkite::Pipelines::Command::Result, success?: success) }
 
   before do
     stub_const('ARGV', argv)
@@ -13,10 +14,10 @@ RSpec.describe Buildkite::Builder::Commands::Run do
 
   describe '.execute' do
     context 'when step key exists' do
-      let(:exists) { true }
+      let(:success) { true }
 
       before do
-        allow(Buildkite::Pipelines::Command).to receive(:meta_data).with(:exists, Buildkite::Builder.meta_data.fetch(:job)).and_return(exists)
+        allow(Buildkite::Pipelines::Command).to receive(:meta_data).with(:exists, Buildkite::Builder.meta_data.fetch(:job)).and_return(result)
       end
 
       it 'does not upload the pipeline' do
@@ -26,10 +27,10 @@ RSpec.describe Buildkite::Builder::Commands::Run do
       end
 
       context 'when step key does not exists' do
-        let(:exists) { false }
+        let(:success) { false }
 
         before do
-          allow(Buildkite::Pipelines::Command).to receive(:meta_data).with(:exists, Buildkite::Builder.meta_data.fetch(:job)).and_return(exists)
+          allow(Buildkite::Pipelines::Command).to receive(:meta_data).with(:exists, Buildkite::Builder.meta_data.fetch(:job)).and_return(result)
         end
 
         it 'uploads the context' do
