@@ -54,8 +54,11 @@ module Buildkite
             file.write(contents)
 
             logger.info "+++ :pipeline: Uploading pipeline"
-            unless Buildkite::Pipelines::Command.pipeline(:upload, file.path)
-              logger.info "Pipeline upload failed, saving as artifact…"
+
+            result = Buildkite::Pipelines::Command.pipeline(:upload, file.path)
+
+            unless result.success?
+              logger.info "Pipeline upload failed with #{result.stderr}, saving as artifact…"
               Buildkite::Pipelines::Command.artifact!(:upload, file.path)
               abort
             end

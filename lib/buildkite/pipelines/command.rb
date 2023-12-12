@@ -7,6 +7,23 @@ module Buildkite
     class Command
       class CommandFailedError < StandardError; end
 
+      class Result
+        attr_reader :stdout, :stderr
+        def initialize(stdout, stderr, status)
+          @stdout = stdout.strip
+          @stderr = stderr.strip
+          @status = status
+        end
+
+        def success?
+          @status.success?
+        end
+
+        def output
+          @output ||= "#{stdout}\n#{stderr}".strip
+        end
+      end
+
       BIN_PATH = 'buildkite-agent'
       COMMANDS = %w(
         pipeline
@@ -21,12 +38,12 @@ module Buildkite
         end
 
         def artifact(subcommand, *args, exception: false)
-          capture = case subcommand.to_s
-          when 'shasum', 'search' then true
-          else false
-          end
+          result = new(:artifact, subcommand, *args).run(exception: exception)
 
-          new(:artifact, subcommand, *args).run(capture: capture, exception: exception)
+          case subcommand.to_s
+          when 'shasum', 'search' then result.output
+          else result
+          end
         end
 
         def annotate(body, *args, exception: false)
@@ -34,12 +51,12 @@ module Buildkite
         end
 
         def meta_data(subcommand, *args, exception: false)
-          capture = case subcommand.to_s
-          when 'get', 'keys' then true
-          else false
-          end
+          result = new(:'meta-data', subcommand, *args).run(exception: exception)
 
-          new(:'meta-data', subcommand, *args).run(capture: capture, exception: exception)
+          case subcommand.to_s
+          when 'get', 'keys' then result.output
+          else result
+          end
         end
       end
 
@@ -58,16 +75,14 @@ module Buildkite
         @args = transform_args(args)
       end
 
-      def run(capture: false, exception: false)
+      def run(exception: false)
         stdout, stderr, status = Open3.capture3(*to_a)
-        if capture
-          stdout
-        elsif status.success?
-          true
-        elsif exception
-          raise CommandFailedError, "#{stdout}\n#{stderr}"
+        result = Result.new(stdout, stderr, status)
+
+        if !result.success? && exception
+          raise CommandFailedError, "#{result.output}"
         else
-          false
+          result
         end
       end
 
