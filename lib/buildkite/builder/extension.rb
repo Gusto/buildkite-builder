@@ -4,8 +4,6 @@ module Buildkite
   module Builder
     class Extension
       class << self
-        attr_reader :dsl
-
         def dsl(&block)
           @dsl = Module.new(&block) if block_given?
           @dsl
