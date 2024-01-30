@@ -23,19 +23,6 @@ module Buildkite
             Pipeline.new(pipeline_path, logger: log).upload
           end
         end
-
-        private
-
-        def pipeline_path
-          pipeline_path_override || super
-        end
-
-        def pipeline_path_override
-          if ENV['BUILDKITE_BUILDER_PIPELINE_PATH']
-            path = Pathname.new(ENV['BUILDKITE_BUILDER_PIPELINE_PATH'])
-            path.absolute? ? path : Builder.root.join(path)
-          end
-        end
       end
     end
   end
