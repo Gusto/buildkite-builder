@@ -1,3 +1,9 @@
+### 4.8.0
+* Move `BUILDKITE_BUILDER_PIPELINE_PATH` override as part of command abstract.
+
+### 4.7.0
+* Remove warning of method redefined.
+
 ### 4.6.0
 * Remove `capture` concept on `Buildkite::Pipelines::Command#run` and replaced with `Buildkite::Pipelines::Command::Result` object to represent `Open3.capture3` result.
 
