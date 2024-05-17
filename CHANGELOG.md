@@ -1,3 +1,6 @@
+### 4.9.0
+* Upgrade to Ruby 3.3 for docker distribution.
+
 ### 4.8.0
 * Move `BUILDKITE_BUILDER_PIPELINE_PATH` override as part of command abstract.
 
