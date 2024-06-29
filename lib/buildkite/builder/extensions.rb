@@ -3,6 +3,7 @@
 module Buildkite
   module Builder
     module Extensions
+      autoload :Agents, File.expand_path('extensions/agents', __dir__)
       autoload :Env, File.expand_path('extensions/env', __dir__)
       autoload :Lib, File.expand_path('extensions/lib', __dir__)
       autoload :Notify, File.expand_path('extensions/notify', __dir__)
