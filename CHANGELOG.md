@@ -1,3 +1,8 @@
+### 4.10.0
+* Update Buildkite pipelines to use Ruby 3.3 (#116)
+* Add priority field on command steps (#117)
+* Allow setting pipeline-wide agent settings (#118)
+
 ### 4.9.0
 * Upgrade to Ruby 3.3 for docker distribution.
 
