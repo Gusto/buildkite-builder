@@ -37,6 +37,7 @@ module Buildkite
         use(Extensions::Notify)
         use(Extensions::Steps)
         use(Extensions::Plugins)
+        use(Extensions::Agents)
       end
 
       def upload
