@@ -16,7 +16,7 @@ module Buildkite
         @steps = []
       end
 
-      def each(*types, &block)
+      def each(*types, traverse_groups: true, &block)
         types = types.flatten
         types.map! { |type| STEP_TYPES.values.include?(type) ? type : STEP_TYPES.fetch(type) }
         types = STEP_TYPES.values if types.empty?
@@ -25,7 +25,7 @@ module Buildkite
           if types.any? { |step_type| step.is_a?(step_type) }
             matches << step
           end
-          if step.is_a?(Pipelines::Steps::Group)
+          if step.is_a?(Pipelines::Steps::Group) && traverse_groups
             step.steps.each(types) { |step| matches << step }
           end
         end

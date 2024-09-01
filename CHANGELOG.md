@@ -1,3 +1,6 @@
+### 4.11.0
+* Allow skipping group traversal for StepCollection#each.
+
 ### 4.10.0
 * Update Buildkite pipelines to use Ruby 3.3 (#116)
 * Add priority field on command steps (#117)

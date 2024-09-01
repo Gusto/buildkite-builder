@@ -84,6 +84,15 @@ RSpec.describe Buildkite::Builder::StepCollection do
         expect(wait_keys).to match_array(['wait', 'wait_in_group'])
       end
 
+      it "does not iterate over group's steps when opted out" do
+        keys = []
+
+        pipeline.data.steps.each(traverse_groups: false) do |step|
+          keys << step.key
+        end
+        expect(keys).to_not include('command_in_group')
+      end
+
       context 'filter for groups' do
         it "returns group and iterates over group's steps" do
           all, command_keys, block_keys, wait_keys = [], [], [], []
