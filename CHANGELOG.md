@@ -1,3 +1,6 @@
+### 4.13.0
+* Public send keys for wait step.
+
 ### 4.12.0
 * Ensure depends_on does not copy by reference.
 * Add StepCollection#move to help with moving steps around in the pipeline.
