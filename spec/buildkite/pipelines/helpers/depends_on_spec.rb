@@ -29,5 +29,14 @@ RSpec.describe Buildkite::Pipelines::Helpers::DependsOn do
 
       expect(step.depends_on).to eq([:foo, :bar, :baz])
     end
+
+    it 'does not copy by reference on assignment' do
+      values = [:foo, :bar, :baz]
+      step.depends_on(values)
+
+      values << :daz
+
+      expect(step.get(:depends_on)).to eq([:foo, :bar, :baz])
+    end
   end
 end

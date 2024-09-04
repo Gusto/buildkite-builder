@@ -11,7 +11,7 @@ steps:
         - exit_status: 255 # Forced agent shutdown
           limit: 2
     plugins:
-      - docker#v5.7.0:
+      - docker#v5.11.0:
           image: "gusto/buildkite-builder:4.2.1"
           propagate-environment: true
           mount-buildkite-agent: true
@@ -28,7 +28,7 @@ steps:
         - exit_status: 255 # Forced agent shutdown
           limit: 2
     plugins:
-      - docker#v5.7.0:
+      - docker#v5.11.0:
           image: "ruby:3.3"
           propagate-environment: true
           mount-buildkite-agent: true
