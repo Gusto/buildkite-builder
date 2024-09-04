@@ -215,6 +215,48 @@ RSpec.describe Buildkite::Builder::StepCollection do
     end
   end
 
+  describe '#move' do
+    let(:collection) { described_class.new }
+
+    it 'moves the step before another step' do
+      command = Buildkite::Pipelines::Steps::Command.new
+      collection.push(command)
+      block = Buildkite::Pipelines::Steps::Block.new
+      collection.push(block)
+      wait = Buildkite::Pipelines::Steps::Wait.new
+      collection.push(wait)
+
+      collection.move(wait, before: block)
+
+      expect(collection.steps).to eq([command, wait, block])
+    end
+
+    it 'moves the step after another step' do
+      command = Buildkite::Pipelines::Steps::Command.new
+      collection.push(command)
+      block = Buildkite::Pipelines::Steps::Block.new
+      collection.push(block)
+      wait = Buildkite::Pipelines::Steps::Wait.new
+      collection.push(wait)
+
+      collection.move(wait, after: command)
+
+      expect(collection.steps).to eq([command, wait, block])
+    end
+
+    it 'raises an error if before and after are both specified' do
+      expect {
+        collection.move(Buildkite::Pipelines::Steps::Command.new, before: 'foo', after: 'bar')
+      }.to raise_error(ArgumentError, 'Specify either before or after')
+    end
+
+    it 'raises an error if neither before nor after are specified' do
+      expect {
+        collection.move(Buildkite::Pipelines::Steps::Command.new)
+      }.to raise_error(ArgumentError, 'Specify before or after')
+    end
+  end
+
   describe '#push' do
     let(:collection) { described_class.new }
 

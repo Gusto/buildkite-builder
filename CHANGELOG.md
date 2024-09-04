@@ -1,3 +1,7 @@
+### 4.12.0
+* Ensure depends_on does not copy by reference.
+* Add StepCollection#move to help with moving steps around in the pipeline.
+
 ### 4.11.0
 * Allow skipping group traversal for StepCollection#each.
 

@@ -44,6 +44,20 @@ module Buildkite
         steps[steps.index(old_step)] = new_step
       end
 
+      def move(*movable_steps, before: nil, after: nil)
+        raise ArgumentError, 'Specify either before or after' if before && after
+        raise ArgumentError, 'Specify before or after' unless before || after
+
+        movable_steps.each do |step|
+          steps.delete(step)
+        end
+
+        index = steps.index(before || after)
+        index += 1 if after
+
+        steps.insert(index, *movable_steps)
+      end
+
       def find!(key)
         find(key) || raise(ArgumentError, "Can't find step with key: #{key}")
       end
