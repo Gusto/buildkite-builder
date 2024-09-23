@@ -90,14 +90,24 @@ module Buildkite
 
       def to_a
         command = [BIN_PATH, @command, @subcommand]
-        command.concat(@options.to_a.flatten)
-        command.concat(@args)
+        # The `artifact` command has a different order of options and arguments:
+        # `buildkite-agent artifact upload [options] <file> <destination>`,
+        # `buildkite-agent artifact download [options] <file>`,
+        # `buildkite-agent artifact search [options] <query>`,
+        # so we need to handle it separately.
+        if @command == 'artifact'
+          command.concat(@options.to_a.flatten)
+          command.concat(@args)
+        else
+          command.concat(@args)
+          command.concat(@options.to_a.flatten)
+        end
       end
 
       def extract_options(args)
-        return {} unless args.first.is_a?(Hash)
+        return {} unless args.last.is_a?(Hash)
 
-        args.shift.tap do |options|
+        args.pop.tap do |options|
           options.transform_keys! do |key|
             "--#{key.to_s.tr('_', '-')}"
           end

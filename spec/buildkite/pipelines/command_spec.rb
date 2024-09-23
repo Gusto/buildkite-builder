@@ -72,7 +72,7 @@ RSpec.describe Buildkite::Pipelines::Command do
     let(:subcommand) { :upload }
     let(:options) { { foo_key: :foo_value, bar_key: :bar_value } }
     let(:args) { [Pathname.new('/path/to/foo'), Pathname.new('/path/to/bar')] }
-    let(:instance) { described_class.new(command, subcommand, options, *args) }
+    let(:instance) { described_class.new(command, subcommand, *args, options) }
     let(:mock_status) { instance_double(Process::Status, success?: true) }
 
     before do
@@ -84,12 +84,12 @@ RSpec.describe Buildkite::Pipelines::Command do
         Buildkite::Pipelines::Command::BIN_PATH,
         command.to_s,
         subcommand.to_s,
+        '/path/to/foo',
+        '/path/to/bar',
         '--foo-key',
         'foo_value',
         '--bar-key',
         'bar_value',
-        '/path/to/foo',
-        '/path/to/bar'
       )
 
       instance.run
