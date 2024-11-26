@@ -60,7 +60,7 @@ module Buildkite
             context.extensions.find(Steps).build_step(Pipelines::Steps::Wait, nil, &block).tap do |step|
               step.wait(nil)
               attributes.each do |key, value|
-                step.set(key, value)
+                step.public_send(key, value)
               end
             end
           end

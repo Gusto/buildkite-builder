@@ -24,6 +24,8 @@ module Buildkite
         attribute :soft_fail, append: true
         attribute :timeout_in_minutes
         attribute :plugins, append: true
+        attribute :priority
+        attribute :cancel_on_build_failing
       end
     end
   end

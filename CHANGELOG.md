@@ -1,3 +1,18 @@
+### 4.13.0
+* Public send keys for wait step.
+
+### 4.12.0
+* Ensure depends_on does not copy by reference.
+* Add StepCollection#move to help with moving steps around in the pipeline.
+
+### 4.11.0
+* Allow skipping group traversal for StepCollection#each.
+
+### 4.10.0
+* Update Buildkite pipelines to use Ruby 3.3 (#116)
+* Add priority field on command steps (#117)
+* Allow setting pipeline-wide agent settings (#118)
+
 ### 4.9.0
 * Upgrade to Ruby 3.3 for docker distribution.
 

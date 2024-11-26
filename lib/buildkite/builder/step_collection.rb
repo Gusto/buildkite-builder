@@ -16,7 +16,7 @@ module Buildkite
         @steps = []
       end
 
-      def each(*types, &block)
+      def each(*types, traverse_groups: true, &block)
         types = types.flatten
         types.map! { |type| STEP_TYPES.values.include?(type) ? type : STEP_TYPES.fetch(type) }
         types = STEP_TYPES.values if types.empty?
@@ -25,7 +25,7 @@ module Buildkite
           if types.any? { |step_type| step.is_a?(step_type) }
             matches << step
           end
-          if step.is_a?(Pipelines::Steps::Group)
+          if step.is_a?(Pipelines::Steps::Group) && traverse_groups
             step.steps.each(types) { |step| matches << step }
           end
         end
@@ -42,6 +42,20 @@ module Buildkite
 
       def replace(old_step, new_step)
         steps[steps.index(old_step)] = new_step
+      end
+
+      def move(*movable_steps, before: nil, after: nil)
+        raise ArgumentError, 'Specify either before or after' if before && after
+        raise ArgumentError, 'Specify before or after' unless before || after
+
+        movable_steps.each do |step|
+          steps.delete(step)
+        end
+
+        index = steps.index(before || after)
+        index += 1 if after
+
+        steps.insert(index, *movable_steps)
       end
 
       def find!(key)
