@@ -12,8 +12,7 @@ module Buildkite
         plugins: :Plugins,
         retry: :Retry,
         skip: :Skip,
-        soft_fail: :SoftFail,
-        timeout_in_minutes: :TimeoutInMinutes,
+        soft_fail: :SoftFail
       }.freeze
 
       ATTRIBUTE_HELPERS.each do |name, mod|
