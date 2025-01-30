@@ -5,7 +5,7 @@ module Buildkite
     module Helpers
       module DependsOn
         def depends_on(*values)
-          values.flatten.each { |value| super(value) }
+          values.any? ? super(values.flatten) : super()
         end
       end
     end

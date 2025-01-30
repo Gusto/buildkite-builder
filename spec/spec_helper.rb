@@ -1,8 +1,8 @@
 require 'bundler/setup'
 require 'buildkite-builder'
-require 'byebug'
+require 'debug'
+require 'ostruct'
 require 'webmock/rspec'
-require 'pry'
 
 Dir[File.expand_path('support/**/*.rb', __dir__)].sort.each { |f| require_relative f }
 

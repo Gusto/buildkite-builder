@@ -3,43 +3,43 @@
 RSpec.describe Buildkite::Builder::Commands::Run do
   let(:argv) { [] }
   let(:fixture_project) { :single_pipeline }
+  let(:pipeline) { instance_double(Buildkite::Builder::Pipeline) }
+  let(:result) { instance_double(Buildkite::Pipelines::Command::Result, success?: success) }
 
   before do
     stub_const('ARGV', argv)
     setup_project(fixture_project)
+    stub_buildkite_env(step_id: 'step-id')
   end
 
   describe '.execute' do
-    it 'uploads to Buildkite' do
-      artifact_path = nil
-      pipeline_path = nil
-      artifact_contents = nil
-      pipeline_contents = nil
+    context 'when step key exists' do
+      let(:success) { true }
 
-      expect(Buildkite::Pipelines::Command).to receive(:artifact!).ordered do |subcommand, path|
-        expect(subcommand).to eq(:upload)
-        artifact_path = path
-        artifact_contents = File.read(path)
+      before do
+        allow(Buildkite::Pipelines::Command).to receive(:meta_data).with(:exists, Buildkite::Builder.meta_data.fetch(:job)).and_return(result)
       end
 
-      expect(Buildkite::Pipelines::Command).to receive(:pipeline!).ordered do |subcommand, path|
-        expect(subcommand).to eq(:upload)
-        pipeline_path = path
-        pipeline_contents = File.read(path)
+      it 'does not upload the pipeline' do
+        expect(Buildkite::Builder::Pipeline).not_to receive(:new)
+
+        described_class.execute
       end
 
-      described_class.execute
+      context 'when step key does not exists' do
+        let(:success) { false }
 
-      expect(File.exist?(artifact_path)).to eq(false)
-      expect(File.exist?(pipeline_path)).to eq(false)
-      expect(artifact_contents).to eq(pipeline_contents)
-      expect(pipeline_contents).to eq(<<~YAML)
-        ---
-        steps:
-        - label: Basic step
-          command:
-          - 'true'
-      YAML
+        before do
+          allow(Buildkite::Pipelines::Command).to receive(:meta_data).with(:exists, Buildkite::Builder.meta_data.fetch(:job)).and_return(result)
+        end
+
+        it 'uploads the context' do
+          expect(Buildkite::Builder::Pipeline).to receive(:new).and_return(pipeline)
+          expect(pipeline).to receive(:upload)
+
+          described_class.execute
+        end
+      end
     end
   end
 end

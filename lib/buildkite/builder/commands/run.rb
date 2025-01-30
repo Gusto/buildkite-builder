@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'tempfile'
-
 module Buildkite
   module Builder
     module Commands
@@ -17,40 +15,12 @@ module Buildkite
 
           # This entrypoint is for running on CI. It expects certain environment
           # variables to be set. It also uploads the pipeline to Buildkite.
-          log.info "#{'+++ ' if Buildkite.env}🧰 " + 'Buildkite Builder'.color(:springgreen) + " ─ #{relative_pipeline_path.to_s.yellow}"
-          context = Context.new(pipeline_path, logger: log)
-  
-          results = benchmark("\nDone (%s)".color(:springgreen)) do
-            context.build
-          end
-          log.info(results)
-  
-          upload(context.pipeline)
-        end
-  
-        private
+          log.info "+++ 🧰 #{'Buildkite Builder'.color(:springgreen)} v#{Buildkite::Builder.version} ─ #{relative_pipeline_path.to_s.yellow}"
 
-        def pipeline_path
-          pipeline_path_override || super
-        end
-  
-        def pipeline_path_override
-          if ENV['BUILDKITE_BUILDER_PIPELINE_PATH']
-            path = Pathname.new(ENV['BUILDKITE_BUILDER_PIPELINE_PATH'])
-            path.absolute? ? path : Builder.root.join(path)
-          end
-        end
-
-        def upload(pipeline)
-          # Upload the pipeline.
-          Tempfile.create(['pipeline', '.yml']) do |file|
-            file.sync = true
-            file.write(pipeline.to_yaml)
-  
-            log.info '+++ :paperclip: Uploading artifact'
-            Buildkite::Pipelines::Command.artifact!(:upload, file.path)
-            log.info '+++ :pipeline: Uploading pipeline'
-            Buildkite::Pipelines::Command.pipeline!(:upload, file.path)
+          if Buildkite::Pipelines::Command.meta_data(:exists, Builder.meta_data.fetch(:job)).success?
+            log.info "Pipeline already uploaded in #{Buildkite.env.step_id} step".color(:dimgray)
+          else
+            Pipeline.new(pipeline_path, logger: log).upload
           end
         end
       end

@@ -1,0 +1,34 @@
+steps:
+  - label: ":toolbox:"
+    if: |
+      // This version is used for the default branch since
+      // it uses the release version.
+      build.branch == pipeline.default_branch
+    retry:
+      automatic:
+        - exit_status: -1  # Agent was lost
+          limit: 2
+        - exit_status: 255 # Forced agent shutdown
+          limit: 2
+    plugins:
+      - docker#v5.11.0:
+          image: "gusto/buildkite-builder:4.2.1"
+          propagate-environment: true
+          mount-buildkite-agent: true
+  - label: ":toolbox:"
+    if: |
+      // This version is used for branch builds since
+      // it uses the branch's code.
+      build.branch != pipeline.default_branch
+    command: "bundle install; bin/buildkite-builder run ${BUILDKITE_PIPELINE_SLUG}"
+    retry:
+      automatic:
+        - exit_status: -1  # Agent was lost
+          limit: 2
+        - exit_status: 255 # Forced agent shutdown
+          limit: 2
+    plugins:
+      - docker#v5.11.0:
+          image: "ruby:3.3"
+          propagate-environment: true
+          mount-buildkite-agent: true

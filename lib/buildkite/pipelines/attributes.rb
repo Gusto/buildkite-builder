@@ -48,7 +48,9 @@ module Buildkite
 
       def to_h
         permitted_attributes.each_with_object({}) do |attr, hash|
-          hash[attr] = get(attr) if has?(attr)
+          next unless has?(attr)
+
+          hash[attr] = get(attr).respond_to?(:to_definition) ? get(attr).to_definition : get(attr)
         end
       end
 
@@ -84,7 +86,7 @@ module Buildkite
           end
 
           # Define a helper method that is equivalent to `||=` or `Set#add?`. It will
-          # set the attribute iff it hasn't been already set. It will return true/false
+          # set the attribute if it hasn't been already set. It will return true/false
           # for whether or not the value was set.
           define_method("#{method_name}?") do |*args|
             if args.empty?

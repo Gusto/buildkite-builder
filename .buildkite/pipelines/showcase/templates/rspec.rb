@@ -1,4 +1,4 @@
 Buildkite::Builder.template do
   label "Run Specs", emoji: :rspec
-  command :noop
+  command 'true'
 end

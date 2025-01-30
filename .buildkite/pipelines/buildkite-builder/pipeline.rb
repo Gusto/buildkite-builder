@@ -1,6 +1,6 @@
 Buildkite::Builder.pipeline do
   # Declare that we're using the Buildkite docker plugin.
-  plugin :docker, "docker", "v3.7.0"
+  plugin :docker, "docker#v3.7.0"
 
   command do
     label emoji: :rspec
@@ -8,7 +8,7 @@ Buildkite::Builder.pipeline do
       "bundle",
       "rake"
     plugin :docker,
-      image: "ruby:latest"
+      image: "ruby:3.3"
   end
 
   trigger do
