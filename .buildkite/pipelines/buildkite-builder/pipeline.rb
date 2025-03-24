@@ -21,24 +21,24 @@ Buildkite::Builder.pipeline do
       branch: "${BUILDKITE_BRANCH}"
   end
 
-  block do
-    key :confirm_publish
-    block ":rocket: Release to Docker Hub"
-    prompt "Push release to Docker Hub?"
-    depends_on :rspec
+  if Buildkite.env.default_branch? == "main"
+    block do
+      key :confirm_publish
+      block ":rocket: Release to Docker Hub"
+      prompt "Push release to Docker Hub?"
+      depends_on :rspec
+    end
 
-    skip "Not on main branch" unless Buildkite.env.default_branch? == "main"
-  end
-
-  command do
-    label emoji: :docker
-    command "bundle", "rake", "docker:release"
-    plugin :docker,
-      image: "ruby:3.3"
-    plugin :docker,
-      build_args: {
-        version: File.read(File.expand_path("../../../../VERSION", __FILE__)).strip
-      }
-    depends_on :confirm_publish
+    command do
+      label emoji: :docker
+      command "bundle", "rake docker:release"
+      plugin :docker,
+        image: "ruby:3.3"
+      plugin :docker,
+        build_args: {
+          version: File.read(File.expand_path("../../../../VERSION", __FILE__)).strip
+        }
+      depends_on :confirm_publish
+    end
   end
 end
