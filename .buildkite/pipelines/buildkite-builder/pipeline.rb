@@ -19,4 +19,11 @@ Buildkite::Builder.pipeline do
       commit: "${BUILDKITE_COMMIT}",
       branch: "${BUILDKITE_BRANCH}"
   end
+
+  wait
+
+  command do
+    label emoji: :docker
+    command "bundle", "rake", "docker:release"
+  end
 end
