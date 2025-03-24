@@ -26,11 +26,12 @@ Buildkite::Builder.pipeline do
     block ":rocket: Release to Docker Hub"
     prompt "Push release to Docker Hub?"
     depends_on :rspec
+
+    skip "Not on main branch" unless Buildkite.env.default_branch? == "main"
   end
 
   command do
     label emoji: :docker
-    skip unless Buildkite.env.default_branch? == "main"
     command "bundle", "rake", "docker:release"
     plugin :docker,
       image: "ruby:3.3"
