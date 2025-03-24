@@ -24,6 +24,7 @@ Buildkite::Builder.pipeline do
 
   command do
     label emoji: :docker
+    skip unless Buildkite.env.default_branch? == "main"
     command "bundle", "rake", "docker:release"
   end
 end
