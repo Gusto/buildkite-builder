@@ -26,6 +26,7 @@ module Buildkite
         attribute :plugins, append: true
         attribute :priority
         attribute :cancel_on_build_failing
+        attribute :notify, append: true
       end
     end
   end
