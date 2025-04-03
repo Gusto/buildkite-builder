@@ -4,12 +4,11 @@ set -euo pipefail
 version=$(<VERSION)
 version=$(echo "$version" | xargs) # Trim whitespace
 
-echo "🔨 Building docker image for release of Buildkite Builder version $version"
+echo "🔨 Building and pushing docker image for release of Buildkite Builder version $version"
+
 docker build --tag=gusto/buildkite-builder:"$version" \
   --platform linux/x86_64 \
-  --build-arg version="$version" .
-
-echo "📦 Pushing to DockerHub: gusto/buildkite-builder:$version"
-docker push gusto/buildkite-builder:"$version"
+  --build-arg version="$version" \
+  --push .
 
 echo "✅ Done!"
