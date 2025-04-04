@@ -21,7 +21,7 @@ Buildkite::Builder.pipeline do
       branch: "${BUILDKITE_BRANCH}"
   end
 
-  if Buildkite.env.default_branch?
+  if true # Buildkite.env.default_branch?
     block do
       key :confirm_publish
       block ":rocket: Release to Docker Hub"
@@ -31,13 +31,7 @@ Buildkite::Builder.pipeline do
 
     command do
       label emoji: :docker
-      command "bundle", "rake docker:release"
-      plugin :docker,
-        image: "ruby:3.3"
-      plugin :docker,
-        build_args: {
-          version: File.read(File.expand_path("../../../../VERSION", __FILE__)).strip
-        }
+      command "bin/release"
       depends_on :confirm_publish
     end
   end
