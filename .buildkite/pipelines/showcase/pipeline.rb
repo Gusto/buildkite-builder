@@ -56,6 +56,11 @@ Buildkite::Builder.pipeline do
   command(:generic, foo: "Foo1")
   command(:generic, foo: "Foo2")
 
+  # Set a custom GitHub commit status.
+  command(:generic, foo: "Baz") do
+    notify github_commit_status: { context: "showcase/baz" }
+  end
+
   # Add complex conditions based on your cobebase as to whether or not a step
   # should be defined.
   if true == false

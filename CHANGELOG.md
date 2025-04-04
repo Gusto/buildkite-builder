@@ -1,3 +1,6 @@
+### 4.17.0
+* Add support for `notify` attribute in command steps.
+
 ### 4.13.0
 * Public send keys for wait step.
 
