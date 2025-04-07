@@ -5,8 +5,7 @@ version=$(<VERSION)
 version=$(echo "$version" | xargs) # Trim whitespace
 
 echo "💎 Build and push gem"
-GEM_HOST_API_KEY=$(buildkite-agent secret get RUBYGEMS_API_TOKEN)
-docker build --secret id=gem-host-api-key,env=GEM_HOST_API_KEY \
+GEM_HOST_API_KEY=$(buildkite-agent secret get RUBYGEMS_API_TOKEN) docker build --secret id=gem-host-api-key, env=GEM_HOST_API_KEY \
   --target gem \
   .
 
