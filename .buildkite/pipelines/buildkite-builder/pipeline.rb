@@ -31,13 +31,7 @@ Buildkite::Builder.pipeline do
 
     command do
       label emoji: :docker
-      command "bundle", "rake docker:release"
-      plugin :docker,
-        image: "ruby:3.3"
-      plugin :docker,
-        build_args: {
-          version: File.read(File.expand_path("../../../../VERSION", __FILE__)).strip
-        }
+      command "bin/release"
       depends_on :confirm_publish
     end
   end
