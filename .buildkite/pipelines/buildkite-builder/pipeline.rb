@@ -21,7 +21,7 @@ Buildkite::Builder.pipeline do
       branch: "${BUILDKITE_BRANCH}"
   end
 
-  if true # Buildkite.env.default_branch?
+  if Buildkite.env.default_branch?
     block do
       key :confirm_publish
       block ":rocket: Release to Docker Hub"
