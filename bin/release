@@ -5,8 +5,7 @@ version=$(<VERSION)
 version=$(echo "$version" | xargs) # Trim whitespace
 
 echo "Logging in to DockerHub"
-docker login -u zpadmin
-# buildkite-agent secret get DOCKERHUB_PASSWORD | docker login --username zpadmin --password-stdin
+buildkite-agent secret get DOCKERHUB_PASSWORD | docker login --username zpadmin --password-stdin
 
 echo "🔨 Building and pushing docker image for release of Buildkite Builder version $version"
 docker build --tag=gusto/buildkite-builder:"$version" \
