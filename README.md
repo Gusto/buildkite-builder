@@ -27,9 +27,17 @@ As with every Buildkite pipeline, you'll need to define the initial pipeline ste
 ```yaml
 steps:
   - label: ":toolbox:"
+    key: "buildkite-builder"
+    retry:
+      automatic:
+        - exit_status: -1 # Agent was lost
+          limit: 2
+        - exit_status: 255 # Forced agent shutdown
+          limit: 2
     plugins:
-      - docker#v3.7.0:
-          image: gusto/buildkite-builder:2.1.0
+      - docker#v5.12.0:
+          image: "gusto/buildkite-builder:4.13.0"
+          mount-buildkite-agent: true
           propagate-environment: true
 ```
 
