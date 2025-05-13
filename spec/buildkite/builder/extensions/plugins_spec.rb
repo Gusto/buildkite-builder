@@ -11,11 +11,32 @@ RSpec.describe Buildkite::Builder::Extensions::Plugins do
   let(:extension) { pipeline.extensions.find(described_class) }
 
   describe 'dsl methods' do
+    it 'raises an error if plugin is already defined' do
+      pipeline.dsl.plugins([
+        [:foo, 'foo#v1.2.3', { tty: true }],
+        [:bar, 'bar#v1.2']
+      ])
+
+      expect { pipeline.dsl.plugin(:bar, 'bar#v2.0') }.to raise_error(ArgumentError, "Plugin already defined: bar")
+    end
+
     describe '#plugin' do
       it 'adds the extension to the manager' do
         pipeline.dsl.plugin(:foo, 'foo#v1.2.3')
 
         expect(extension.manager.build(:foo)).to eq( {'foo#v1.2.3' => {} })
+      end
+    end
+
+    describe '#plugins' do
+      it 'adds the extensions to the manager' do
+        pipeline.dsl.plugins([
+          [:foo, 'foo#v1.2.3', { tty: true }],
+          [:bar, 'bar#v1.2']
+        ])
+
+        expect(extension.manager.build(:foo)).to eq( {'foo#v1.2.3' => { tty: true } })
+        expect(extension.manager.build(:bar)).to eq( {'bar#v1.2' => {} })
       end
     end
   end

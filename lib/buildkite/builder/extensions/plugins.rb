@@ -8,6 +8,13 @@ module Buildkite
           def plugin(name, uri, default_attributes = {})
             context.extensions.find(Buildkite::Builder::Extensions::Plugins).manager.add(name, uri, default_attributes)
           end
+
+          def plugins(plugins)
+            plugins.each do |plugin|
+              name, uri, default_attributes = plugin
+              context.extensions.find(Buildkite::Builder::Extensions::Plugins).manager.add(name, uri, default_attributes || {})
+            end
+          end
         end
 
         def prepare
