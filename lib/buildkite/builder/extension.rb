@@ -3,7 +3,6 @@
 module Buildkite
   module Builder
     class Extension
-      # Structure to hold template information
       class TemplateInfo
         attr_reader :extension_class, :name, :block
 

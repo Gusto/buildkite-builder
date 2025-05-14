@@ -40,13 +40,11 @@ module Buildkite
         def find_template(template_name)
           return nil unless template_name
 
-          if template_name.is_a?(Class) && template_name < Buildkite::Builder::Extension
+          if template_name.is_a?(Buildkite::Builder::Extension::TemplateInfo)
+            template_name.block
+          elsif template_name.is_a?(Class) && template_name < Buildkite::Builder::Extension
             extension = context.extensions.find(template_name)
             extension.get_template(:default)
-          elsif template_name.is_a?(Buildkite::Builder::Extension::TemplateInfo)
-            # Handle TemplateInfo objects
-            extension = context.extensions.find(template_name.extension_class)
-            template_name.block
           else
             @templates.find(template_name)
           end

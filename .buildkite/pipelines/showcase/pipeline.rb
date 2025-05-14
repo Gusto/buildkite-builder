@@ -25,7 +25,6 @@ Buildkite::Builder.pipeline do
   plugin :skip_checkout, 'thedyrt/skip-checkout#v0.1.1'
 
   command(ExtensionWithTemplate.template(:default))
-  command(ExtensionWithTemplate.template(:baz))
   command(ExtensionWithTemplate)
 
   command do
