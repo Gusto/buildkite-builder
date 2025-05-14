@@ -12,6 +12,7 @@ Buildkite::Builder.pipeline do
     end
   end
   use(ExtensionWithDsl)
+  use(ExtensionWithTemplate)
 
   CoolLib.resolve(context.logger)
 

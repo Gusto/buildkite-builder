@@ -10,7 +10,7 @@ module Buildkite
         end
 
         def build_step(step_class, template_name, **args, &block)
-          template = @templates.find(template_name)
+          template = find_template(template_name)
 
           step_class.new(**args).tap do |step|
             step.process(template) if template
@@ -33,6 +33,23 @@ module Buildkite
           context.data.steps.push(group).last
         ensure
           @current_group = nil
+        end
+
+        private
+
+        def find_template(template_name)
+          return nil unless template_name
+
+          if template_name.is_a?(Class) && template_name < Buildkite::Builder::Extension
+            extension = context.extensions.find(template_name)
+            extension.get_template(:default)
+          elsif template_name.is_a?(Buildkite::Builder::Extension::TemplateInfo)
+            # Handle TemplateInfo objects
+            extension = context.extensions.find(template_name.extension_class)
+            template_name.block
+          else
+            @templates.find(template_name)
+          end
         end
 
         dsl do
