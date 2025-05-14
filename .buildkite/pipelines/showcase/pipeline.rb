@@ -12,7 +12,6 @@ Buildkite::Builder.pipeline do
     end
   end
   use(ExtensionWithDsl)
-  use(ExtensionWithTemplate)
 
   CoolLib.resolve(context.logger)
 
@@ -23,6 +22,10 @@ Buildkite::Builder.pipeline do
 
   # Register a plugin for steps to use.
   plugin :skip_checkout, 'thedyrt/skip-checkout#v0.1.1'
+
+  command(ExtensionWithTemplate.template(:default))
+  command(ExtensionWithTemplate.template(:baz))
+  command(ExtensionWithTemplate)
 
   command do
     label "Step w/ Plugin"
