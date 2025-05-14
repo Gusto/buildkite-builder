@@ -27,6 +27,11 @@ Buildkite::Builder.pipeline do
   command(ExtensionWithTemplate.template(:baz))
   command(ExtensionWithTemplate)
 
+  command(ExtensionWithTemplate) do |context|
+    context[:command] << 'echo "custom modified command"'
+    label 'A custom modified label'
+  end
+
   command do
     label "Step w/ Plugin"
     key :step_with_plugin
