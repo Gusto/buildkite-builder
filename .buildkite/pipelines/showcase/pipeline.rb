@@ -28,7 +28,7 @@ Buildkite::Builder.pipeline do
   command(ExtensionWithTemplate)
 
   command(ExtensionWithTemplate) do |context|
-    context[:command] << 'echo "custom modified command"'
+    context.step.command << 'echo "additional command"'
     label 'A custom modified label'
   end
 
