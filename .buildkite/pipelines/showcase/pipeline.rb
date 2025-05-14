@@ -23,6 +23,10 @@ Buildkite::Builder.pipeline do
   # Register a plugin for steps to use.
   plugin :skip_checkout, 'thedyrt/skip-checkout#v0.1.1'
 
+  plugins [
+    [:pr_commenter, 'pr-commenter#v0.0.1', { message: "LGTM!" }]
+  ]
+
   command do
     label "Step w/ Plugin"
     key :step_with_plugin
