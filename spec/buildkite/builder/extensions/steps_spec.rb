@@ -139,4 +139,87 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
       end
     end
   end
+
+  context 'template methods' do
+    let(:command_step) { Buildkite::Pipelines::Steps::Command.new }
+
+    before do
+      allow(Buildkite::Pipelines::Steps::Command)
+        .to receive(:new).and_return(command_step)
+    end
+
+    describe '#build_step with different template sources' do
+      it 'handles nil template (block-only)' do
+        extension.build_step(Buildkite::Pipelines::Steps::Command, nil) do
+          label 'Only from block'
+          command 'echo "Command from block"'
+        end
+
+        expect(command_step.label).to eq('Only from block')
+        expect(command_step.command).to match_array(['echo "Command from block"'])
+      end
+
+      it 'applies inline proc template' do
+        template_proc = proc do
+          label 'Template label'
+          command 'echo "Template command"'
+          env TEMPLATE: 'YES'
+        end
+        allow(extension.templates).to receive(:find)
+          .with('string_template').and_return(template_proc)
+
+        extension.build_step(Buildkite::Pipelines::Steps::Command, 'string_template') do |context|
+          context.step.command << 'echo "Additional template command"'
+          env FROM_BLOCK: 'true', FOO: 'bar'
+        end
+
+        expect(command_step.label).to eq('Template label')
+        expect(command_step.command).to match_array(['echo "Template command"', 'echo "Additional template command"'])
+        expect(command_step.env).to eq(FROM_BLOCK: 'true', FOO: 'bar')
+      end
+
+      it 'applies the default template from an extension class' do
+        extender = Class.new(Buildkite::Builder::Extension) do
+          template :default do
+            label 'Default label'
+            command 'echo "From default template"'
+            env TEMPLATE_VAR: 'DEFAULT'
+          end
+        end
+        stub_const('TmpDefaultTemplateExt', extender)
+        pipeline.extensions.use(extender)
+
+        extension.build_step(Buildkite::Pipelines::Steps::Command, extender) do
+          label 'Override label'
+        end
+
+        expect(command_step.label).to eq('Override label')
+        expect(command_step.command).to match_array(['echo "From default template"'])
+        expect(command_step.env).to eq(TEMPLATE_VAR: 'DEFAULT')
+      end
+
+      it 'applies a named template via TemplateInfo' do
+        extender = Class.new(Buildkite::Builder::Extension) do
+          template :custom do
+            label 'Custom label'
+            command 'echo "Custom command"'
+            env TEMPLATE_VAR: 'CUSTOM'
+          end
+        end
+        stub_const('TmpCustomTemplateExt', extender)
+        pipeline.extensions.use(extender)
+
+        template_info = extender.template(:custom)
+
+        extension.build_step(Buildkite::Pipelines::Steps::Command, template_info) do
+          timeout_in_minutes 10
+        end
+
+        expect(command_step.label).to eq('Custom label')
+        expect(command_step.command).to match_array(['echo "Custom command"'])
+        expect(command_step.env).to eq(TEMPLATE_VAR: 'CUSTOM')
+        expect(command_step.timeout_in_minutes).to eq(10)
+      end
+    end
+  end
 end
