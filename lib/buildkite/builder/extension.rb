@@ -20,8 +20,13 @@ module Buildkite
         end
 
         def template(name = :default, &block)
-          @templates ||= {}
-          @templates[name.to_s] ||= Template.new(self, name, block)
+          name = name.to_s
+
+          if block_given? && templates.key?(name)
+            raise ArgumentError, "Template #{name} already registered in #{self.name}"
+          end
+
+          templates[name] ||= Template.new(self, name, block)
         end
 
         def templates
