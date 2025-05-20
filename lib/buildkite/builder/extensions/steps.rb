@@ -42,8 +42,12 @@ module Buildkite
           when Buildkite::Builder::Extension::Template
             template_name.block
           when Class
+            unless context.extensions.all.include?(template_name)
+              raise ArgumentError, "#{template_name} extension is not registered"
+            end
+
             if template_name < Buildkite::Builder::Extension
-              find_template(context.extensions.find(template_name).fetch_template)
+              find_template(context.extensions.find(template_name).class.template)
             end
           else
             @templates.find(template_name)
