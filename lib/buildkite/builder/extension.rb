@@ -3,7 +3,7 @@
 module Buildkite
   module Builder
     class Extension
-      class TemplateInfo
+      class Template
         attr_reader :extension_class, :name, :block
 
         def initialize(extension_class, name, block)
@@ -19,16 +19,9 @@ module Buildkite
           @dsl
         end
 
-        def template(name, &block)
-          if block_given?
-            @templates ||= {}
-            @templates[name] = block
-          else
-            template_block = @templates&.[](name)
-            return nil unless template_block
-
-            TemplateInfo.new(self, name, template_block)
-          end
+        def template(name = :default, &block)
+          @templates ||= {}
+          @templates[name.to_s] ||= Template.new(self, name, block)
         end
 
         def templates
@@ -52,8 +45,8 @@ module Buildkite
         # Override to provide extra functionality.
       end
 
-      def get_template(name)
-        self.class.templates[name]
+      def get_template(name = :default)
+        self.class.templates[name.to_s]
       end
 
       private
