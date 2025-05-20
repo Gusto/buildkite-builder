@@ -3,15 +3,7 @@
 module Buildkite
   module Builder
     class Extension
-      class Template
-        attr_reader :extension_class, :name, :block
-
-        def initialize(extension_class, name, block)
-          @extension_class = extension_class
-          @name = name
-          @block = block
-        end
-      end
+      autoload :Template, File.expand_path('extension/template', __dir__)
 
       class << self
         def dsl(&block)
