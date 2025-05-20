@@ -3,7 +3,6 @@
 module Buildkite
   module Builder
     class Extension
-      autoload :Template, File.expand_path('extension/template', __dir__)
 
       class << self
         def dsl(&block)
@@ -18,7 +17,7 @@ module Buildkite
             raise ArgumentError, "Template #{name} already registered in #{self.name}"
           end
 
-          templates[name] ||= Template.new(self, name, block)
+          templates[name] ||= ExtensionTemplate.new(self, name, block)
         end
 
         def templates

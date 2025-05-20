@@ -39,7 +39,7 @@ module Buildkite
 
         def find_template(template_name)
           case template_name
-          when Buildkite::Builder::Extension::Template
+          when Buildkite::Builder::ExtensionTemplate
             template_name.block
           when Class
             unless context.extensions.all.include?(template_name)
