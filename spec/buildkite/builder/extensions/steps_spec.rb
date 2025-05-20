@@ -148,6 +148,18 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
         .to receive(:new).and_return(command_step)
     end
 
+    describe 'when two extension templates have the same name' do
+      it 'raises an error' do
+        expect {
+          Class.new(Buildkite::Builder::Extension) do
+            template :default do; end
+            template :foo do; end
+            template :default do; end
+          end
+        }.to raise_error(ArgumentError, /Template default already registered/)
+      end
+    end
+
     describe '#build_step with different template sources' do
       it 'handles nil template (block-only)' do
         extension.build_step(Buildkite::Pipelines::Steps::Command, nil) do
