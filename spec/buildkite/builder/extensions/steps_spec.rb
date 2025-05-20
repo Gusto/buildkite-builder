@@ -160,6 +160,16 @@ RSpec.describe Buildkite::Builder::Extensions::Steps do
       end
     end
 
+    describe 'when a template is not registered' do
+      it 'raises an error' do
+        stub_const('FooExtension', Class.new)
+
+        expect {
+          extension.build_step(Buildkite::Pipelines::Steps::Command, FooExtension)
+        }.to raise_error(ArgumentError, /FooExtension extension is not registered/)
+      end
+    end
+
     describe '#build_step with different template sources' do
       it 'handles nil template (block-only)' do
         extension.build_step(Buildkite::Pipelines::Steps::Command, nil) do
