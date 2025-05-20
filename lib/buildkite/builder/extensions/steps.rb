@@ -38,8 +38,6 @@ module Buildkite
         private
 
         def find_template(template_name)
-          return nil unless template_name
-
           case template_name
           when Buildkite::Builder::Extension::Template
             template_name.block
