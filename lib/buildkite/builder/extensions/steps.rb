@@ -45,7 +45,7 @@ module Buildkite
             template_name.block
           when Class
             if template_name < Buildkite::Builder::Extension
-              find_template(context.extensions.find(template_name).get_template)
+              find_template(context.extensions.find(template_name).fetch_template)
             end
           else
             @templates.find(template_name)

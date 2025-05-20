@@ -50,7 +50,7 @@ module Buildkite
         # Override to provide extra functionality.
       end
 
-      def get_template(name = :default)
+      def fetch_template(name = :default)
         self.class.templates[name.to_s]
       end
 
