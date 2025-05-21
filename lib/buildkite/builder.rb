@@ -10,6 +10,7 @@ module Buildkite
     autoload :Data, File.expand_path('builder/data', __dir__)
     autoload :Dsl, File.expand_path('builder/dsl', __dir__)
     autoload :Extension, File.expand_path('builder/extension', __dir__)
+    autoload :ExtensionTemplate, File.expand_path('builder/extension_template', __dir__)
     autoload :ExtensionManager, File.expand_path('builder/extension_manager', __dir__)
     autoload :Extensions, File.expand_path('builder/extensions', __dir__)
     autoload :Loaders, File.expand_path('builder/loaders', __dir__)

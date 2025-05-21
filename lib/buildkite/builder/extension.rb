@@ -3,10 +3,25 @@
 module Buildkite
   module Builder
     class Extension
+
       class << self
         def dsl(&block)
           @dsl = Module.new(&block) if block_given?
           @dsl
+        end
+
+        def template(name = :default, &block)
+          name = name.to_s
+
+          if block_given? && templates.key?(name)
+            raise ArgumentError, "Template #{name} already registered in #{self.name}"
+          end
+
+          templates[name] ||= ExtensionTemplate.new(self, name, block)
+        end
+
+        def templates
+          @templates ||= {}
         end
       end
 

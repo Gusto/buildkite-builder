@@ -10,7 +10,7 @@ module Buildkite
         end
 
         def build_step(step_class, template_name, **args, &block)
-          template = @templates.find(template_name)
+          template = find_template(template_name)
 
           step_class.new(**args).tap do |step|
             step.process(template) if template
@@ -33,6 +33,25 @@ module Buildkite
           context.data.steps.push(group).last
         ensure
           @current_group = nil
+        end
+
+        private
+
+        def find_template(template_name)
+          case template_name
+          when Buildkite::Builder::ExtensionTemplate
+            template_name.block
+          when Class
+            unless context.extensions.all.include?(template_name)
+              raise ArgumentError, "#{template_name} extension is not registered"
+            end
+
+            if template_name < Buildkite::Builder::Extension
+              find_template(context.extensions.find(template_name).class.template)
+            end
+          else
+            @templates.find(template_name)
+          end
         end
 
         dsl do
