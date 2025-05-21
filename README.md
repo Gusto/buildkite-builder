@@ -135,6 +135,61 @@ Buildkite::Builder.pipeline do
 end
 ```
 
+### Extensions
+
+Extensions provide additional flexibility to run code and encapsulate reusable patterns in your pipelines. Think of extensions as Ruby modules that let you define custom DSL, step templates, and shared logic that can be used across multiple pipelines.
+
+Extensions are useful when you want to standardize how certain steps are defined, or when you want to use or share complex logic (like deployment, notifications, or test orchestration).
+
+`.buildkite/pipelines/foobar-widget/extensions/deploy_extension.rb`
+
+```ruby
+class DeployExtension < Buildkite::Builder::Extension
+  dsl do
+    def deploy_step(&block)
+      command(:deploy, &block)
+    end
+  end
+end
+```
+
+`.buildkite/pipelines/foobar-widget/pipeline.rb`
+
+```ruby
+Buildkite::Builder.pipeline do
+  deploy_step do
+    label "Deploy to production (EU)"
+    command "bundle exec deploy --env production --region eu"
+  end
+end
+```
+
+#### Extension Templates
+
+Extensions can also provide multiple templates for different scenarios:
+
+```ruby
+class TestExtension < Buildkite::Builder::Extension
+  template :default do
+    command "bundle exec rspec"
+  end
+
+  template :rubocop do
+    command "bundle exec rubocop"
+  end
+end
+```
+
+And used like this in the pipeline file:
+
+```ruby
+command(TestExtension) # Uses the default template
+
+command(TestExtension.template(:rubocop)) do
+  label "Custom Rubocop label"
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
