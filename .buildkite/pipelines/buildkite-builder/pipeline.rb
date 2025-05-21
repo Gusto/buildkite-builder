@@ -30,9 +30,16 @@ Buildkite::Builder.pipeline do
     end
 
     command do
+      key :publish_gem
+      label emoji: :ruby
+      command "bin/publish"
+      depends_on :confirm_publish
+    end
+
+    command do
       label emoji: :docker
       command "bin/release"
-      depends_on :confirm_publish
+      depends_on :publish_gem
     end
   end
 end
