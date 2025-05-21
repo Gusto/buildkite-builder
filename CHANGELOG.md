@@ -1,3 +1,6 @@
+### 4.18.0
+* Support template definition within extensions.
+
 ### 4.17.0
 * Add support for `notify` attribute in command steps.
 
