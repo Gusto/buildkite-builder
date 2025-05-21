@@ -4,8 +4,8 @@ set -euo pipefail
 version=$(<VERSION)
 version=$(echo "$version" | xargs) # Trim whitespace
 
-# echo "💎 Build and push gem"
-# GEM_HOST_API_KEY=$(buildkite-agent secret get RUBYGEMS_API_TOKEN) docker buildx build --secret id=gem-host-api-key,env=GEM_HOST_API_KEY --target gem .
+echo "💎 Build and push gem"
+GEM_HOST_API_KEY=$(buildkite-agent secret get RUBYGEMS_API_TOKEN) docker buildx build --secret id=gem-host-api-key,env=GEM_HOST_API_KEY --target gem .
 
 echo "🐳 Logging in to DockerHub"
 buildkite-agent secret get DOCKERHUB_PASSWORD | docker login --username zpadmin --password-stdin
