@@ -6,11 +6,7 @@ RUN --mount=type=secret,id=gem-host-api-key \
     GEM_HOST_API_KEY=$(cat /run/secrets/gem-host-api-key) gem push buildkite-builder-*.gem
 
 FROM ruby:3.3 as release
+COPY .buildkite/docker/bootstrap /tmp/bootstrap
 ARG version
-RUN gem update --system --no-document && \
-    if [ -z "$version" ]; then                        \
-      gem install buildkite-builder;                  \
-    else                                              \
-      gem install buildkite-builder -v "$version";    \
-    fi
+RUN /tmp/bootstrap
 CMD ["buildkite-builder", "run"]
