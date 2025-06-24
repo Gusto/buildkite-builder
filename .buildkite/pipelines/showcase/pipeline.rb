@@ -79,6 +79,14 @@ Buildkite::Builder.pipeline do
     end
   end
 
+  command do 
+    label "Matrix Step: {{matrix.os}} x {{matrix.arch}}"
+    matrix setup: {
+      os: ["linux", "macos", "windows"],
+      arch: ["amd64", "arm64"]
+    }
+  end
+
   # Add a wait step.
   wait
 
