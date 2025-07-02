@@ -79,8 +79,14 @@ Buildkite::Builder.pipeline do
     end
   end
 
-  command do 
-    label "Matrix Step: {{matrix.os}} x {{matrix.arch}}"
+  command do
+    label "Simple Matrix Step: {{matrix}}"
+    command "echo 'Building for {{matrix}}'"
+    matrix ["linux", "macos", "windows"]
+  end
+
+  command do
+    label "Advanced Matrix Step: {{matrix.os}} x {{matrix.arch}}"
     command "echo 'Building for {{matrix.os}} on {{matrix.arch}}'"
     matrix setup: {
       os: ["linux", "macos", "windows"],
