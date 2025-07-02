@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+for i in {1..5}; do
+  if gem list --remote buildkite-builder --version "$version" | grep "$version"; then
+    echo "✅ buildkite-builder version $version is available on RubyGems."
+    break
+  else
+    echo "⏳ Waiting for buildkite-builder version $version to be available on RubyGems... (attempt $i)"
+    sleep 10
+  fi
+  if [ "$i" -eq 5 ]; then
+    echo "❌ Timed out waiting for buildkite-builder version $version to be available on RubyGems." >&2
+    exit 1
+  fi
+done
+
+gem update --system --no-document
+if [ -z "$version" ]; then                        \
+  gem install buildkite-builder;                  \
+else                                              \
+  gem install buildkite-builder -v "$version";    \
+fi
