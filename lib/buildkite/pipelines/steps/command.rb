@@ -14,6 +14,7 @@ module Buildkite
         attribute :depends_on, append: true
         attribute :allow_dependency_failure
         attribute :parallelism
+        attribute :matrix
         attribute :branches
         attribute :artifact_paths
         attribute :agents

@@ -1,3 +1,6 @@
+### 4.19.0
+* Support build matrix.
+
 ### 4.18.0
 * Support template definition within extensions.
 

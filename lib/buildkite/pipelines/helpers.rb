@@ -9,6 +9,7 @@ module Buildkite
         depends_on: :DependsOn,
         key: :Key,
         label: :Label,
+        matrix: :Matrix,
         plugins: :Plugins,
         retry: :Retry,
         skip: :Skip,
