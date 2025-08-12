@@ -15,6 +15,7 @@ module Buildkite
         attribute :allow_dependency_failure
         attribute :branches
         attribute :fields
+        attribute :blocked_state
       end
     end
   end
