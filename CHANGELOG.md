@@ -1,5 +1,5 @@
 ### 4.20.0
-* Add support for `blocked_by` attribute in input steps.
+* Add support for `blocked_state` attribute in input steps.
 
 ### 4.19.0
 * Support build matrix.
