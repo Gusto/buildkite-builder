@@ -16,6 +16,7 @@ module Buildkite
         attribute :branches
         attribute :fields
         attribute :blocked_state
+        attribute :allowed_teams
       end
     end
   end
