@@ -1,5 +1,9 @@
 # Buildkite Builder [![Build status](https://badge.buildkite.com/a26bf804e9a93fb118d29824d5695a601a248ceec51591be23.svg?branch=main)](https://buildkite.com/gusto-open-source/buildkite-builder/builds?branch=main)
 
+<p align="center">
+  <img width="350" height="260" alt="Buildkite-Builder Logo" src="https://github.com/user-attachments/assets/216608a5-7b1a-4766-b60b-0dc24f50e492">
+</p>
+
 ## Introduction
 
 Buildkite Builder (BKB) is a Buildkite pipeline builder written in Ruby. It allows you to build your pipeline with a Ruby DSL for dynamically generated pipeline steps.
