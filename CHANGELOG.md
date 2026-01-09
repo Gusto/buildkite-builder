@@ -1,3 +1,6 @@
+### 4.22.0
+* Add benchmark as dependency (for Ruby 4).
+
 ### 4.21.0
 * Add support for `allowed_teams` option for input and block steps.
 
