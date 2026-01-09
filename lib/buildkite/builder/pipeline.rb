@@ -66,8 +66,14 @@ module Buildkite
           end
         end
 
-        logger.info "+++ :toolbox: Setting job meta-data to #{Buildkite.env.job_id.color(:yellow)}"
-        Buildkite::Pipelines::Command.meta_data!(:set, Builder.meta_data.fetch(:job), Buildkite.env.step_id)
+        # Use pipeline-specific metadata key instead of generic job metadata
+        logger.info "+++ :toolbox: Setting job meta-data #{pipeline_metadata_key.color(:yellow)} to #{Buildkite.env.step_id.color(:yellow)}"
+        Buildkite::Pipelines::Command.meta_data!(:set, pipeline_metadata_key, Buildkite.env.step_id)
+      end
+
+      # Check if this specific pipeline has already been uploaded
+      def already_uploaded?
+        Buildkite::Pipelines::Command.meta_data(:exists, pipeline_metadata_key).success?
       end
 
       def to_h
@@ -87,6 +93,16 @@ module Buildkite
       end
 
       private
+
+      def pipeline_metadata_key
+        @pipeline_metadata_key ||= begin
+          # Create a unique metadata key based on the pipeline path
+          # This allows multiple pipelines to be uploaded in the same step
+          relative_path = root.relative_path_from(Builder.root)
+          path_key = relative_path.to_s.gsub(/[^a-zA-Z0-9]/, '_').gsub(/_+/, '_').gsub(/^_|_$/, '')
+          "buildkite_builder_uploaded_#{path_key}"
+        end
+      end
 
       def upload_artifacts
         return if artifacts.empty?
