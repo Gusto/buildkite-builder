@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: buildkite-builder
+  description: A gem for programmatically creating Buildkite pipelines
+  tags:
+    - ruby
+    - ci
+    - buildkite
+  annotations:
+    github.com/project-slug: gusto/buildkite-builder
+    buildkite.com/project-slug: gusto-open-source/buildkite-builder
+spec:
+  type: library
+  owner: team-build-stability
+  lifecycle: production
+  system: buildkite
+  dependsOn: []
