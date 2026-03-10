@@ -26,6 +26,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rainbow", ">= 3"
   spec.add_dependency "benchmark"
+  spec.add_dependency "logger"
 
   spec.add_development_dependency "rake"
   spec.add_development_dependency "debug"
