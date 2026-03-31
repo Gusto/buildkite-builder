@@ -13,6 +13,6 @@ metadata:
 spec:
   type: library
   owner: team-build-stability
-  lifecycle: production
+  lifecycle: stable
   system: buildkite
   dependsOn: []
