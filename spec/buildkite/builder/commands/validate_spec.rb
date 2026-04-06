@@ -1,0 +1,73 @@
+# frozen_string_literal: true
+
+RSpec.describe Buildkite::Builder::Commands::Validate do
+  let(:argv) { [] }
+
+  before do
+    stub_const('ARGV', argv)
+  end
+
+  describe '.execute' do
+    context 'with a valid pipeline' do
+      before do
+        setup_project(:basic)
+      end
+
+      it 'prints success and exits cleanly' do
+        expect {
+          described_class.execute
+        }.to output(/Pipeline is valid\./).to_stdout
+      end
+    end
+
+    context 'with an invalid pipeline' do
+      before do
+        setup_project(:basic)
+      end
+
+      it 'aborts with an error count' do
+        # Inject a validator that always returns errors
+        bad_validator = instance_double(
+          Buildkite::Builder::Validator,
+          validate: [
+            Buildkite::Builder::Validator::ValidationError.new(
+              pointer: '/steps/0/timeout_in_minutes',
+              message: 'value at `/steps/0/timeout_in_minutes` is not an integer'
+            )
+          ]
+        )
+        allow(Buildkite::Builder::Validator).to receive(:new).and_return(bad_validator)
+
+        expect {
+          described_class.execute
+        }.to raise_error(SystemExit)
+      end
+    end
+
+    context 'with a custom --schema flag' do
+      before do
+        setup_project(:basic)
+      end
+
+      let(:argv) { ['--schema', Buildkite::Builder::Validator.default_schema_path] }
+
+      it 'uses the specified schema and validates successfully' do
+        expect {
+          described_class.execute
+        }.to output(/Pipeline is valid\./).to_stdout
+      end
+    end
+
+    context 'when project has multiple pipelines' do
+      before do
+        setup_project(:multipipeline)
+      end
+
+      it 'requires specifying a pipeline' do
+        expect {
+          described_class.execute
+        }.to raise_error(RuntimeError, 'Your project has multiple pipelines, please specify one.')
+      end
+    end
+  end
+end

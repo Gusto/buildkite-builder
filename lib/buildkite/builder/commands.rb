@@ -6,7 +6,8 @@ module Buildkite
       using Rainbow
       COMMANDS = {
         'preview' => :Preview,
-        'run' => :Run
+        'run' => :Run,
+        'validate' => :Validate
       }.freeze
 
       autoload :Abstract, File.expand_path('commands/abstract', __dir__)
