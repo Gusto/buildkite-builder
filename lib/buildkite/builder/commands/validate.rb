@@ -9,6 +9,7 @@ module Buildkite
         private
 
         def parse_options(opts)
+          super
           opts.on('--schema PATH', 'Path to a custom JSON schema file') do |path|
             options[:schema] = path
           end
@@ -23,7 +24,11 @@ module Buildkite
             puts 'Pipeline is valid.'
           else
             errors.each { |error| $stderr.puts error.to_s }
-            abort "Pipeline validation failed with #{errors.size} error(s)."
+            if options[:warn]
+              $stderr.puts "Pipeline validation produced #{errors.size} warning(s)."
+            else
+              abort "Pipeline validation failed with #{errors.size} error(s)."
+            end
           end
         end
       end

@@ -6,9 +6,10 @@ require 'pathname'
 module Buildkite
   module Builder
     class Validator
-      ValidationError = Struct.new(:pointer, :type, :schema, :data, :message, :source_location, keyword_init: true) do
+      ValidationError = Struct.new(:pointer, :type, :schema, :data, :details, :message, :source_location, keyword_init: true) do
         def attribute
-          pointer.split('/').last
+          segment = pointer.split('/').last
+          segment && !segment.empty? ? segment : 'pipeline'
         end
 
         def formatted_message
@@ -20,7 +21,7 @@ module Buildkite
             values = schema['enum'].map(&:inspect).join(', ')
             "must be one of: #{values}"
           when 'required'
-            missing = schema['required']
+            missing = details&.dig('missing_keys') || schema['required']
             missing = missing.join(', ') if missing.is_a?(Array)
             "is missing required attributes: #{missing}"
           when 'additionalProperties', 'schema'
@@ -39,7 +40,7 @@ module Buildkite
         end
 
         def to_s
-          location = source_location ? "#{source_location.file}:#{source_location.line_number}  " : ''
+          location = source_location ? "#{source_location.file}:#{source_location.line_number} " : ''
           "#{location}'#{attribute}': #{formatted_message}"
         end
       end
@@ -99,6 +100,7 @@ module Buildkite
           type: error['type'],
           schema: error['schema'],
           data: error['data'],
+          details: error['details'],
           message: error['error'],
           source_location: source_location
         )
