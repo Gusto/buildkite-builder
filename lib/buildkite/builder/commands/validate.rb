@@ -16,19 +16,18 @@ module Buildkite
 
         def run
           pipeline = Pipeline.new(pipeline_path)
-          validator = Validator.new(**validator_options)
-          errors = validator.validate(pipeline.to_h)
+          validator = options[:schema] ? Validator.new(schema_path: options[:schema]) : Validator.new
+          errors = validator.validate_all(pipeline.to_h, pipeline.steps)
 
           if errors.empty?
             puts 'Pipeline is valid.'
           else
-            errors.each { |e| $stderr.puts "#{e.pointer}: #{e.message}" }
+            errors.each do |error|
+              location = error.source_location ? "#{error.source_location.file}:#{error.source_location.line_number} " : ''
+              $stderr.puts "#{location}#{error.pointer}: #{error.message}"
+            end
             abort "Pipeline validation failed with #{errors.size} error(s)."
           end
-        end
-
-        def validator_options
-          options[:schema] ? { schema_path: options[:schema] } : {}
         end
       end
     end

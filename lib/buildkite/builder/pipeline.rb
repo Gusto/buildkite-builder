@@ -15,6 +15,7 @@ module Buildkite
       PIPELINE_DEFINITION_FILE = Pathname.new('pipeline.rb').freeze
 
       def_delegator :@extensions, :use
+      def_delegator :@data, :steps
 
       attr_reader :logger,
                   :root,

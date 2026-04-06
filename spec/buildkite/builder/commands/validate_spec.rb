@@ -29,10 +29,10 @@ RSpec.describe Buildkite::Builder::Commands::Validate do
         # Inject a validator that always returns errors
         bad_validator = instance_double(
           Buildkite::Builder::Validator,
-          validate: [
+          validate_all: [
             Buildkite::Builder::Validator::ValidationError.new(
-              pointer: '/steps/0/timeout_in_minutes',
-              message: 'value at `/steps/0/timeout_in_minutes` is not an integer'
+              pointer: '/timeout_in_minutes',
+              message: 'value at `/timeout_in_minutes` is not an integer'
             )
           ]
         )

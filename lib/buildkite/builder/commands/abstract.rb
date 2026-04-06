@@ -77,7 +77,7 @@ module Buildkite
         def validate_pipeline(pipeline)
           return if options[:no_validate]
 
-          errors = Validator.new.validate_all(pipeline.to_h, pipeline.data.steps)
+          errors = Validator.new.validate_all(pipeline.to_h, pipeline.steps)
           return if errors.empty?
 
           errors.each do |error|

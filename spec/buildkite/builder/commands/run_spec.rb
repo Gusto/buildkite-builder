@@ -36,7 +36,7 @@ RSpec.describe Buildkite::Builder::Commands::Run do
         it 'uploads the context' do
           expect(Buildkite::Builder::Pipeline).to receive(:new).and_return(pipeline)
           allow(pipeline).to receive(:to_h).and_return({ 'steps' => [] })
-          allow(pipeline).to receive_message_chain(:data, :steps, :steps).and_return([])
+          allow(pipeline).to receive(:steps).and_return(instance_double(Buildkite::Builder::StepCollection, steps: []))
           expect(pipeline).to receive(:upload)
 
           described_class.execute

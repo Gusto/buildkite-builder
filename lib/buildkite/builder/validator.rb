@@ -9,17 +9,20 @@ module Buildkite
       ValidationError = Struct.new(:pointer, :message, :source_location, keyword_init: true)
 
       STEP_SCHEMA_MAP = {
-        'Buildkite::Pipelines::Steps::Command' => 'commandStep',
-        'Buildkite::Pipelines::Steps::Block' => 'blockStep',
-        'Buildkite::Pipelines::Steps::Input' => 'inputStep',
-        'Buildkite::Pipelines::Steps::Trigger' => 'triggerStep',
-        'Buildkite::Pipelines::Steps::Wait' => 'waitStep',
-        'Buildkite::Pipelines::Steps::Group' => 'groupStep',
+        Pipelines::Steps::Command => 'commandStep',
+        Pipelines::Steps::Block   => 'blockStep',
+        Pipelines::Steps::Input   => 'inputStep',
+        Pipelines::Steps::Trigger => 'triggerStep',
+        Pipelines::Steps::Wait    => 'waitStep',
+        Pipelines::Steps::Group   => 'groupStep',
       }.freeze
 
       def initialize(schema_path: nil)
-        path = schema_path || self.class.default_schema_path
-        @schemer = JSONSchemer.schema(Pathname.new(path.to_s))
+        @schemer = if schema_path
+          JSONSchemer.schema(Pathname.new(schema_path.to_s))
+        else
+          self.class.default_schemer
+        end
       end
 
       def validate(pipeline_hash)
@@ -35,19 +38,24 @@ module Buildkite
         @schemer.valid?(pipeline_hash)
       end
 
-      # Validates both the full pipeline and each step against its type-specific
-      # sub-schema. Step errors include source locations for precise error reporting.
       def validate_all(pipeline_hash, step_collection = nil)
-        errors = validate(pipeline_hash)
         if step_collection
+          # Suppress per-step errors from the top-level pass; per-step validation
+          # below catches the same violations with source location context.
+          pipeline_errors = validate(pipeline_hash).reject { |e| e.pointer.start_with?('/steps/') }
           step_hashes = pipeline_hash['steps'] || []
-          errors += validate_steps(step_hashes, step_collection.steps)
+          pipeline_errors + validate_steps(step_hashes, step_collection.steps)
+        else
+          validate(pipeline_hash)
         end
-        errors
       end
 
       def self.default_schema_path
         File.expand_path('schema.json', __dir__)
+      end
+
+      def self.default_schemer
+        @default_schemer ||= JSONSchemer.schema(Pathname.new(default_schema_path.to_s))
       end
 
       private
@@ -69,7 +77,7 @@ module Buildkite
           nested_objects = step_obj.steps.steps
           validate_steps(nested_hashes, nested_objects)
         else
-          definition_name = STEP_SCHEMA_MAP[step_obj.class.name]
+          definition_name = STEP_SCHEMA_MAP[step_obj.class]
           return [] unless definition_name
 
           step_schemer = @schemer.ref("#/definitions/#{definition_name}")
