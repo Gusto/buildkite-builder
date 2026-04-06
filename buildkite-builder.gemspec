@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.executables   = Dir["exe/*"].map { |exe| File.basename(exe) }
   spec.require_paths = ["lib"]
 
+  spec.add_dependency "json_schemer", "~> 2.0"
   spec.add_dependency "rainbow", ">= 3"
   spec.add_dependency "benchmark"
   spec.add_dependency "logger"
