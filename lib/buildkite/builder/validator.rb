@@ -6,37 +6,41 @@ require 'pathname'
 module Buildkite
   module Builder
     class Validator
-      ValidationError = Struct.new(:pointer, :message, :source_location, keyword_init: true) do
+      ValidationError = Struct.new(:pointer, :type, :schema, :data, :message, :source_location, keyword_init: true) do
         def attribute
           pointer.split('/').last
         end
 
         def formatted_message
-          normalize_message(message, attribute)
+          case type
+          when 'string', 'integer', 'number', 'boolean', 'array', 'object', 'null'
+            article = type.match?(/\A[aeiou]/) ? 'an' : 'a'
+            "must be #{article} #{type}"
+          when 'enum'
+            values = schema['enum'].map(&:inspect).join(', ')
+            "must be one of: #{values}"
+          when 'required'
+            missing = schema['required']
+            missing = missing.join(', ') if missing.is_a?(Array)
+            "is missing required attributes: #{missing}"
+          when 'additionalProperties', 'schema'
+            "is not a recognized attribute"
+          when 'minimum'
+            "must be at least #{schema['minimum']}"
+          when 'maximum'
+            "must be at most #{schema['maximum']}"
+          when 'pattern'
+            "does not match expected format"
+          when 'minItems'
+            "must have at least #{schema['minItems']} item(s)"
+          else
+            message
+          end
         end
 
         def to_s
           location = source_location ? "#{source_location.file}:#{source_location.line_number}  " : ''
           "#{location}'#{attribute}': #{formatted_message}"
-        end
-
-        private
-
-        # Translate json_schemer's raw error into DSL-friendly language.
-        def normalize_message(msg, attr)
-          case msg
-          when /is not an? (\w+)$/
-            article = %w[array integer object].include?($1) ? 'an' : 'a'
-            "must be #{article} #{$1}"
-          when /is not one of: (.+)$/
-            "must be one of #{$1}"
-          when /is a disallowed additional property$/
-            "is not a recognized attribute"
-          when /is missing required properties: (.+)$/
-            "is missing required attributes: #{$1}"
-          else
-            msg.sub(/\A(value|object|object property) at `\/[^`]*` /, '')
-          end
         end
       end
 
@@ -59,10 +63,7 @@ module Buildkite
 
       def validate(pipeline_hash)
         @schemer.validate(pipeline_hash).map do |error|
-          ValidationError.new(
-            pointer: error['data_pointer'],
-            message: error['error']
-          )
+          build_error(error)
         end
       end
 
@@ -92,6 +93,17 @@ module Buildkite
 
       private
 
+      def build_error(error, source_location: nil)
+        ValidationError.new(
+          pointer: error['data_pointer'],
+          type: error['type'],
+          schema: error['schema'],
+          data: error['data'],
+          message: error['error'],
+          source_location: source_location
+        )
+      end
+
       def validate_steps(step_hashes, step_objects)
         errors = []
         step_hashes.each_with_index do |step_hash, index|
@@ -116,11 +128,7 @@ module Buildkite
           return [] unless step_schemer
 
           step_schemer.validate(step_hash).map do |error|
-            ValidationError.new(
-              pointer: error['data_pointer'],
-              message: error['error'],
-              source_location: step_obj.source_location
-            )
+            build_error(error, source_location: step_obj.source_location)
           end
         end
       end
