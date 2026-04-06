@@ -1,3 +1,6 @@
+### 4.23.0
+* Add missing attributes to step types.
+
 ### 4.22.0
 * Add benchmark as dependency (for Ruby 4).
 
