@@ -20,6 +20,7 @@ module Buildkite
         attribute :agents
         attribute :concurrency
         attribute :concurrency_group
+        attribute :concurrency_method
         attribute :retry
         attribute :env
         attribute :soft_fail, append: true
@@ -28,6 +29,7 @@ module Buildkite
         attribute :priority
         attribute :cancel_on_build_failing
         attribute :notify, append: true
+        attribute :secrets
       end
     end
   end

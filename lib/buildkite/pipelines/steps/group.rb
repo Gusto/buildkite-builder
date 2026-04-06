@@ -10,6 +10,7 @@ module Buildkite
         attribute :if, as: :condition
         attribute :depends_on, append: true
         attribute :allow_dependency_failure
+        attribute :notify, append: true
 
         attr_reader :steps
 

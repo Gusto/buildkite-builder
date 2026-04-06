@@ -11,6 +11,7 @@ module Buildkite
         attribute :if, as: :condition
         attribute :depends_on, append: true
         attribute :allow_dependency_failure
+        attribute :branches
         attribute :continue_on_failure
       end
     end

@@ -16,6 +16,7 @@ module Buildkite
         attribute :branches
         attribute :async
         attribute :build
+        attribute :soft_fail
       end
     end
   end
