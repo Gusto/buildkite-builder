@@ -65,8 +65,31 @@ module Buildkite
         end
 
         def parse_options(opts)
-          # noop
-          # Subclasses should override to parse options.
+          opts.on('--no-validate', 'Skip schema validation') do
+            options[:no_validate] = true
+          end
+
+          opts.on('--warn', 'Downgrade validation errors to warnings instead of failing') do
+            options[:warn] = true
+          end
+        end
+
+        def validate_pipeline(pipeline)
+          return if options[:no_validate]
+
+          errors = Validator.new.validate_all(pipeline.to_h, pipeline.data.steps)
+          return if errors.empty?
+
+          errors.each do |error|
+            location = error.source_location ? "#{error.source_location.file}:#{error.source_location.line_number} " : ''
+            $stderr.puts "#{location}#{error.pointer}: #{error.message}"
+          end
+
+          if options[:warn]
+            $stderr.puts "Pipeline validation produced #{errors.size} warning(s)."
+          else
+            abort "Pipeline validation failed with #{errors.size} error(s)."
+          end
         end
 
         def log
