@@ -53,6 +53,40 @@ RSpec.describe Buildkite::Builder::Validator do
     end
   end
 
+  describe '#validate_all' do
+    before { setup_project(:basic) }
+
+    let(:pipeline) do
+      Buildkite::Builder::Pipeline.new(fixture_pipeline_path_for(:basic, :dummy))
+    end
+
+    it 'returns no errors for a valid pipeline' do
+      hash = pipeline.to_h
+      errors = validator.validate_all(hash, pipeline.data.steps)
+      expect(errors).to be_empty, "Expected no errors but got:\n#{errors.map { |e| "  #{e.pointer}: #{e.message}" }.join("\n")}"
+    end
+
+    it 'returns per-step errors with source locations when a step is invalid' do
+      hash = pipeline.to_h
+      # Inject an invalid timeout to simulate a per-step schema violation
+      hash['steps'][0]['timeout_in_minutes'] = 'not-a-number'
+
+      errors = validator.validate_all(hash, pipeline.data.steps)
+      # Per-step errors carry source_location; pipeline-level errors do not
+      step_errors = errors.select { |e| e.source_location }
+
+      expect(step_errors).not_to be_empty
+      expect(step_errors.first.source_location).to be_a(Buildkite::Pipelines::SourceLocation)
+      expect(step_errors.first.source_location.file).to include('.rb')
+      expect(step_errors.first.source_location.line_number).to be_an(Integer)
+    end
+
+    it 'works without a step collection (falls back to pipeline-level errors only)' do
+      errors = validator.validate_all({})
+      expect(errors).not_to be_empty
+    end
+  end
+
   describe 'compatibility with fixture pipeline output' do
     before { setup_project(:basic) }
 
