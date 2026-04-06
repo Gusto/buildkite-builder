@@ -24,11 +24,8 @@ module Buildkite
         end
 
         failure_message do |_pipeline_hash|
-          lines = @errors.map do |e|
-            location = e.source_location ? " (#{e.source_location.file}:#{e.source_location.line_number})" : ''
-            "  #{e.pointer}: #{e.message}#{location}"
-          end
-          "expected pipeline to be valid, but got #{@errors.size} error(s):\n#{lines.join("\n")}"
+          "expected pipeline to be valid, but got #{@errors.size} error(s):\n" +
+            @errors.map { |e| "  #{e}" }.join("\n")
         end
       end
     end

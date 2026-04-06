@@ -80,10 +80,7 @@ module Buildkite
           errors = Validator.new.validate_all(pipeline.to_h, pipeline.steps)
           return if errors.empty?
 
-          errors.each do |error|
-            location = error.source_location ? "#{error.source_location.file}:#{error.source_location.line_number} " : ''
-            $stderr.puts "#{location}#{error.pointer}: #{error.message}"
-          end
+          errors.each { |error| $stderr.puts error.to_s }
 
           if options[:warn]
             $stderr.puts "Pipeline validation produced #{errors.size} warning(s)."

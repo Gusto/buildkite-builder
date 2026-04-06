@@ -22,10 +22,7 @@ module Buildkite
           if errors.empty?
             puts 'Pipeline is valid.'
           else
-            errors.each do |error|
-              location = error.source_location ? "#{error.source_location.file}:#{error.source_location.line_number} " : ''
-              $stderr.puts "#{location}#{error.pointer}: #{error.message}"
-            end
+            errors.each { |error| $stderr.puts error.to_s }
             abort "Pipeline validation failed with #{errors.size} error(s)."
           end
         end

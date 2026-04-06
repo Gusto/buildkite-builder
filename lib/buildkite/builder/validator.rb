@@ -6,7 +6,39 @@ require 'pathname'
 module Buildkite
   module Builder
     class Validator
-      ValidationError = Struct.new(:pointer, :message, :source_location, keyword_init: true)
+      ValidationError = Struct.new(:pointer, :message, :source_location, keyword_init: true) do
+        def attribute
+          pointer.split('/').last
+        end
+
+        def formatted_message
+          normalize_message(message, attribute)
+        end
+
+        def to_s
+          location = source_location ? "#{source_location.file}:#{source_location.line_number}  " : ''
+          "#{location}'#{attribute}': #{formatted_message}"
+        end
+
+        private
+
+        # Translate json_schemer's raw error into DSL-friendly language.
+        def normalize_message(msg, attr)
+          case msg
+          when /is not an? (\w+)$/
+            article = %w[array integer object].include?($1) ? 'an' : 'a'
+            "must be #{article} #{$1}"
+          when /is not one of: (.+)$/
+            "must be one of #{$1}"
+          when /is a disallowed additional property$/
+            "is not a recognized attribute"
+          when /is missing required properties: (.+)$/
+            "is missing required attributes: #{$1}"
+          else
+            msg.sub(/\A(value|object|object property) at `\/[^`]*` /, '')
+          end
+        end
+      end
 
       STEP_SCHEMA_MAP = {
         Pipelines::Steps::Command => 'commandStep',
