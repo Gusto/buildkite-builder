@@ -9,16 +9,15 @@ module Buildkite
       using Rainbow
 
       class ValidationError
-        attr_reader :pointer, :type, :schema, :data, :details, :message, :source_location
+        attr_reader :source_location
 
-        def initialize(pointer: '', type: nil, schema: nil, data: nil, details: nil, message: nil, source_location: nil)
-          @pointer = pointer
-          @type = type
-          @schema = schema
-          @data = data
-          @details = details
-          @message = message
+        def initialize(error = {}, source_location: nil)
+          @error = error
           @source_location = source_location
+        end
+
+        def pointer
+          @error['data_pointer'] || ''
         end
 
         def attribute
@@ -27,29 +26,30 @@ module Buildkite
         end
 
         def formatted_message
-          case type
+          case @error['type']
           when 'string', 'integer', 'number', 'boolean', 'array', 'object', 'null'
+            type = @error['type']
             article = type.match?(/\A[aeiou]/) ? 'an' : 'a'
             "must be #{article} #{type}"
           when 'enum'
-            values = schema['enum'].map(&:inspect).join(', ')
+            values = @error.dig('schema', 'enum').map(&:inspect).join(', ')
             "must be one of: #{values}"
           when 'required'
-            missing = details&.dig('missing_keys') || schema['required']
+            missing = @error.dig('details', 'missing_keys') || @error.dig('schema', 'required')
             missing = missing.join(', ') if missing.is_a?(Array)
             "is missing required attributes: #{missing}"
           when 'additionalProperties', 'schema'
             "is not a recognized attribute"
           when 'minimum'
-            "must be at least #{schema['minimum']}"
+            "must be at least #{@error.dig('schema', 'minimum')}"
           when 'maximum'
-            "must be at most #{schema['maximum']}"
+            "must be at most #{@error.dig('schema', 'maximum')}"
           when 'pattern'
             "does not match expected format"
           when 'minItems'
-            "must have at least #{schema['minItems']} item(s)"
+            "must have at least #{@error.dig('schema', 'minItems')} item(s)"
           else
-            message
+            @error['error']
           end
         end
 
@@ -78,7 +78,7 @@ module Buildkite
 
       def validate(pipeline_hash)
         @schemer.validate(pipeline_hash).map do |error|
-          build_error(error)
+          ValidationError.new(error)
         end
       end
 
@@ -119,18 +119,6 @@ module Buildkite
 
       private
 
-      def build_error(error, source_location: nil)
-        ValidationError.new(
-          pointer: error['data_pointer'],
-          type: error['type'],
-          schema: error['schema'],
-          data: error['data'],
-          details: error['details'],
-          message: error['error'],
-          source_location: source_location
-        )
-      end
-
       def validate_steps(step_hashes, step_objects)
         errors = []
         step_hashes.each_with_index do |step_hash, index|
@@ -155,7 +143,7 @@ module Buildkite
           return [] unless step_schemer
 
           step_schemer.validate(step_hash).map do |error|
-            build_error(error, source_location: step_obj.source_location)
+            ValidationError.new(error, source_location: step_obj.source_location)
           end
         end
       end

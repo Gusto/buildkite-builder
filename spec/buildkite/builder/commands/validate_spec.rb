@@ -30,10 +30,7 @@ RSpec.describe Buildkite::Builder::Commands::Validate do
           Buildkite::Builder::Validator,
           validate_all: [
             Buildkite::Builder::Validator::ValidationError.new(
-              pointer: '/timeout_in_minutes',
-              type: 'integer',
-              schema: { 'type' => 'integer' },
-              message: 'value is not an integer'
+              { 'data_pointer' => '/timeout_in_minutes', 'type' => 'integer', 'error' => 'value is not an integer' }
             )
           ]
         )
@@ -71,10 +68,7 @@ RSpec.describe Buildkite::Builder::Commands::Validate do
           Buildkite::Builder::Validator,
           validate_all: [
             Buildkite::Builder::Validator::ValidationError.new(
-              pointer: '/timeout_in_minutes',
-              type: 'integer',
-              schema: { 'type' => 'integer' },
-              message: 'value is not an integer'
+              { 'data_pointer' => '/timeout_in_minutes', 'type' => 'integer', 'error' => 'value is not an integer' }
             )
           ]
         )

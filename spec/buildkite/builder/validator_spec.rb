@@ -30,7 +30,7 @@ RSpec.describe Buildkite::Builder::Validator do
       expect(errors).not_to be_empty
       expect(errors.first).to be_a(Buildkite::Builder::Validator::ValidationError)
       expect(errors.first.pointer).to be_a(String)
-      expect(errors.first.message).to be_a(String)
+      expect(errors.first.formatted_message).to be_a(String)
     end
 
     it 'reports the correct pointer for an invalid step property' do
@@ -122,92 +122,78 @@ RSpec.describe Buildkite::Builder::Validator do
   describe Buildkite::Builder::Validator::ValidationError do
     describe '#attribute' do
       it 'returns the last segment of the pointer' do
-        error = described_class.new(pointer: '/steps/0/timeout_in_minutes')
+        error = described_class.new({ 'data_pointer' => '/steps/0/timeout_in_minutes' })
         expect(error.attribute).to eq('timeout_in_minutes')
       end
 
       it 'returns "pipeline" when pointer is empty' do
-        error = described_class.new(pointer: '')
+        error = described_class.new({ 'data_pointer' => '' })
         expect(error.attribute).to eq('pipeline')
       end
     end
 
     describe '#formatted_message' do
       it 'formats integer type errors with correct article' do
-        error = described_class.new(type: 'integer', schema: { 'type' => 'integer' })
+        error = described_class.new({ 'type' => 'integer' })
         expect(error.formatted_message).to eq('must be an integer')
       end
 
       it 'formats string type errors with correct article' do
-        error = described_class.new(type: 'string', schema: { 'type' => 'string' })
+        error = described_class.new({ 'type' => 'string' })
         expect(error.formatted_message).to eq('must be a string')
       end
 
       it 'formats enum errors listing allowed values' do
-        error = described_class.new(type: 'enum', schema: { 'enum' => ['ordered', 'eager'] })
+        error = described_class.new({ 'type' => 'enum', 'schema' => { 'enum' => ['ordered', 'eager'] } })
         expect(error.formatted_message).to eq('must be one of: "ordered", "eager"')
       end
 
       it 'formats required errors using details missing_keys' do
-        error = described_class.new(
-          type: 'required',
-          schema: { 'required' => %w[steps env] },
-          details: { 'missing_keys' => ['steps'] }
-        )
+        error = described_class.new({ 'type' => 'required', 'schema' => { 'required' => %w[steps env] }, 'details' => { 'missing_keys' => ['steps'] } })
         expect(error.formatted_message).to eq('is missing required attributes: steps')
       end
 
       it 'formats additionalProperties errors as unrecognized attribute' do
-        error = described_class.new(type: 'schema', schema: {})
+        error = described_class.new({ 'type' => 'schema' })
         expect(error.formatted_message).to eq('is not a recognized attribute')
       end
 
       it 'formats minimum errors with threshold' do
-        error = described_class.new(type: 'minimum', schema: { 'minimum' => 1 })
+        error = described_class.new({ 'type' => 'minimum', 'schema' => { 'minimum' => 1 } })
         expect(error.formatted_message).to eq('must be at least 1')
       end
 
       it 'formats maximum errors with threshold' do
-        error = described_class.new(type: 'maximum', schema: { 'maximum' => 10 })
+        error = described_class.new({ 'type' => 'maximum', 'schema' => { 'maximum' => 10 } })
         expect(error.formatted_message).to eq('must be at most 10')
       end
 
       it 'formats pattern errors' do
-        error = described_class.new(type: 'pattern', schema: { 'pattern' => '^[a-z]+$' })
+        error = described_class.new({ 'type' => 'pattern' })
         expect(error.formatted_message).to eq('does not match expected format')
       end
 
       it 'formats minItems errors with count' do
-        error = described_class.new(type: 'minItems', schema: { 'minItems' => 1 })
+        error = described_class.new({ 'type' => 'minItems', 'schema' => { 'minItems' => 1 } })
         expect(error.formatted_message).to eq('must have at least 1 item(s)')
       end
 
       it 'falls back to raw message for unknown error types' do
-        error = described_class.new(type: 'custom_thing', schema: {}, message: 'something went wrong')
+        error = described_class.new({ 'type' => 'custom_thing', 'error' => 'something went wrong' })
         expect(error.formatted_message).to eq('something went wrong')
       end
     end
 
     describe '#to_s' do
       it 'includes source location when present' do
-        error = described_class.new(
-          pointer: '/timeout_in_minutes',
-          type: 'integer',
-          schema: { 'type' => 'integer' },
-          source_location: Buildkite::Pipelines::SourceLocation.new(file: 'pipeline.rb', line_number: 42)
-        )
-        output = Rainbow::StringUtils.uncolor(error.to_s)
-        expect(output).to eq("pipeline.rb:42 timeout_in_minutes: must be an integer")
+        loc = Buildkite::Pipelines::SourceLocation.new(file: 'pipeline.rb', line_number: 42)
+        error = described_class.new({ 'data_pointer' => '/timeout_in_minutes', 'type' => 'integer' }, source_location: loc)
+        expect(Rainbow::StringUtils.uncolor(error.to_s)).to eq("pipeline.rb:42 timeout_in_minutes: must be an integer")
       end
 
       it 'omits location prefix when source_location is nil' do
-        error = described_class.new(
-          pointer: '/timeout_in_minutes',
-          type: 'integer',
-          schema: { 'type' => 'integer' }
-        )
-        output = Rainbow::StringUtils.uncolor(error.to_s)
-        expect(output).to eq("timeout_in_minutes: must be an integer")
+        error = described_class.new({ 'data_pointer' => '/timeout_in_minutes', 'type' => 'integer' })
+        expect(Rainbow::StringUtils.uncolor(error.to_s)).to eq("timeout_in_minutes: must be an integer")
       end
     end
   end
