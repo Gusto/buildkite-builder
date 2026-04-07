@@ -162,6 +162,26 @@ RSpec.describe Buildkite::Builder::Validator do
         expect(error.formatted_message).to eq('is not a recognized attribute')
       end
 
+      it 'formats minimum errors with threshold' do
+        error = described_class.new(type: 'minimum', schema: { 'minimum' => 1 })
+        expect(error.formatted_message).to eq('must be at least 1')
+      end
+
+      it 'formats maximum errors with threshold' do
+        error = described_class.new(type: 'maximum', schema: { 'maximum' => 10 })
+        expect(error.formatted_message).to eq('must be at most 10')
+      end
+
+      it 'formats pattern errors' do
+        error = described_class.new(type: 'pattern', schema: { 'pattern' => '^[a-z]+$' })
+        expect(error.formatted_message).to eq('does not match expected format')
+      end
+
+      it 'formats minItems errors with count' do
+        error = described_class.new(type: 'minItems', schema: { 'minItems' => 1 })
+        expect(error.formatted_message).to eq('must have at least 1 item(s)')
+      end
+
       it 'falls back to raw message for unknown error types' do
         error = described_class.new(type: 'custom_thing', schema: {}, message: 'something went wrong')
         expect(error.formatted_message).to eq('something went wrong')
