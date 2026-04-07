@@ -90,7 +90,18 @@ module Buildkite
       end
 
       def self.default_schemer
-        @default_schemer ||= JSONSchemer.schema(Pathname.new(default_schema_path.to_s))
+        @default_schemer ||= suppress_warnings { JSONSchemer.schema(Pathname.new(default_schema_path.to_s)) }
+      end
+
+      # The Buildkite schema contains regex patterns with unescaped hyphens in
+      # character classes (e.g. /^[a-zA-Z0-9-_]+$/), which trigger harmless
+      # Ruby warnings when json_schemer compiles them.
+      def self.suppress_warnings
+        original = $VERBOSE
+        $VERBOSE = nil
+        yield
+      ensure
+        $VERBOSE = original
       end
 
       private
