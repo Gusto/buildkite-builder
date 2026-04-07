@@ -6,6 +6,7 @@ require 'pathname'
 module Buildkite
   module Builder
     class Validator
+      using Rainbow
       ValidationError = Struct.new(:pointer, :type, :schema, :data, :details, :message, :source_location, keyword_init: true) do
         def attribute
           segment = pointer.split('/').last
@@ -40,8 +41,8 @@ module Buildkite
         end
 
         def to_s
-          location = source_location ? "#{source_location.file}:#{source_location.line_number} " : ''
-          "#{location}'#{attribute}': #{formatted_message}"
+          location = source_location ? "#{source_location.file}:#{source_location.line_number}".color(:dimgray) + ' ' : ''
+          "#{location}#{attribute.bright}: #{formatted_message}"
         end
       end
 

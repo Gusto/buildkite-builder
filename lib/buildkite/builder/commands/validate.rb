@@ -4,6 +4,8 @@ module Buildkite
   module Builder
     module Commands
       class Validate < Abstract
+        using Rainbow
+
         self.description = 'Validates the pipeline against the Buildkite schema.'
 
         private
@@ -21,14 +23,14 @@ module Buildkite
           errors = validator.validate_all(pipeline.to_h, pipeline.steps)
 
           if errors.empty?
-            puts 'Pipeline is valid.'
+            puts "#{'Pipeline is valid.'.color(:springgreen)}"
           else
             errors.each { |error| $stderr.puts error.to_s }
             if options[:strict]
-              abort "Pipeline validation failed with #{errors.size} error(s)."
+              abort "Pipeline validation failed with #{errors.size.to_s.yellow} error(s)."
             else
-              $stderr.puts "Pipeline validation produced #{errors.size} warning(s)."
-              $stderr.puts "Pass --strict to fail on validation errors. This will become the default in the next major release."
+              $stderr.puts "Pipeline validation produced #{errors.size.to_s.yellow} warning(s)."
+              $stderr.puts "Pass --strict to fail on validation errors. This will become the default in the next major release.".color(:dimgray)
             end
           end
         end

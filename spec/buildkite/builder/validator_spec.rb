@@ -196,7 +196,8 @@ RSpec.describe Buildkite::Builder::Validator do
           schema: { 'type' => 'integer' },
           source_location: Buildkite::Pipelines::SourceLocation.new(file: 'pipeline.rb', line_number: 42)
         )
-        expect(error.to_s).to eq("pipeline.rb:42 'timeout_in_minutes': must be an integer")
+        output = Rainbow::StringUtils.uncolor(error.to_s)
+        expect(output).to eq("pipeline.rb:42 timeout_in_minutes: must be an integer")
       end
 
       it 'omits location prefix when source_location is nil' do
@@ -205,7 +206,8 @@ RSpec.describe Buildkite::Builder::Validator do
           type: 'integer',
           schema: { 'type' => 'integer' }
         )
-        expect(error.to_s).to eq("'timeout_in_minutes': must be an integer")
+        output = Rainbow::StringUtils.uncolor(error.to_s)
+        expect(output).to eq("timeout_in_minutes: must be an integer")
       end
     end
   end
