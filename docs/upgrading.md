@@ -24,21 +24,89 @@ If you're using the `gusto/buildkite-builder` Docker image, the tag is your vers
 
 ## Upgrade Paths
 
+Find your current version below and follow the path to your target. If you're jumping multiple major versions (e.g. 2.x to 4.x), follow each path in sequence: complete 2.x to 3.x first, then 3.x to 4.x.
+
 ### 1.x to 2.x
 
-<!-- TODO: High-level upgrade path for 1.x to 2.x. Cover what changed, why you'd upgrade, and the key steps. Reference the Detailed Change Reference for specifics. -->
+**Prerequisites:** Ruby >= 2.3.0 (unchanged from 1.x).
+
+This was the largest breaking change in buildkite-builder's history. The internal architecture was reorganized around Extensions, a new DSL, and file-based templates.
+
+**Steps:**
+
+1. **Rename `processors/` to `extensions/`.** Rename both `.buildkite/processors/` and any per-pipeline processor directories to `extensions/`. See [Processor to Extension Rename](#processor-to-extension-rename).
+
+2. **Convert Processor classes to Extension classes.** Change each class to inherit from `Buildkite::Builder::Extension`, rename `def process` to `def build`, and update how you access pipeline data. See [Processor to Extension Rename](#processor-to-extension-rename) for the full before/after.
+
+3. **Update plugin declarations.** Merge the version into the URI string: `plugin :docker, 'docker-compose#v3.7.0'` instead of three separate arguments. See [Plugin API Change](#plugin-api-change).
+
+4. **Wrap pipeline code in `Buildkite::Builder.pipeline { }` block.** If you had code that called `Pipeline.build(root)` directly, switch to `Pipeline.new(root).to_yaml`. Replace `processors(...)` calls with `use(ExtensionClass)`. See [Pipeline Construction Change](#pipeline-construction-change) and [use() DSL](#use-dsl-new-feature).
+
+5. **Convert inline templates to file-based templates.** Move any `template(:name) { ... }` blocks out of `pipeline.rb` and into `.buildkite/pipelines/<pipeline>/templates/<name>.rb`. See [Template System Change](#template-system-change).
+
+**Decision point:** If you use manifest-based conditional steps, note that Manifests are removed in 3.0. Consider migrating them now or deferring to the 2.x to 3.x step.
+
+**Verification:** Run `buildkite-builder preview <pipeline>` and confirm the output produces valid YAML matching your current pipeline output.
 
 ### 2.x to 3.x
 
-<!-- TODO: High-level upgrade path for 2.x to 3.x. Cover what changed, why you'd upgrade, and the key steps. Reference the Detailed Change Reference for specifics. -->
+**Prerequisites:** Ruby >= 2.3.0 (unchanged). Complete the 1.x to 2.x upgrade first if applicable.
+
+The 3.0.0 release had one focused breaking change: removing the manifest system and its GitHub API dependency. If you never used manifests or the `files` command, this upgrade has no breaking changes for you.
+
+**Steps:**
+
+1. **Remove manifest usage (if any).** Delete your `.buildkite/manifests/` directory and replace `Manifest.resolve(...)` or `Manifest[:name].modified?` calls with Buildkite-native alternatives like `if:` conditions on steps. Remove `GITHUB_API_TOKEN` if it was only used for manifests. See [Manifest System Removed](#manifest-system-removed).
+
+2. **Remove `files` command usage (if any).** If you called `buildkite-builder files --manifest <name>` in scripts, remove those calls. The `files` subcommand was removed along with the manifest system.
+
+**Decision point:** If you don't use manifests or the `files` command, this upgrade has no breaking changes for you. Bump the version and verify.
+
+**Verification:** Run `buildkite-builder preview <pipeline>` and confirm the output matches your previous pipeline YAML. Check for any `NameError: uninitialized constant Buildkite::Builder::Manifest` errors.
 
 ### 3.x to 4.x
 
-<!-- TODO: High-level upgrade path for 3.x to 4.x. Cover what changed, why you'd upgrade, and the key steps. Reference the Detailed Change Reference for specifics. -->
+**Prerequisites:** **Ruby >= 3.0.0 required.** The Ruby requirement was bumped during the 3.x series, so verify your Ruby version before upgrading. See [Ruby 3.0.0 Required](#ruby-300-required). Complete the 2.x to 3.x upgrade first if applicable.
+
+The 4.0.0 release cleaned up group steps, removed sub-pipelines, and refactored template handling.
+
+**Steps:**
+
+1. **Update `group` calls: move the label inside the block.** Change `group("My Group") { ... }` to `group { label "My Group"; ... }`. If you passed `emoji:` as an argument, move that inside too. See [Group DSL Change](#group-dsl-change).
+
+2. **Remove `subpipeline` references (if used in 3.x).** Sub-pipelines were added in 3.1.0 and removed in 4.0.0. Replace `pipeline(name) { ... }` blocks with separate pipeline definitions and `trigger` steps. See [SubPipelines Removed](#subpipelines-removed).
+
+3. **Replace any `skip` step usage with `command` + `skip` attribute.** The `skip` step type was removed in 4.1.0. Use a `command` step with the `skip` attribute set directly instead. See [Step and Attribute Additions](#step-and-attribute-additions).
+
+**Decision point:** If you don't use `group`, `skip` steps, or sub-pipelines, check your Ruby version and you're good.
+
+**Verification:** Run `buildkite-builder preview <pipeline>` and confirm the output matches your previous pipeline YAML.
 
 ### Staying Current on 4.x
 
-<!-- TODO: What to watch for in 4.x minor releases. Any deprecations, feature additions, or behavioral changes worth calling out. -->
+Once you're on 4.x, here's what's been added across minor releases, organized by theme. Each item notes the version that introduced it and links to the detailed reference.
+
+**New step attributes:**
+
+- **4.10.0:** [`priority`](#pipeline-wide-settings) on Command steps for queue ordering
+- **4.17.0:** [`notify`](#step-and-attribute-additions) on Command steps for step-level notifications
+- **4.19.0:** [`matrix`](#step-and-attribute-additions) support on Command steps for fan-out builds
+- **4.20.0:** [`blocked_state`](#step-and-attribute-additions) on Input steps to control build state while waiting
+- **4.21.0:** [`allowed_teams`](#step-and-attribute-additions) on Block and Input steps to restrict who can unblock
+- **4.13.0:** [`key`](#step-and-attribute-additions) on Wait steps, making them referenceable via `depends_on`
+- **4.23.0:** Various missing attributes across step types, closing gaps with Buildkite's API
+
+**Pipeline-wide settings:**
+
+- **4.10.0:** [Pipeline-wide `agents` extension](#pipeline-wide-settings) for setting default agent selectors across all steps
+
+**Extension enhancements:**
+
+- **4.18.0:** [Template definitions inside extensions](#templates-and-extensions), letting extensions ship their own templates without requiring consumers to create template files
+
+**Compatibility:**
+
+- **4.22.0:** [`benchmark` gem dependency](#compatibility) added for Ruby 4 compatibility (Ruby 4 removed it from the standard library)
 
 ## Detailed Change Reference
 
