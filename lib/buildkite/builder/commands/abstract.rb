@@ -6,6 +6,7 @@ module Buildkite
   module Builder
     module Commands
       class Abstract
+        include LoggingUtils
         using Rainbow
 
         PIPELINES_DIRECTORY = 'pipelines'
@@ -82,15 +83,28 @@ module Buildkite
           enforce_strict_default_migration!
 
           errors = Validator.new.validate_all(pipeline.to_h, pipeline.steps)
-          return if errors.empty?
 
-          errors.each { |error| $stderr.puts error.to_s }
+          log_validation_results(errors)
+        end
+
+        def log_validation_results(errors)
+          prefix = '│'.color(:springgreen)
+          closer = '└──'.color(:springgreen)
+
+          $stderr.puts "\n" + 'Validating pipeline'.color(:dimgray)
+
+          if errors.empty?
+            $stderr.puts "#{closer} #{'Pipeline is valid.'.color(:springgreen)}"
+            return
+          end
+
+          errors.each { |error| $stderr.puts "#{prefix} #{error}" }
 
           if options[:strict]
-            abort "Pipeline validation failed with #{errors.size.to_s.yellow} error(s)."
+            $stderr.puts "#{closer} " + "Pipeline validation failed with #{pluralize(errors.size, 'error')}.".color(:dimgray)
+            abort
           else
-            $stderr.puts "Pipeline validation produced #{errors.size.to_s.yellow} warning(s)."
-            $stderr.puts "Pass --strict to fail on validation errors. This will become the default in the next major release.".color(:dimgray)
+            $stderr.puts "#{closer} " + "#{pluralize(errors.size, 'warning')}. Pass --strict to fail on validation errors.".color(:dimgray)
           end
         end
 

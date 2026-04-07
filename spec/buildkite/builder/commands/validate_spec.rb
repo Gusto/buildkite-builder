@@ -16,7 +16,7 @@ RSpec.describe Buildkite::Builder::Commands::Validate do
       it 'prints success and exits cleanly' do
         expect {
           described_class.execute
-        }.to output(/Pipeline is valid\./).to_stdout
+        }.to output(/Pipeline is valid\./).to_stderr
       end
     end
 
@@ -55,7 +55,7 @@ RSpec.describe Buildkite::Builder::Commands::Validate do
       it 'uses the specified schema and validates successfully' do
         expect {
           described_class.execute
-        }.to output(/Pipeline is valid\./).to_stdout
+        }.to output(/Pipeline is valid\./).to_stderr
       end
     end
 
