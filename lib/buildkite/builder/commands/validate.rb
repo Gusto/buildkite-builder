@@ -24,10 +24,11 @@ module Buildkite
             puts 'Pipeline is valid.'
           else
             errors.each { |error| $stderr.puts error.to_s }
-            if options[:warn]
-              $stderr.puts "Pipeline validation produced #{errors.size} warning(s)."
-            else
+            if options[:strict]
               abort "Pipeline validation failed with #{errors.size} error(s)."
+            else
+              $stderr.puts "Pipeline validation produced #{errors.size} warning(s)."
+              $stderr.puts "Pass --strict to fail on validation errors. This will become the default in the next major release."
             end
           end
         end

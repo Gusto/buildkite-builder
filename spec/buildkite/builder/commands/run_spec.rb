@@ -42,7 +42,8 @@ RSpec.describe Buildkite::Builder::Commands::Run do
           described_class.execute
         end
 
-        it 'aborts without uploading when validation fails' do
+        it 'aborts without uploading when validation fails in strict mode' do
+          stub_const('ARGV', ['--strict'])
           expect(Buildkite::Builder::Pipeline).to receive(:new).and_return(pipeline)
           allow(pipeline).to receive(:to_h).and_return({ 'steps' => [] })
           allow(pipeline).to receive(:steps).and_return(instance_double(Buildkite::Builder::StepCollection, steps: []))

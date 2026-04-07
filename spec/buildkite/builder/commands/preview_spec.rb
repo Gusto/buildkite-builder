@@ -54,9 +54,7 @@ RSpec.describe Buildkite::Builder::Commands::Preview do
         end
       end
 
-      context 'with --warn flag and an invalid pipeline' do
-        let(:argv) { ['--warn'] }
-
+      context 'with an invalid pipeline (default warn mode)' do
         it 'prints warnings to stderr but still outputs YAML' do
           bad_validator = instance_double(
             Buildkite::Builder::Validator,
@@ -72,6 +70,27 @@ RSpec.describe Buildkite::Builder::Commands::Preview do
           expect {
             described_class.execute
           }.to output(/steps:/).to_stdout
+        end
+      end
+
+      context 'with --strict flag and an invalid pipeline' do
+        let(:argv) { ['--strict'] }
+
+        it 'aborts without printing YAML' do
+          bad_validator = instance_double(
+            Buildkite::Builder::Validator,
+            validate_all: [
+              Buildkite::Builder::Validator::ValidationError.new(
+                pointer: '/steps/0/timeout_in_minutes',
+                message: 'value is not an integer'
+              )
+            ]
+          )
+          allow(Buildkite::Builder::Validator).to receive(:new).and_return(bad_validator)
+
+          expect {
+            described_class.execute
+          }.to raise_error(SystemExit)
         end
       end
     end

@@ -69,23 +69,36 @@ module Buildkite
             options[:no_validate] = true
           end
 
-          opts.on('--warn', 'Downgrade validation errors to warnings instead of failing') do
-            options[:warn] = true
+          opts.on('--strict', 'Fail on validation errors (will be the default in the next major release)') do
+            options[:strict] = true
           end
         end
 
         def validate_pipeline(pipeline)
           return if options[:no_validate]
 
+          enforce_strict_default_migration!
+
           errors = Validator.new.validate_all(pipeline.to_h, pipeline.steps)
           return if errors.empty?
 
           errors.each { |error| $stderr.puts error.to_s }
 
-          if options[:warn]
-            $stderr.puts "Pipeline validation produced #{errors.size} warning(s)."
-          else
+          if options[:strict]
             abort "Pipeline validation failed with #{errors.size} error(s)."
+          else
+            $stderr.puts "Pipeline validation produced #{errors.size} warning(s)."
+            $stderr.puts "Pass --strict to fail on validation errors. This will become the default in the next major release."
+          end
+        end
+
+        # Raise at development time when the major version increments, so we
+        # remember to flip the default from warn to strict.
+        def enforce_strict_default_migration!
+          major = Buildkite::Builder.version.split('.').first.to_i
+          if major >= 5
+            raise "buildkite-builder v#{Buildkite::Builder.version}: validation now defaults to warn mode. " \
+                  "Flip the default to strict and remove this guard. See #{__FILE__}:#{__LINE__}."
           end
         end
 

@@ -90,4 +90,29 @@ RSpec.describe Buildkite::Builder::Commands::Abstract do
       end
     end
   end
+
+  describe '#enforce_strict_default_migration!' do
+    let(:argv) { [] }
+
+    before do
+      stub_const('ARGV', argv)
+    end
+
+    it 'raises when the major version is >= 5' do
+      allow(Buildkite::Builder).to receive(:version).and_return('5.0.0')
+      fake = fake_command.new
+
+      expect {
+        fake.send(:enforce_strict_default_migration!)
+      }.to raise_error(RuntimeError, /Flip the default to strict/)
+    end
+
+    it 'does not raise for the current major version' do
+      fake = fake_command.new
+
+      expect {
+        fake.send(:enforce_strict_default_migration!)
+      }.not_to raise_error
+    end
+  end
 end

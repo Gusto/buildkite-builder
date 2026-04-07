@@ -20,50 +20,10 @@ RSpec.describe Buildkite::Builder::Commands::Validate do
       end
     end
 
-    context 'with an invalid pipeline' do
+    context 'with an invalid pipeline (default warn mode)' do
       before do
         setup_project(:basic)
       end
-
-      it 'aborts with an error count' do
-        # Inject a validator that always returns errors
-        bad_validator = instance_double(
-          Buildkite::Builder::Validator,
-          validate_all: [
-            Buildkite::Builder::Validator::ValidationError.new(
-              pointer: '/timeout_in_minutes',
-              message: 'value at `/timeout_in_minutes` is not an integer'
-            )
-          ]
-        )
-        allow(Buildkite::Builder::Validator).to receive(:new).and_return(bad_validator)
-
-        expect {
-          described_class.execute
-        }.to raise_error(SystemExit)
-      end
-    end
-
-    context 'with a custom --schema flag' do
-      before do
-        setup_project(:basic)
-      end
-
-      let(:argv) { ['--schema', Buildkite::Builder::Validator.default_schema_path] }
-
-      it 'uses the specified schema and validates successfully' do
-        expect {
-          described_class.execute
-        }.to output(/Pipeline is valid\./).to_stdout
-      end
-    end
-
-    context 'with --warn flag and an invalid pipeline' do
-      before do
-        setup_project(:basic)
-      end
-
-      let(:argv) { ['--warn'] }
 
       it 'prints warnings without aborting' do
         bad_validator = instance_double(
@@ -82,6 +42,47 @@ RSpec.describe Buildkite::Builder::Commands::Validate do
         expect {
           described_class.execute
         }.not_to raise_error
+      end
+    end
+
+    context 'with a custom --schema flag' do
+      before do
+        setup_project(:basic)
+      end
+
+      let(:argv) { ['--schema', Buildkite::Builder::Validator.default_schema_path] }
+
+      it 'uses the specified schema and validates successfully' do
+        expect {
+          described_class.execute
+        }.to output(/Pipeline is valid\./).to_stdout
+      end
+    end
+
+    context 'with --strict flag and an invalid pipeline' do
+      before do
+        setup_project(:basic)
+      end
+
+      let(:argv) { ['--strict'] }
+
+      it 'aborts with an error count' do
+        bad_validator = instance_double(
+          Buildkite::Builder::Validator,
+          validate_all: [
+            Buildkite::Builder::Validator::ValidationError.new(
+              pointer: '/timeout_in_minutes',
+              type: 'integer',
+              schema: { 'type' => 'integer' },
+              message: 'value is not an integer'
+            )
+          ]
+        )
+        allow(Buildkite::Builder::Validator).to receive(:new).and_return(bad_validator)
+
+        expect {
+          described_class.execute
+        }.to raise_error(SystemExit)
       end
     end
 
