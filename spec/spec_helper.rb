@@ -1,3 +1,13 @@
+require 'simplecov'
+require 'simplecov_json_formatter'
+
+SimpleCov.start do
+  formatter SimpleCov::Formatter::JSONFormatter
+  add_filter '/spec/'
+  add_filter '/vendor/'
+  enable_coverage :branch
+end
+
 require 'bundler/setup'
 require 'buildkite-builder'
 require 'debug'
