@@ -7,7 +7,20 @@ module Buildkite
   module Builder
     class Validator
       using Rainbow
-      ValidationError = Struct.new(:pointer, :type, :schema, :data, :details, :message, :source_location, keyword_init: true) do
+
+      class ValidationError
+        attr_reader :pointer, :type, :schema, :data, :details, :message, :source_location
+
+        def initialize(pointer: '', type: nil, schema: nil, data: nil, details: nil, message: nil, source_location: nil)
+          @pointer = pointer
+          @type = type
+          @schema = schema
+          @data = data
+          @details = details
+          @message = message
+          @source_location = source_location
+        end
+
         def attribute
           segment = pointer.split('/').last
           segment && !segment.empty? ? segment : 'pipeline'
