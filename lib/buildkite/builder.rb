@@ -22,6 +22,8 @@ module Buildkite
     autoload :PipelineCollection, File.expand_path('builder/pipeline_collection', __dir__)
     autoload :TemplateManager, File.expand_path('builder/template_manager', __dir__)
     autoload :PluginManager, File.expand_path('builder/plugin_manager', __dir__)
+    autoload :Validator, File.expand_path('builder/validator', __dir__)
+    autoload :Matchers, File.expand_path('builder/matchers', __dir__)
 
     BUILDKITE_DIRECTORY_NAME = Pathname.new('.buildkite').freeze
 

@@ -31,5 +31,66 @@ RSpec.describe Buildkite::Builder::Commands::Preview do
         }.to raise_error(RuntimeError, 'Your project has multiple pipelines, please specify one.')
       end
     end
+
+    context 'validation integration' do
+      before do
+        setup_project(:basic)
+      end
+
+      it 'validates the pipeline and outputs YAML when valid' do
+        expect {
+          described_class.execute
+        }.to output(/steps:/).to_stdout
+      end
+
+      context 'with --no-validate flag' do
+        let(:argv) { ['--no-validate'] }
+
+        it 'skips validation and outputs YAML' do
+          expect(Buildkite::Builder::Validator).not_to receive(:new)
+          expect {
+            described_class.execute
+          }.to output(/steps:/).to_stdout
+        end
+      end
+
+      context 'with an invalid pipeline (default warn mode)' do
+        it 'prints warnings to stderr but still outputs YAML' do
+          bad_validator = instance_double(
+            Buildkite::Builder::Validator,
+            validate_all: [
+              Buildkite::Builder::Validator::ValidationError.new(
+                { 'data_pointer' => '/steps/0/timeout_in_minutes', 'error' => 'value is not an integer' }
+              )
+            ]
+          )
+          allow(Buildkite::Builder::Validator).to receive(:new).and_return(bad_validator)
+
+          expect {
+            described_class.execute
+          }.to output(/steps:/).to_stdout
+        end
+      end
+
+      context 'with --strict flag and an invalid pipeline' do
+        let(:argv) { ['--strict'] }
+
+        it 'aborts without printing YAML' do
+          bad_validator = instance_double(
+            Buildkite::Builder::Validator,
+            validate_all: [
+              Buildkite::Builder::Validator::ValidationError.new(
+                { 'data_pointer' => '/steps/0/timeout_in_minutes', 'error' => 'value is not an integer' }
+              )
+            ]
+          )
+          allow(Buildkite::Builder::Validator).to receive(:new).and_return(bad_validator)
+
+          expect {
+            described_class.execute
+          }.to raise_error(SystemExit)
+        end
+      end
+    end
   end
 end

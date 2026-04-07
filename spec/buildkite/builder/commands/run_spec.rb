@@ -35,9 +35,34 @@ RSpec.describe Buildkite::Builder::Commands::Run do
 
         it 'uploads the context' do
           expect(Buildkite::Builder::Pipeline).to receive(:new).and_return(pipeline)
+          allow(pipeline).to receive(:to_h).and_return({ 'steps' => [] })
+          allow(pipeline).to receive(:steps).and_return(instance_double(Buildkite::Builder::StepCollection, steps: []))
           expect(pipeline).to receive(:upload)
 
           described_class.execute
+        end
+
+        it 'aborts without uploading when validation fails in strict mode' do
+          stub_const('ARGV', ['--strict'])
+          expect(Buildkite::Builder::Pipeline).to receive(:new).and_return(pipeline)
+          allow(pipeline).to receive(:to_h).and_return({ 'steps' => [] })
+          allow(pipeline).to receive(:steps).and_return(instance_double(Buildkite::Builder::StepCollection, steps: []))
+
+          bad_validator = instance_double(
+            Buildkite::Builder::Validator,
+            validate_all: [
+              Buildkite::Builder::Validator::ValidationError.new(
+                { 'data_pointer' => '/timeout_in_minutes', 'type' => 'integer', 'error' => 'value is not an integer' }
+              )
+            ]
+          )
+          allow(Buildkite::Builder::Validator).to receive(:new).and_return(bad_validator)
+
+          expect(pipeline).not_to receive(:upload)
+
+          expect {
+            described_class.execute
+          }.to raise_error(SystemExit)
         end
       end
     end

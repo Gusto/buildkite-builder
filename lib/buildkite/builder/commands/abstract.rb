@@ -6,6 +6,9 @@ module Buildkite
   module Builder
     module Commands
       class Abstract
+        include LoggingUtils
+        using Rainbow
+
         PIPELINES_DIRECTORY = 'pipelines'
         POSSIBLE_PIPELINE_PATHS = [
           File.join('.buildkite', Pipeline::PIPELINE_DEFINITION_FILE),
@@ -65,8 +68,54 @@ module Buildkite
         end
 
         def parse_options(opts)
-          # noop
-          # Subclasses should override to parse options.
+          opts.on('--no-validate', 'Skip schema validation') do
+            options[:no_validate] = true
+          end
+
+          opts.on('--strict', 'Fail on validation errors (will be the default in the next major release)') do
+            options[:strict] = true
+          end
+        end
+
+        def validate_pipeline(pipeline)
+          return if options[:no_validate]
+
+          enforce_strict_default_migration!
+
+          errors = Validator.new.validate_all(pipeline.to_h, pipeline.steps)
+
+          log_validation_results(errors)
+        end
+
+        def log_validation_results(errors)
+          prefix = '│'.color(:springgreen)
+          closer = '└──'.color(:springgreen)
+
+          $stderr.puts "\n" + 'Validating pipeline'.color(:dimgray)
+
+          if errors.empty?
+            $stderr.puts "#{closer} #{'Pipeline is valid.'.color(:springgreen)}"
+            return
+          end
+
+          errors.each { |error| $stderr.puts "#{prefix} #{error}" }
+
+          if options[:strict]
+            $stderr.puts "#{closer} " + "Pipeline validation failed with #{pluralize(errors.size, 'error')}.".color(:dimgray)
+            abort
+          else
+            $stderr.puts "#{closer} " + "#{pluralize(errors.size, 'warning')}. Pass --strict to fail on validation errors.".color(:dimgray)
+          end
+        end
+
+        # Raise at development time when the major version increments, so we
+        # remember to flip the default from warn to strict.
+        def enforce_strict_default_migration!
+          major = Buildkite::Builder.version.split('.').first.to_i
+          if major >= 5
+            raise "buildkite-builder v#{Buildkite::Builder.version}: validation now defaults to warn mode. " \
+                  "Flip the default to strict and remove this guard. See #{__FILE__}:#{__LINE__}."
+          end
         end
 
         def log

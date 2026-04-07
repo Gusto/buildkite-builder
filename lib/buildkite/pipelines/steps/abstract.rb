@@ -9,7 +9,7 @@ module Buildkite
         extend Forwardable
         include Attributes
 
-        def_delegator :@context, :data
+        def_delegators :@context, :data, :source_location
 
         def self.to_sym
           name.split('::').last.downcase.to_sym
@@ -20,6 +20,8 @@ module Buildkite
         end
 
         def process(block)
+          file, line = block.source_location
+          @context.source_location = SourceLocation.new(file: file, line_number: line) if file
           instance_exec(@context, &block)
         end
       end

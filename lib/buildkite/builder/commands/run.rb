@@ -20,7 +20,9 @@ module Buildkite
           if Buildkite::Pipelines::Command.meta_data(:exists, Builder.meta_data.fetch(:job)).success?
             log.info "Pipeline already uploaded in #{Buildkite.env.step_id} step".color(:dimgray)
           else
-            Pipeline.new(pipeline_path, logger: log).upload
+            pipeline = Pipeline.new(pipeline_path, logger: log)
+            validate_pipeline(pipeline)
+            pipeline.upload
           end
         end
       end
