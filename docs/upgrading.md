@@ -89,12 +89,12 @@ Once you're on 4.x, here's what's been added across minor releases, organized by
 **New step attributes:**
 
 - **4.10.0:** [`priority`](#pipeline-wide-settings) on Command steps for queue ordering
+- **4.13.0:** [`key`](#step-and-attribute-additions) on Wait steps, making them referenceable via `depends_on`
 - **4.17.0:** [`notify`](#step-and-attribute-additions) on Command steps for step-level notifications
 - **4.19.0:** [`matrix`](#step-and-attribute-additions) support on Command steps for fan-out builds
 - **4.20.0:** [`blocked_state`](#step-and-attribute-additions) on Input steps to control build state while waiting
 - **4.21.0:** [`allowed_teams`](#step-and-attribute-additions) on Block and Input steps to restrict who can unblock
-- **4.13.0:** [`key`](#step-and-attribute-additions) on Wait steps, making them referenceable via `depends_on`
-- **4.23.0:** Various missing attributes across step types, closing gaps with Buildkite's API
+- **4.23.0:** [Various missing attributes](#step-and-attribute-additions) across step types, closing gaps with Buildkite's API
 
 **Pipeline-wide settings:**
 
