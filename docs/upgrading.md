@@ -352,7 +352,185 @@ Buildkite::Pipelines::Command.annotate!("Critical note", "--style", "error")  # 
 
 ### 3.0.0
 
-<!-- TODO: Exhaustive list of breaking changes and notable additions in 3.0.0. Drawn from git log v2.4.1..v3.0.0. -->
+The 3.0.0 release had a single focused breaking change: removing the manifest system and its GitHub API dependency. If you never used manifests for conditional pipeline steps, there is nothing to migrate.
+
+#### Manifest System Removed
+
+**What changed:** `Buildkite::Builder::Manifest`, `Buildkite::Builder::Manifest::Rule`, `Buildkite::Builder::FileResolver`, `Buildkite::Builder::Github`, and the `buildkite-builder files` CLI command were all removed. The `manifests/` directory is no longer loaded.
+**Why:** The manifest system required a GitHub API token to resolve changed files in pull requests. This created an external dependency that complicated gem setup, was fragile in non-GitHub environments, and was outside the scope of what buildkite-builder should do. Buildkite's own trigger steps and pipeline upload logic can handle conditional builds without a separate file-resolution layer.
+
+Before:
+
+```ruby
+# .buildkite/manifests/backend.txt
+lib/
+app/
+spec/
+
+# In a pipeline or extension
+if Buildkite::Builder::Manifest.resolve(Buildkite::Builder.root, ['lib/', 'app/'])
+  command(:run_tests)
+end
+
+# Or using a named manifest loaded from .buildkite/manifests/
+if Buildkite::Builder::Manifest[:backend].modified?
+  command(:backend_tests)
+end
+```
+
+After:
+
+```ruby
+# No direct equivalent in buildkite-builder. Options:
+#
+# 1. Use Buildkite's built-in `if:` condition on steps (runs at agent level):
+#    https://buildkite.com/docs/pipelines/conditionals
+#
+# 2. Use a trigger step pattern where each pipeline uploads itself conditionally.
+#
+# 3. Use a shell script in your pipeline.rb that runs git diff manually
+#    and gates which steps are added.
+```
+
+**Migration:**
+1. Delete your `.buildkite/manifests/` directory.
+2. Remove any `Manifest.resolve(...)`, `Manifest[:name].modified?`, or `Manifest[:name].files` calls.
+3. Remove `GITHUB_API_TOKEN` from your Buildkite environment variables if it was only there for buildkite-builder.
+4. Replace conditional step logic with one of the alternatives above. The Buildkite `if:` condition is the closest native equivalent for per-step file-based conditions.
+
+**Verification:** Run `bundle exec buildkite-builder preview <pipeline>` and confirm no `NameError: uninitialized constant Buildkite::Builder::Manifest` errors. Remove the `files` subcommand from any scripts that called `buildkite-builder files --manifest <name>`.
+**Risk:** High if you used manifests for conditional steps. None if you didn't.
+
+---
+
+#### Retry DSL Renamed (3.4.0)
+
+**What changed:** `automatically_retry(status:, limit:)` was renamed to `automatic_retry_on(exit_status:, limit:)`. Two new methods were added: `automatic_retry(enabled)` for toggling the boolean form of `retry.automatic`, and `manual_retry(allowed, reason:, permit_on_passed:)` for configuring manual retry behavior.
+**Why:** The renamed keyword argument `exit_status:` is more explicit than `status:`, and the new `automatic_retry` and `manual_retry` methods cover the full Buildkite retry API that was previously inaccessible.
+
+Before:
+
+```ruby
+command do
+  label "Tests"
+  command "bundle exec rspec"
+  automatically_retry(status: -1, limit: 2)
+end
+```
+
+After:
+
+```ruby
+command do
+  label "Tests"
+  command "bundle exec rspec"
+  automatic_retry_on(exit_status: -1, limit: 2)
+
+  # Also available:
+  manual_retry(true, reason: "Flaky test", permit_on_passed: false)
+end
+```
+
+**Migration:** Rename `automatically_retry(status: ...)` to `automatic_retry_on(exit_status: ...)`. Update both the method name and the keyword argument name.
+**Verification:** Run `buildkite-builder preview <pipeline>` and confirm retry rules appear under `retry.automatic` in the YAML output.
+**Risk:** Medium. Straightforward rename, but every use of `automatically_retry` must be updated.
+
+---
+
+#### Plugin Default Attributes (3.5.0)
+
+**What changed:** The `plugin` registration DSL now accepts an optional third argument: a hash of default attributes that will be merged into every use of that plugin.
+**Why:** Many plugins have boilerplate configuration that's the same across every step (e.g., a Docker image, a registry URL). Without defaults, you had to repeat the attributes on every step. With defaults, you register them once and override per-step only when needed.
+
+Before:
+
+```ruby
+# Registration (no default attributes)
+plugin :docker, 'docker-compose#v3.7.0'
+
+# Usage: had to pass attributes every time
+command do
+  plugin :docker, image: 'ruby:3.2'
+end
+```
+
+After:
+
+```ruby
+# Registration with defaults
+plugin :docker, 'docker-compose#v3.7.0', image: 'ruby:3.2', pull: true
+
+# Usage: defaults are merged in automatically
+command do
+  plugin :docker  # uses image: 'ruby:3.2', pull: true
+end
+
+command do
+  plugin :docker, image: 'ruby:3.3'  # overrides the default image
+end
+```
+
+**Migration:** No migration needed unless you want to adopt defaults. The third argument is optional, so existing registrations continue to work without changes.
+**Verification:** Run `buildkite-builder preview <pipeline>` and confirm plugin attributes appear correctly in the YAML output.
+**Risk:** Low. Additive change.
+
+---
+
+#### Extension Block Arguments (3.8.0)
+
+**What changed:** Extensions and the `use` DSL method now accept a block argument, available to the extension as `option_block`.
+**Why:** Some extension configurations are more naturally expressed as blocks than as keyword argument hashes. This gives extension authors a way to accept block-based configuration (e.g., for DSL-style setup that would be awkward as options).
+
+Before:
+
+```ruby
+# Only keyword args were supported
+use(MyExtension, option: "value")
+```
+
+After:
+
+```ruby
+# Block argument now available in addition to keyword args
+use(MyExtension, option: "value") do
+  # Block is available inside the extension as `option_block`
+end
+
+# Inside your extension:
+class MyExtension < Buildkite::Builder::Extension
+  def prepare
+    option_block&.call  # Execute the block if provided
+  end
+end
+```
+
+**Migration:** No migration needed. Existing extensions that don't use `option_block` are unaffected.
+**Verification:** N/A unless you're authoring an extension that uses this feature.
+**Risk:** Low. Additive change.
+
+---
+
+#### Plugins Extension and Named Plugin Registry (3.9.0)
+
+**What changed:** A new `Extensions::Plugins` extension was added to manage the named plugin registry. Previously, `plugin :name, 'uri#version'` registrations were handled by the `Steps` extension. The `Plugins` extension takes over that responsibility and makes `context.extensions.find(Buildkite::Builder::Extensions::Plugins).manager` accessible for inspection.
+**Why:** Separating plugin registry management from step building gives extensions a clean interface to access the plugin manager directly, without going through the pipeline context.
+
+```ruby
+# Registration unchanged -- this still works the same way
+plugin :docker, 'docker-compose#v3.7.0'
+
+# In an extension that needs to inspect the plugin registry:
+class MyExtension < Buildkite::Builder::Extension
+  def build
+    plugin_manager = context.extensions.find(Buildkite::Builder::Extensions::Plugins).manager
+    # Inspect or use the manager
+  end
+end
+```
+
+**Migration:** No migration needed for pipeline files. Plugin registration and usage syntax is unchanged.
+**Verification:** Run `buildkite-builder preview <pipeline>` and confirm plugins still appear in the YAML output.
+**Risk:** Low. Internal refactor with a new public accessor.
 
 ### 4.0.0
 
