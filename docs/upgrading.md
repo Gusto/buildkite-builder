@@ -546,7 +546,7 @@ end
 
 #### Extension Block Arguments (3.8.0)
 
-**What changed:** Extensions and the `use` DSL method now accept a block argument, available to the extension as `option_block`.
+**What changed:** Extensions and the `use` DSL method now accept a block argument, available to the extension as `option_block` (renamed to `options_block` in 4.1.0).
 **Why:** Some extension configurations are more naturally expressed as blocks than as keyword argument hashes. This gives extension authors a way to accept block-based configuration (e.g., for DSL-style setup that would be awkward as options).
 
 Before:
@@ -567,12 +567,13 @@ end
 # Inside your extension:
 class MyExtension < Buildkite::Builder::Extension
   def prepare
-    option_block&.call  # Execute the block if provided
+    option_block&.call  # 3.x: option_block (singular)
+    # options_block&.call  # 4.1.0+: renamed to options_block (plural)
   end
 end
 ```
 
-**Migration:** No migration needed. Existing extensions that don't use `option_block` are unaffected.
+**Migration:** No migration needed in 3.x. In 4.1.0+, `option_block` was renamed to `options_block` (plural). Update any extensions that reference it.
 **Verification:** N/A unless you're authoring an extension that uses this feature.
 **Risk:** Low. Additive change.
 
@@ -713,7 +714,7 @@ These are the consumer-facing additions and fixes across 4.x minor releases. If 
 
 #### Step and Attribute Additions
 
-**4.1.0: `skip` step type removed**
+**4.1.0: `skip` step type removed, `option_block` renamed to `options_block`**
 
 The `skip` step type was a thin wrapper that just set the `skip` attribute on a command step. It was removed to eliminate the confusion of having two ways to express the same thing. Use a plain `command` step with `skip` set directly:
 
@@ -724,6 +725,8 @@ command do
   skip "Disabled while migrating"
 end
 ```
+
+Also in 4.1.0, `option_block` (the reader for extension block arguments added in 3.8.0) was renamed to `options_block` (plural). Update any custom extensions that reference `option_block`.
 
 **4.2.5: `skip` attribute on Block and Input steps**
 
