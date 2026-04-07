@@ -534,7 +534,110 @@ end
 
 ### 4.0.0
 
-<!-- TODO: Exhaustive list of breaking changes and notable additions in 4.0.0. Drawn from git log v3.9.0..v4.0.0. -->
+The 4.0.0 release cleaned up three areas that had accumulated awkwardness: group steps got a proper implementation as first-class step types, sub-pipelines (added in 3.1.0) were removed, and template handling was refactored to live in `Extensions::Steps` instead of `StepCollection`. Ruby >= 3.0.0 is also required starting with this version.
+
+#### Ruby 3.0.0 Required
+
+**What changed:** The minimum required Ruby version is now 3.0.0 (up from 2.3.0 in 3.x).
+**Why:** Ruby 2.x reached end-of-life. Requiring 3.0+ allows the gem to use modern Ruby features and drop compatibility shims.
+
+**Migration:** Ensure your build environment runs Ruby >= 3.0.0. If you're using the `gusto/buildkite-builder` Docker image, upgrading to the 4.x tag handles this automatically.
+**Verification:** Run `ruby --version` in your pipeline environment and confirm it's >= 3.0.0.
+**Risk:** Low if you're already on Ruby 3.x. Medium if you're still on 2.x and need to upgrade your runtime.
+
+---
+
+#### Group DSL Change
+
+**What changed:** The `group` DSL method no longer accepts a label or `emoji:` as arguments. Label and emoji are now set inside the block using the same attribute DSL as other step types. `Buildkite::Builder::Group` was removed and replaced by `Buildkite::Pipelines::Steps::Group`.
+**Why:** Groups were previously a one-off class (`Builder::Group`) that accepted a label string directly rather than using the standard attribute system. Making group a proper step type under `Pipelines::Steps::Group` means it has full attribute support (including `label`, `key`, `depends_on`, and anything else Buildkite adds), and fits the same model as every other step type in the gem.
+
+Before:
+
+```ruby
+Buildkite::Builder.pipeline do
+  group("My Group", emoji: :partyparrot) do
+    command(:rspec)
+  end
+end
+```
+
+After:
+
+```ruby
+Buildkite::Builder.pipeline do
+  group do
+    label "My Group", emoji: :partyparrot
+    command(:rspec)
+  end
+end
+```
+
+**Migration:**
+1. For every `group("label") { ... }` call, move the label inside the block as `label "label"`.
+2. If you passed `emoji:` as an argument, move it inside the block: `label "My Label", emoji: :name`.
+3. If you referenced `Buildkite::Builder::Group` in custom extensions or processors, update to `Buildkite::Pipelines::Steps::Group`.
+
+**Verification:** Run `buildkite-builder preview <pipeline>` and confirm groups appear in the YAML output with the expected `group` key and label.
+**Risk:** Medium. Every `group` call in every pipeline file needs updating, but the change is mechanical.
+
+---
+
+#### SubPipelines Removed
+
+**What changed:** `Extensions::SubPipelines`, `PipelineCollection`, and the `pipeline(name) { ... }` DSL method are all removed. The `context.data.pipelines` collection no longer exists.
+**Why:** Sub-pipelines were added in 3.1.0 as a way to define triggered pipelines inline and have their YAML written to artifacts at build time. They were never a Buildkite-native concept, and maintaining a parallel pipeline-within-a-pipeline DSL added significant complexity. Buildkite's trigger steps combined with separately uploaded pipeline YAMLs cover the same use case more cleanly.
+
+Before:
+
+```ruby
+Buildkite::Builder.pipeline do
+  pipeline("my-sub-pipeline") do
+    label "My Sub-Pipeline"
+    depends_on :setup
+
+    command(:run_tests)
+  end
+end
+```
+
+After:
+
+```ruby
+# Define the sub-pipeline as its own pipeline file, then use a trigger step:
+Buildkite::Builder.pipeline do
+  trigger do
+    label "My Sub-Pipeline"
+    trigger "my-sub-pipeline"
+    depends_on :setup
+    build(
+      message: '${BUILDKITE_MESSAGE}',
+      commit: '${BUILDKITE_COMMIT}',
+      branch: '${BUILDKITE_BRANCH}'
+    )
+  end
+end
+```
+
+**Migration:**
+1. For each `pipeline(name) { ... }` block, create a separate pipeline definition and upload it as its own Buildkite pipeline.
+2. Replace the `pipeline(name) { ... }` call with a `trigger` step pointing at the new pipeline.
+3. Remove any code that accessed `context.data.pipelines`.
+4. Remove `BKB_SUBPIPELINE_FILE` from your Buildkite environment variables if it was only there for this feature.
+
+**Verification:** Run `buildkite-builder preview <pipeline>` and confirm no `NoMethodError` for `pipeline` or `NameError` for `SubPipelines`. Verify trigger steps appear in the YAML output.
+**Risk:** High if you used sub-pipelines. None if you didn't.
+
+---
+
+#### Template Handling Refactor
+
+**What changed:** Template loading and application moved from `StepCollection` to `Extensions::Steps`. `StepCollection` no longer holds a `TemplateManager` reference (the `templates` reader was removed). Templates are now found by the `Steps` extension and applied via `step.process(template)` explicitly in `build_step`. `StepCollection#add` was also removed; steps are now built through `Extensions::Steps#build_step` and pushed directly.
+**Why:** Having `StepCollection` own the template manager was a design smell: a collection type shouldn't be responsible for loading and applying templates. Moving this responsibility to the `Steps` extension keeps template lifecycle in one place and makes the step construction flow explicit.
+
+**Migration:** For most consumers using the standard DSL (`command`, `block`, `trigger`, etc.), this change is invisible. If you wrote a custom extension that called `context.data.steps.add(StepClass, template_name)` directly, update it to use the DSL methods or call `context.extensions.find(Extensions::Steps).build_step(StepClass, template_name)` instead.
+**Verification:** Run `buildkite-builder preview <pipeline>` and confirm template-based steps render correctly. If you have custom extensions, confirm they build without `NoMethodError` on `StepCollection`.
+**Risk:** Low for pipeline authors. Medium for extension authors that bypassed the DSL and called `StepCollection#add` directly.
 
 ### 4.x Notable Minors
 
