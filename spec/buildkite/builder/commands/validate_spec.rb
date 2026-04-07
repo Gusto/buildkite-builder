@@ -58,6 +58,33 @@ RSpec.describe Buildkite::Builder::Commands::Validate do
       end
     end
 
+    context 'with --warn flag and an invalid pipeline' do
+      before do
+        setup_project(:basic)
+      end
+
+      let(:argv) { ['--warn'] }
+
+      it 'prints warnings without aborting' do
+        bad_validator = instance_double(
+          Buildkite::Builder::Validator,
+          validate_all: [
+            Buildkite::Builder::Validator::ValidationError.new(
+              pointer: '/timeout_in_minutes',
+              type: 'integer',
+              schema: { 'type' => 'integer' },
+              message: 'value is not an integer'
+            )
+          ]
+        )
+        allow(Buildkite::Builder::Validator).to receive(:new).and_return(bad_validator)
+
+        expect {
+          described_class.execute
+        }.not_to raise_error
+      end
+    end
+
     context 'when project has multiple pipelines' do
       before do
         setup_project(:multipipeline)
