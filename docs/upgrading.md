@@ -641,4 +641,258 @@ end
 
 ### 4.x Notable Minors
 
-<!-- TODO: Significant changes in 4.x minor releases. Cover any deprecations, new features, or behavioral changes worth calling out for teams staying on 4.x. -->
+These are the consumer-facing additions and fixes across 4.x minor releases. If you're on an older 4.x version, here's what you're missing.
+
+#### Step and Attribute Additions
+
+**4.1.0: `skip` step type removed**
+
+The `skip` step type was a thin wrapper that just set the `skip` attribute on a command step. It was removed to eliminate the confusion of having two ways to express the same thing. Use a plain `command` step with `skip` set directly:
+
+```ruby
+command do
+  label "Lint"
+  command "bundle exec rubocop"
+  skip "Disabled while migrating"
+end
+```
+
+**4.2.5: `skip` attribute on Block and Input steps**
+
+Block and Input steps gained the `skip` attribute, matching what command steps already supported.
+
+```ruby
+block do
+  label "Manual approval"
+  skip ENV['CI_BYPASS_APPROVAL']
+end
+```
+
+**4.13.0: `key` attribute on Wait steps**
+
+Wait steps now support `key`, making them referenceable by other steps via `depends_on`.
+
+```ruby
+wait do
+  key "test-gate"
+end
+
+command do
+  label "Deploy"
+  depends_on "test-gate"
+end
+```
+
+**4.17.0: `notify` on Command steps**
+
+Command steps gained a `notify` attribute for step-level notifications, separate from the pipeline-level `notify` extension.
+
+```ruby
+command do
+  label "Deploy to production"
+  command "scripts/deploy.sh"
+  notify slack: "#deploys", message: "Deploy finished"
+end
+```
+
+**4.19.0: Build matrix support**
+
+Command steps support the `matrix` attribute for fan-out builds across combinations of values.
+
+```ruby
+command do
+  label "Test %matrix.ruby%"
+  command "bundle exec rspec"
+  matrix setup: {
+    ruby: ["3.1", "3.2", "3.3"]
+  }
+end
+```
+
+**4.20.0: `blocked_state` on Input steps**
+
+Input steps support `blocked_state` to control what state the build is reported in while waiting.
+
+```ruby
+input do
+  label "Review release"
+  blocked_state "passed"  # or "running", "failed"
+end
+```
+
+**4.21.0: `allowed_teams` on Block and Input steps**
+
+Block and Input steps support `allowed_teams` to restrict who can unblock them.
+
+```ruby
+block do
+  label "Approve production deploy"
+  allowed_teams "platform-team"
+  allowed_teams "security-team"
+end
+```
+
+**4.23.0: Additional missing attributes**
+
+Various step types received attributes that Buildkite supports but the gem was missing. If you've been working around missing attributes by manipulating raw hashes, check the current step definitions - the gap is much smaller now.
+
+---
+
+#### StepCollection Improvements
+
+**4.11.0: Skip group traversal in `StepCollection#each`**
+
+`StepCollection#each` by default traverses into groups and yields steps inside them. The new `traverse_groups:` option lets you opt out when you only want top-level steps.
+
+```ruby
+def build
+  # Only top-level steps, no group traversal
+  context.data.steps.each(:command, traverse_groups: false) do |step|
+    step.label("#{step.label} [top-level only]")
+  end
+end
+```
+
+**4.12.0: `StepCollection#move` for reordering steps**
+
+Extensions can now reorder steps without removing and re-adding them manually.
+
+```ruby
+def build
+  setup = context.data.steps.find!(:setup)
+  deploy = context.data.steps.find!(:deploy)
+
+  # Move setup before deploy
+  context.data.steps.move(setup, before: deploy)
+
+  # Or move it after another step
+  context.data.steps.move(deploy, after: setup)
+end
+```
+
+**4.12.0: `depends_on` copy-by-reference fix**
+
+Previously, copying a step's `depends_on` value (e.g., in an extension) could accidentally mutate shared state due to copy-by-reference. This is fixed. No migration needed, but if you had workarounds for this, they can be removed.
+
+---
+
+#### Templates and Extensions
+
+**4.2.0: Shared global templates**
+
+Templates placed in `.buildkite/templates/` (at the repo root, not inside a pipeline directory) are available to all pipelines. Previously, templates had to live inside the specific pipeline's `templates/` directory.
+
+```
+.buildkite/
+  templates/
+    common_command.rb    # Available to all pipelines
+  pipelines/
+    my-pipeline/
+      templates/
+        specific.rb      # Only available to my-pipeline
+      pipeline.rb
+```
+
+```ruby
+# pipeline.rb - uses the global template
+Buildkite::Builder.pipeline do
+  command(:common_command)
+end
+```
+
+**4.18.0: Template definitions inside extensions**
+
+Extensions can now define templates inline using `template(:name) { }` at the class level. This lets extensions ship their own templates without requiring consumers to create template files.
+
+```ruby
+class MyExtension < Buildkite::Builder::Extension
+  template(:shared_step) do
+    label "Shared Step"
+    command "scripts/shared.sh"
+    agents queue: "default"
+  end
+
+  def build
+    pipeline do
+      command(:shared_step)
+    end
+  end
+end
+```
+
+---
+
+#### Pipeline-Wide Settings
+
+**4.10.0: Pipeline-wide `agents` extension**
+
+A new built-in extension sets default agent selectors for the entire pipeline. Load it with `use(Buildkite::Builder::Extensions::Agents)` and call `agents(...)` in the pipeline block.
+
+```ruby
+Buildkite::Builder.pipeline do
+  use(Buildkite::Builder::Extensions::Agents)
+
+  agents queue: "my-queue", size: "large"
+
+  command do
+    label "Tests"
+    command "bundle exec rspec"
+    # Inherits queue: "my-queue", size: "large"
+  end
+end
+```
+
+**4.10.0: `priority` on Command steps**
+
+Command steps support the `priority` attribute for controlling queue ordering.
+
+```ruby
+command do
+  label "Critical path"
+  command "scripts/critical.sh"
+  priority 100
+end
+```
+
+---
+
+#### `Command::Result` Object (4.6.0)
+
+`Buildkite::Pipelines::Command.run` (and the bang variant) now returns a `Command::Result` object instead of raw captured output. It wraps the `Open3.capture3` result and gives you structured access to stdout, stderr, and exit status.
+
+```ruby
+result = Buildkite::Pipelines::Command.run("buildkite-agent", "meta-data", "get", "my-key")
+result.stdout   # => "the value\n"
+result.stderr   # => ""
+result.success? # => true
+```
+
+This replaces the old `capture: true` argument pattern from 3.x.
+
+---
+
+#### `depends_on` Fix (4.4.0)
+
+Multiple `depends_on` calls on a step weren't being combined correctly. This is fixed. If you had workarounds (like passing all keys in a single call), they still work but you can simplify:
+
+```ruby
+command do
+  label "Deploy"
+  depends_on "build"
+  depends_on "test"   # Now correctly appended alongside "build"
+end
+```
+
+---
+
+#### DependsOn Helper Removed (4.3.0)
+
+The `DependsOn` helper module was removed. It didn't add anything beyond what the `depends_on` attribute already provided. If you were including or referencing `Buildkite::Pipelines::Helpers::DependsOn` directly in custom code, remove it.
+
+---
+
+#### Compatibility
+
+**4.22.0: `benchmark` gem dependency added**
+
+The `benchmark` gem was added as an explicit dependency for Ruby 4 compatibility (Ruby 4 removed it from the standard library). No action needed unless you're on a Ruby version where this causes a conflict.
